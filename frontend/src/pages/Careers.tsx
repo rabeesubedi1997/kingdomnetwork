@@ -1,0 +1,211 @@
+import { motion } from 'framer-motion'
+import { useCareers, useJob } from '@/hooks/useData'
+import { useParams, Link } from 'react-router-dom'
+import { Section, Container } from '@/components/layout/Section'
+import { CareerCard } from '@/components/career/CareerCard'
+import { CareerFilters } from '@/components/career/CareerFilters'
+import { CareerApplicationForm } from '@/components/career/CareerApplicationForm'
+import { Loading, GridSkeleton } from '@/components/ui/Loading'
+import { Briefcase, Filter, ArrowLeft, MapPin as MapPinIcon, Clock as ClockIcon, DollarSign as DollarSignIcon } from 'lucide-react'
+import { useState } from 'react'
+
+export const Careers: React.FC = () => {
+  const [filters, setFilters] = useState({ department: 'All', type: 'All', search: '' })
+  const [showFilters, setShowFilters] = useState(false)
+
+  const queryParams: Record<string, unknown> = { per_page: 20 }
+  if (filters.department !== 'All') queryParams.department = filters.department.toLowerCase()
+  if (filters.type !== 'All') queryParams.type = filters.type === 'Full-time' ? 'full_time' : filters.type.toLowerCase()
+  if (filters.search) queryParams.search = filters.search
+
+  const { data: jobs, isLoading } = useCareers(queryParams)
+
+  return (
+    <>
+      <Section id='careers-hero' background='dark' padding='xl' className='relative overflow-hidden'>
+        <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
+        <Container>
+          <div className='mx-auto max-w-3xl text-center'>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='mb-6 inline-flex items-center gap-2 rounded-full bg-brand-white/10 px-4 py-2 text-sm font-medium text-brand-gold'>
+              <Briefcase className='h-4 w-4' />
+              Join Our Team
+            </motion.div>
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className='heading-1 mb-4 text-brand-white'>
+              Build Legacies With Us
+            </motion.h1>
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className='mx-auto max-w-2xl text-lg text-brand-white/70'>
+              We're not just making films — we're building legacies. Join a team of passionate storytellers pushing the boundaries of Nepali cinema on the global stage.
+            </motion.p>
+          </div>
+        </Container>
+      </Section>
+
+      <Section id='benefits' padding='xl' background='surface'>
+        <Container>
+          <h2 className='heading-2 mb-12 text-center text-brand-primary'>Why Work With Us</h2>
+          <div className='grid gap-8 md:grid-cols-3'>
+            {[
+              { icon: '🎬', title: 'Creative Freedom', desc: 'Shape stories that matter with artistic autonomy and collaborative support.' },
+              { icon: '🌍', title: 'Global Exposure', desc: 'Work on international co-productions reaching audiences worldwide.' },
+              { icon: '🏆', title: 'Award-Winning', desc: 'Be part of nationally and internationally recognized productions.' },
+              { icon: '📚', title: 'Continuous Learning', desc: 'Access to workshops, festivals, and industry mentorship programs.' },
+              { icon: '🤝', title: 'Collaborative Culture', desc: 'Join a close-knit team where every voice matters and ideas flourish.' },
+              { icon: '⚖️', title: 'Work-Life Balance', desc: 'Flexible schedules and understanding of the creative process rhythms.' },
+            ].map((benefit, index) => (
+              <motion.div key={benefit.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='rounded-xl border border-brand-surface bg-brand-surface/50 p-6 transition-colors hover:border-brand-primary/50'>
+                <div className='mb-4 text-4xl'>{benefit.icon}</div>
+                <h3 className='heading-3 mb-2 text-brand-primary'>{benefit.title}</h3>
+                <p className='text-brand-muted'>{benefit.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      <Section id='open-positions' padding='xl'>
+        <Container>
+          <div className='mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
+            <div>
+              <h2 className='heading-2 text-brand-primary'>Open Positions</h2>
+              <p className='mt-2 text-brand-muted'>Find your role in our next production.</p>
+            </div>
+            <button onClick={() => setShowFilters(!showFilters)} className='flex items-center gap-2 rounded-lg border border-brand-primary px-4 py-2 text-brand-primary hover:bg-brand-primary/10'>
+              <Filter className='h-4 w-4' />
+              Filters
+            </button>
+          </div>
+
+          {showFilters && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className='mb-8 rounded-xl border border-brand-surface bg-brand-surface/50 p-6'>
+              <CareerFilters onClose={() => setShowFilters(false)} onFilterChange={setFilters} />
+            </motion.div>
+          )}
+
+          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            {isLoading ? (
+              <GridSkeleton count={6} />
+            ) : jobs?.data?.map((job, index) => (
+              <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }}>
+                <CareerCard job={job} index={index} />
+              </motion.div>
+            )) || (
+              <div className='col-span-full py-12 text-center'>
+                <p className='text-brand-muted'>No open positions at the moment. Check back soon!</p>
+              </div>
+            )}
+
+            {jobs && jobs.data && jobs.data.length < jobs.total && (
+              <div className='col-span-full pt-8 text-center'>
+                <button className='btn-secondary'>Load More Positions</button>
+              </div>
+            )}
+          </div>
+        </Container>
+      </Section>
+
+      <Section id='cta' background='dark' padding='xl' className='relative overflow-hidden'>
+        <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
+        <Container>
+          <div className='mx-auto max-w-3xl text-center'>
+            <h2 className='heading-2 mb-4 text-brand-white'>Don't See Your Perfect Role?</h2>
+            <p className='mb-8 text-lg text-brand-white/70'>We're always looking for exceptional talent. Send us your portfolio and tell us why you'd be a great fit for Kingdom Network.</p>
+            <Link to='/contact'>
+              <button className='btn-primary'>Send Your Portfolio</button>
+            </Link>
+          </div>
+        </Container>
+      </Section>
+    </>
+  )
+}
+
+export const CareerDetail: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>()
+  const { data: job, isLoading } = useJob(slug!)
+
+  if (isLoading) {
+    return <Section padding='xl'><Container><Loading text='Loading position...' /></Container></Section>
+  }
+
+  if (!job) {
+    return (
+      <Section padding='xl'>
+        <Container>
+          <div className='mx-auto max-w-2xl text-center'>
+            <h1 className='heading-2 mb-4 text-brand-primary'>Position Not Found</h1>
+            <Link to='/careers'><button className='btn-primary'>Back to Careers</button></Link>
+          </div>
+        </Container>
+      </Section>
+    )
+  }
+
+  return (
+    <>
+      <Section id='job-hero' padding='xl' background='surface'>
+        <Container>
+          <div className='mx-auto max-w-3xl'>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='mb-8'>
+              <Link to='/careers' className='mb-4 inline-flex items-center gap-1 text-sm font-medium text-brand-primary hover:text-brand-secondary'>
+                <ArrowLeft className='h-4 w-4' />
+                Back to Careers
+              </Link>
+              <span className='mb-3 inline-block rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-medium text-brand-primary'>{job.department}</span>
+              <h1 className='heading-1 mb-2 text-brand-primary'>{job.title}</h1>
+              <div className='flex flex-wrap items-center gap-4 text-sm text-brand-muted'>
+                <span className='flex items-center gap-1'><MapPinIcon className='h-4 w-4' /> {job.location}</span>
+                <span className='flex items-center gap-1'><ClockIcon className='h-4 w-4' /> {job.type.replace('_', ' ')}</span>
+                {job.is_remote && <span className='rounded-full bg-brand-primary/10 px-2 py-1 text-brand-primary'>Remote</span>}
+                {job.salary_range && <span className='flex items-center gap-1'><DollarSignIcon className='h-4 w-4' /> {job.salary_range}</span>}
+              </div>
+            </motion.div>
+          </div>
+        </Container>
+      </Section>
+
+      <Section padding='xl'>
+        <Container>
+          <div className='grid gap-12 lg:grid-cols-3'>
+            <div className='space-y-10 lg:col-span-2'>
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <h2 className='heading-2 mb-4 text-brand-primary'>About This Role</h2>
+                <div className='prose prose-brand dark:prose-invert max-w-none text-brand-text'>{job.description}</div>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <h2 className='heading-2 mb-4 text-brand-primary'>Requirements</h2>
+                <div className='prose prose-brand dark:prose-invert max-w-none text-brand-text'>{job.requirements}</div>
+              </motion.div>
+
+              {job.benefits && (
+                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                  <h2 className='heading-2 mb-4 text-brand-primary'>Benefits</h2>
+                  <div className='prose prose-brand dark:prose-invert max-w-none text-brand-text'>{job.benefits}</div>
+                </motion.div>
+              )}
+            </div>
+
+            <div className='lg:col-span-1'>
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className='sticky top-24'>
+                <CareerApplicationForm />
+              </motion.div>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      <Section id='cta' background='dark' padding='xl' className='relative overflow-hidden'>
+        <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
+        <Container>
+          <div className='mx-auto max-w-3xl text-center'>
+            <h2 className='heading-2 mb-4 text-brand-white'>Don't See Your Perfect Role?</h2>
+            <p className='mb-8 text-lg text-brand-white/70'>We're always looking for exceptional talent. Send us your portfolio and tell us why you'd be a great fit for Kingdom Network.</p>
+            <Link to='/contact'>
+              <button className='btn-primary'>Send Your Portfolio</button>
+            </Link>
+          </div>
+        </Container>
+      </Section>
+    </>
+  )
+}
