@@ -6,12 +6,14 @@ import { GalleryGrid } from '@/components/gallery/GalleryGrid'
 import { AlbumViewer } from '@/components/gallery/AlbumViewer'
 import { useGallery, useAlbum } from '@/hooks/useData'
 import { Loading, GridSkeleton } from '@/components/ui/Loading'
+import { SEOHead } from '@/components/seo/SEOHead'
 
 export const Gallery = () => {
   const { data: albums, isLoading } = useGallery({ per_page: 20 })
 
   return (
     <>
+      <SEOHead title="Gallery" description="Photo & Video Gallery" />
       <Section id="gallery-hero" background="dark" padding="xl" className="relative overflow-hidden">
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
@@ -67,5 +69,10 @@ export const AlbumDetail = () => {
     )
   }
 
-  return <AlbumViewer album={album} />
+  return (
+    <>
+      <SEOHead title={album.title} description={album.description || 'Photo & Video Gallery'} />
+      <AlbumViewer album={album} />
+    </>
+  )
 }

@@ -2,10 +2,12 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Section, Container } from '@/components/layout/Section'
 import { Button } from '@/components/ui/Button'
+import { SEOHead } from '@/components/seo/SEOHead'
 import { Home, ArrowLeft } from 'lucide-react'
 
 export const Privacy: React.FC = () => (
   <>
+    <SEOHead title="Privacy Policy" />
     <Section id='privacy-hero' background='dark' padding='xl' className='relative overflow-hidden'>
       <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
       <Container>
@@ -139,7 +141,7 @@ export const Privacy: React.FC = () => (
       <Container>
         <div className='max-w-3xl mx-auto text-center'>
           <h2 className='heading-2 text-brand-white mb-4'>Have Questions?</h2>
-          <p className='text-brand-white/80 text-lg mb-8'>
+          <p className='text-brand-white/80 text-lg mb-5'>
             We're here to help. Contact our privacy team for any concerns.
           </p>
           <div className='flex flex-col sm:flex-row gap-4 justify-center'>

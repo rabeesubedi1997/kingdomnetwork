@@ -208,9 +208,20 @@ export function useTeam() {
   return useQuery({
     queryKey: ['team'],
     queryFn: async () => {
-      const response = await api.get<TeamMember[]>('/team')
+      const response = await api.get<{ team: TeamMember[] }>('/about')
+      return response.data.team
+    },
+  })
+}
+
+export function useTeamMember(id: number) {
+  return useQuery({
+    queryKey: ['team', id],
+    queryFn: async () => {
+      const response = await api.get<TeamMember>(`/team/${id}`)
       return response.data
     },
+    enabled: !!id,
   })
 }
 

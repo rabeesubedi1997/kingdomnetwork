@@ -128,6 +128,25 @@
   }
 }
 
+/* Admin Dark Theme */
+.admin-dark {
+  --bg-primary: #0a0f14;
+  --bg-secondary: #111820;
+  --bg-card: #16202a;
+  --bg-hover: #1c2a38;
+  --bg-input: #1c2a38;
+  --border-color: #1e3040;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #09333f;
+  --accent-hover: #0d4555;
+  --accent-light: rgba(9, 51, 63, 0.3);
+  --gold: #ffcd57;
+  --gold-light: rgba(255, 205, 87, 0.15);
+  --sidebar-width: 260px;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

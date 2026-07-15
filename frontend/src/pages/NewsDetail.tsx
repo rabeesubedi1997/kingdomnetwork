@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom'
 import { Section, Container } from '@/components/layout/Section'
 import { Article } from '@/components/news/Article'
 import { Loading } from '@/components/ui/Loading'
+import { SEOHead } from '@/components/seo/SEOHead'
 import { ArrowLeft, Calendar, Clock, Tag, User, Share2 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
@@ -40,7 +41,7 @@ export const NewsDetail: React.FC = () => {
         <Container>
           <div className='max-w-2xl mx-auto text-center'>
             <h1 className='heading-2 text-brand-primary mb-4'>Article Not Found</h1>
-            <p className='text-brand-muted mb-8'>The article you're looking for doesn't exist or has been removed.</p>
+            <p className='text-brand-muted mb-5'>The article you're looking for doesn't exist or has been removed.</p>
             <Link to='/news'>
               <button className='btn-primary'>Back to News</button>
             </Link>
@@ -52,6 +53,7 @@ export const NewsDetail: React.FC = () => {
 
   return (
     <>
+      <SEOHead title={post.title} description={post.excerpt} ogImage={post.featured_image?.url} />
       <Section id='article-hero' padding='xl' background='surface'>
         <Container>
           <motion.article
@@ -97,7 +99,7 @@ export const NewsDetail: React.FC = () => {
             </div>
 
             {post.featured_image?.url && (
-              <div className='aspect-video rounded-xl overflow-hidden mb-8'>
+              <div className='aspect-video rounded-xl overflow-hidden mb-5'>
                 <img
                   src={post.featured_image.url}
                   alt={post.title}
@@ -114,7 +116,7 @@ export const NewsDetail: React.FC = () => {
           <div className='max-w-4xl mx-auto'>
             <Article post={post} />
             
-            <div className='mt-12 pt-8 border-t border-brand-surface/50'>
+            <div className='mt-8 pt-8 border-t border-brand-surface/50'>
               <div className='flex flex-wrap gap-2'>
                 {post.tags?.map(tag => (
                   <Link key={tag.id} to={'/news/tag/' + tag.slug} className='inline-flex items-center gap-1 px-3 py-1 bg-brand-surface/50 rounded-full text-sm text-brand-muted hover:text-brand-primary hover:bg-brand-primary/10 transition-colors'>
@@ -125,7 +127,7 @@ export const NewsDetail: React.FC = () => {
               </div>
             </div>
 
-            <div className='mt-12 pt-8 border-t border-brand-surface/50 flex flex-wrap items-center justify-between gap-4'>
+            <div className='mt-8 pt-8 border-t border-brand-surface/50 flex flex-wrap items-center justify-between gap-4'>
               <div className='flex items-center gap-2'>
                 <span className='text-sm text-brand-muted'>Share:</span>
                 <button onClick={() => handleShare('twitter')} className='p-2 rounded-lg bg-brand-surface/50 hover:bg-brand-primary/10 text-brand-text transition-colors' aria-label='Share on Twitter'>

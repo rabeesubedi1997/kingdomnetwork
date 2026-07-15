@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\TeamMember;
+use App\Http\Resources\TeamMemberResource;
 use Illuminate\Http\Request;
 
 class AboutController extends Controller
@@ -12,7 +13,25 @@ class AboutController extends Controller
     {
         $team = TeamMember::where('is_active', true)
             ->orderBy('sort_order')
-            ->get(['id', 'name', 'role', 'bio', 'photo_id', 'social_links', 'sort_order']);
+            ->get()
+            ->map(fn($m) => [
+                'id' => $m->id,
+                'name' => $m->name,
+                'role' => $m->role,
+                'bio' => $m->bio,
+                'photo_url' => $m->photo_url,
+                'email' => $m->email,
+                'phone' => $m->phone,
+                'birth_date' => $m->birth_date?->toDateString(),
+                'birth_place' => $m->birth_place,
+                'imdb_url' => $m->imdb_url,
+                'instagram_url' => $m->instagram_url,
+                'twitter_url' => $m->twitter_url,
+                'linkedin_url' => $m->linkedin_url,
+                'website_url' => $m->website_url,
+                'social_links' => $m->social_links,
+                'sort_order' => $m->sort_order,
+            ]);
 
         return response()->json([
             'mission' => config('kingdom.brand.mission') ?? 'To revolutionize the Nepali and global entertainment industry...',
@@ -57,6 +76,30 @@ class AboutController extends Controller
                     'awards' => [],
                 ],
             ],
+        ]);
+    }
+
+    public function team(int $id)
+    {
+        $member = TeamMember::where('is_active', true)->findOrFail($id);
+
+        return response()->json([
+            'id' => $member->id,
+            'name' => $member->name,
+            'role' => $member->role,
+            'bio' => $member->bio,
+            'photo_url' => $member->photo_url,
+            'email' => $member->email,
+            'phone' => $member->phone,
+            'birth_date' => $member->birth_date?->toDateString(),
+            'birth_place' => $member->birth_place,
+            'imdb_url' => $member->imdb_url,
+            'instagram_url' => $member->instagram_url,
+            'twitter_url' => $member->twitter_url,
+            'linkedin_url' => $member->linkedin_url,
+            'website_url' => $member->website_url,
+            'social_links' => $member->social_links,
+            'sort_order' => $member->sort_order,
         ]);
     }
 }

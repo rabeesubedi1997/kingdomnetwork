@@ -2,10 +2,16 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Users, Film, Star, Sparkles, Handshake, Lightbulb, Target, Heart } from 'lucide-react'
 import { Section, Container } from '@/components/layout/Section'
+import { SEOHead } from '@/components/seo/SEOHead'
+import { useTeam } from '@/hooks/useData'
+import { TeamCard } from '@/components/team/TeamCard'
 
 export const Team = () => {
+  const { data: team, isLoading } = useTeam()
+
   return (
     <>
+      <SEOHead title="Our Team" />
       <Section id="team-hero" background="dark" padding="xl" className="relative overflow-hidden">
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
@@ -21,26 +27,26 @@ export const Team = () => {
 
       <Section id="team-members" padding="xl">
         <Container>
-          <div className='grid md:grid-cols-2 gap-8'>
-            {[
-              {
-                name: 'Subash Bhusal',
-                role: 'Founder & Producer',
-                bio: 'Distinguished producer and musician in the Nepali entertainment industry.',
-              },
-              {
-                name: 'Bikash Subedi',
-                role: 'Director',
-                bio: 'Accomplished scriptwriter, film director, and music video director.',
-              },
-            ].map((member, index) => (
-              <motion.div key={member.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='bg-brand-surface/50 rounded-xl p-6 border border-brand-surface'>
-                <h3 className='heading-3 text-brand-primary mb-1'>{member.name}</h3>
-                <p className='text-brand-gold font-medium mb-3'>{member.role}</p>
-                <p className='text-brand-muted text-sm leading-relaxed'>{member.bio}</p>
-              </motion.div>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-5'>
+              {[1, 2, 3].map(i => (
+                <div key={i} className='animate-pulse bg-brand-surface/50 rounded-xl p-5 border border-brand-surface'>
+                  <div className='w-full aspect-square rounded-lg bg-brand-surface mb-4' />
+                  <div className='h-4 bg-brand-surface rounded w-2/3 mb-2' />
+                  <div className='h-3 bg-brand-surface rounded w-1/2 mb-3' />
+                  <div className='h-3 bg-brand-surface rounded w-full' />
+                </div>
+              ))}
+            </div>
+          ) : team && team.length > 0 ? (
+            <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-5'>
+              {team.map((member, index) => (
+                <TeamCard key={member.id} member={member} index={index} />
+              ))}
+            </div>
+          ) : (
+            <p className='text-center text-brand-muted py-12'>Team information coming soon.</p>
+          )}
         </Container>
       </Section>
     </>
@@ -48,6 +54,9 @@ export const Team = () => {
 }
 
 export const About = () => {
+  const { data: team } = useTeam()
+  const aboutShort = "Kingdom Network is a leading film and media production company in Nepal, dedicated to creating world-class stories that inspire and connect audiences worldwide."
+
   const mission = {
     title: 'Our Mission',
     description: 'To revolutionize the Nepali and global entertainment industry by producing high-quality films, series, and creative media content that blend storytelling, technology, and cultural essence.',
@@ -70,6 +79,7 @@ export const About = () => {
 
   return (
     <>
+      <SEOHead title="About Us" description={aboutShort} />
       <Section id="about-hero" background="dark" padding="xl" className="relative overflow-hidden">
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
@@ -90,12 +100,12 @@ export const About = () => {
 
       <Section id="mission-vision" padding="xl">
         <Container>
-          <div className='grid lg:grid-cols-2 gap-12'>
+          <div className='grid lg:grid-cols-2 gap-5'>
             {[
               { ...mission, icon: Film },
               { ...vision, icon: Star },
             ].map((item, index) => (
-              <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='bg-brand-surface/50 rounded-xl p-8 border border-brand-surface'>
+              <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='bg-brand-surface/50 rounded-xl p-6 border border-brand-surface'>
                 <div className='w-14 h-14 bg-brand-primary/10 rounded-xl flex items-center justify-center mb-6'>
                   <item.icon className='w-7 h-7 text-brand-primary' />
                 </div>
@@ -109,13 +119,13 @@ export const About = () => {
 
       <Section id="core-values" padding="xl" background="surface">
         <Container>
-          <div className='text-center mb-12'>
+          <div className='text-center mb-5'>
             <h2 className='heading-2 text-brand-primary mb-4'>Our Core Values</h2>
             <p className='text-brand-muted max-w-2xl mx-auto'>These principles guide everything we do, from development to distribution.</p>
           </div>
-          <div className='grid sm:grid-cols-2 lg:grid-cols-5 gap-6'>
+          <div className='grid sm:grid-cols-2 lg:grid-cols-5 gap-5'>
             {values.map((value, index) => (
-              <motion.div key={value.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='text-center p-6 bg-brand-surface/50 rounded-xl border border-brand-surface hover:border-brand-primary/50 transition-colors'>
+              <motion.div key={value.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='text-center p-5 bg-brand-surface/50 rounded-xl border border-brand-surface hover:border-brand-primary/50 transition-colors'>
                 <div className='w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-xl flex items-center justify-center'>
                   <value.icon className='w-7 h-7 text-brand-primary' />
                 </div>
@@ -129,12 +139,17 @@ export const About = () => {
 
       <Section id="leadership" padding="xl">
         <Container>
-          <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12'>
+          <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-5'>
             <div>
               <h2 className='heading-2 text-brand-primary'>Leadership Team</h2>
               <p className='text-brand-muted mt-2'>Visionaries behind Kingdom Network</p>
             </div>
             <Link to='/team' className='btn-secondary'>View Full Team</Link>
+          </div>
+          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-5'>
+            {(team || []).slice(0, 3).map((member, index) => (
+              <TeamCard key={member.id} member={member} index={index} />
+            ))}
           </div>
         </Container>
       </Section>

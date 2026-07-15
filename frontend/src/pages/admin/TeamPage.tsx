@@ -1,150 +1,134 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getTeamMembers, createTeamMember, updateTeamMember, deleteTeamMember } from '@/lib/admin-api'
-import { AdminTable, type Column } from '@/components/admin/AdminTable'
-import { AdminModal } from '@/components/admin/AdminModal'
-import { AdminForm } from '@/components/admin/AdminForm'
+import { getTeamMembers, getTeamMember, createTeamMember, updateTeamMember, deleteTeamMember } from '@/lib/admin-api'
+import { motion } from 'framer-motion'
+import { Edit2, Trash2, Plus, Search, Users } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Edit2, Trash2, Plus } from 'lucide-react'
+import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
+import { MediaPicker } from '@/components/admin/MediaPicker'
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog'
 import { toast } from 'react-hot-toast'
-import type { TeamMember } from '@/types'
+import { cn } from '@/lib/utils'
 
-interface TeamMemberForm {
-  name: string
-  role: string
-  bio: string
-  photo_url: string
-  sort_order: string
-  is_active: string
-}
+interface MediaItem { id: number; url: string; name: string }
 
 export const TeamPage: React.FC = () => {
-  const queryClient = useQueryClient()
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<TeamMember | null>(null)
+  const qc = useQueryClient(); const [page, setPage] = useState(1); const [search, setSearch] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null); const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [form, setForm] = useState({ name: '', role: '', bio: '', photo_id: null as number | null, photo_url: '', email: '', phone: '', birth_date: '', birth_place: '', imdb_url: '', instagram_url: '', twitter_url: '', linkedin_url: '', website_url: '', sort_order: '0', is_active: true })
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'team', page, search],
-    queryFn: () => getTeamMembers({ page, per_page: 15, search: search || undefined }),
-  })
+  const { data, isLoading } = useQuery({ queryKey: ['admin', 'team', page, search], queryFn: () => getTeamMembers({ page, per_page: 15, search: search || undefined }) })
+  const createMut = useMutation({ mutationFn: createTeamMember, onSuccess: () => { toast.success('Created'); qc.invalidateQueries({ queryKey: ['admin', 'team'] }); setEditingId(-1); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
+  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => updateTeamMember(id, data), onSuccess: () => { toast.success('Updated'); qc.invalidateQueries({ queryKey: ['admin', 'team'] }); setEditingId(null); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
+  const deleteMut = useMutation({ mutationFn: deleteTeamMember, onSuccess: () => { toast.success('Deleted'); qc.invalidateQueries({ queryKey: ['admin', 'team'] }); setDeleteId(null) } })
 
-  const createMutation = useMutation({
-    mutationFn: createTeamMember,
-    onSuccess: () => {
-      toast.success('Team member created')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'team'] })
-      setModalOpen(false)
-    },
-    onError: () => toast.error('Failed to create team member'),
-  })
+  const resetForm = () => setForm({ name: '', role: '', bio: '', photo_id: null, photo_url: '', email: '', phone: '', birth_date: '', birth_place: '', imdb_url: '', instagram_url: '', twitter_url: '', linkedin_url: '', website_url: '', sort_order: '0', is_active: true })
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Record<string, unknown> }) => updateTeamMember(id, data),
-    onSuccess: () => {
-      toast.success('Team member updated')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'team'] })
-      setModalOpen(false)
-      setEditing(null)
-    },
-    onError: () => toast.error('Failed to update team member'),
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteTeamMember,
-    onSuccess: () => {
-      toast.success('Team member deleted')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'team'] })
-    },
-    onError: () => toast.error('Failed to delete team member'),
-  })
-
-  const handleSubmit = async (formData: TeamMemberForm) => {
-    const payload = {
-      ...formData,
-      is_active: formData.is_active === 'true',
-      sort_order: parseInt(formData.sort_order) || 0,
+  const openEdit = async (id: number) => {
+    setEditingId(id)
+    try {
+      const r = await getTeamMember(id); const t = r.data || r
+      setForm({
+        name: t.name || '', role: t.role || '', bio: t.bio || '',
+        photo_id: t.photo_id || null, photo_url: t.photo_url || '',
+        email: t.email || '', phone: t.phone || '',
+        birth_date: t.birth_date || '', birth_place: t.birth_place || '',
+        imdb_url: t.imdb_url || '', instagram_url: t.instagram_url || '',
+        twitter_url: t.twitter_url || '', linkedin_url: t.linkedin_url || '',
+        website_url: t.website_url || '',
+        sort_order: String(t.sort_order || '0'), is_active: t.is_active !== false,
+      })
     }
-    if (editing) {
-      updateMutation.mutate({ id: editing.id, data: payload as unknown as Record<string, unknown> })
-    } else {
-      createMutation.mutate(payload as unknown as Record<string, unknown>)
-    }
+    catch { toast.error('Failed to load') }
   }
 
-  const columns: Column<TeamMember>[] = [
-    { key: 'id', label: 'ID', sortable: true, className: 'w-16' },
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'role', label: 'Role', sortable: true },
-    { key: 'sort_order', label: 'Order', sortable: true },
-    { key: 'is_active', label: 'Active', render: (t) => (
-      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${t.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-        {t.is_active ? 'Active' : 'Inactive'}
-      </span>
-    )},
-  ]
+  const handleSubmit = () => {
+    const { photo_url, ...rest } = form
+    const payload = { ...rest, sort_order: parseInt(form.sort_order) || 0 }
+    if (editingId && editingId > 0) updateMut.mutate({ id: editingId, data: payload })
+    else createMut.mutate(payload as any)
+  }
+
+  const items = data?.data || []
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-brand-text">Team</h1>
-          <p className="text-brand-muted text-sm mt-1">Manage team members</p>
-        </div>
-        <Button onClick={() => { setEditing(null); setModalOpen(true) }}>
-          <Plus size={18} className="mr-1.5" />
-          Add Member
-        </Button>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div><h1 className="text-xl font-bold text-white">Team Members</h1><p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Manage your leadership team</p></div>
+        <Button onClick={() => { setEditingId(-1); resetForm() }} style={{ background: '#09333f' }}><Plus size={16} className="mr-1.5" /> Add Member</Button>
       </div>
 
-      <AdminTable
-        columns={columns}
-        data={data?.data || []}
-        keyExtractor={(t) => t.id}
-        isLoading={isLoading}
-        currentPage={data?.current_page || page}
-        lastPage={data?.last_page || 1}
-        total={data?.total || 0}
-        onPageChange={setPage}
-        onSearch={(val) => { setSearch(val); setPage(1) }}
-        searchPlaceholder="Search team..."
-        actions={(item) => (
-          <div className="flex items-center gap-1 justify-end">
-            <button onClick={() => { setEditing(item); setModalOpen(true) }} className="p-1.5 rounded-lg hover:bg-brand-primary/10 text-brand-muted hover:text-brand-primary transition-colors"><Edit2 size={16} /></button>
-            <button onClick={() => { if (window.confirm(`Delete "${item.name}"?`)) deleteMutation.mutate(item.id) }} className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+      {editingId !== null && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border" style={{ background: '#111820', borderColor: '#1e3040' }}>
+          <div className="px-6 py-4 border-b" style={{ borderColor: '#1e3040' }}><h2 className="font-semibold text-white">{editingId === -1 ? 'Add Member' : 'Edit Member'}</h2></div>
+          <div className="p-5 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Name *</label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Role *</label><Input value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Email</label><Input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Phone</label><Input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Birth Date</label><Input type="date" value={form.birth_date} onChange={e => setForm(p => ({ ...p, birth_date: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Birth Place</label><Input value={form.birth_place} onChange={e => setForm(p => ({ ...p, birth_place: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>IMDb URL</label><Input value={form.imdb_url} onChange={e => setForm(p => ({ ...p, imdb_url: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://imdb.com/name/..." /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Sort Order</label><Input type="number" value={form.sort_order} onChange={e => setForm(p => ({ ...p, sort_order: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            </div>
+            <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Bio</label><Textarea value={form.bio} onChange={e => setForm(p => ({ ...p, bio: e.target.value }))} rows={3} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Website URL</label><Input value={form.website_url} onChange={e => setForm(p => ({ ...p, website_url: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://..." /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>LinkedIn URL</label><Input value={form.linkedin_url} onChange={e => setForm(p => ({ ...p, linkedin_url: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://linkedin.com/in/..." /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Twitter URL</label><Input value={form.twitter_url} onChange={e => setForm(p => ({ ...p, twitter_url: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://twitter.com/..." /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Instagram URL</label><Input value={form.instagram_url} onChange={e => setForm(p => ({ ...p, instagram_url: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://instagram.com/..." /></div>
+            </div>
+            <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Photo</label>
+              <div className="flex items-start gap-3">
+                {form.photo_url && <img src={form.photo_url} className="w-16 h-16 rounded-full object-cover border" style={{ borderColor: '#1e3040' }} />}
+                <Button size="sm" variant="outline" onClick={() => setPickerOpen(true)} style={{ borderColor: '#1e3040', color: '#cbd5e1' }}>{form.photo_url ? 'Change' : 'Select Photo'}</Button>
+                {form.photo_url && <Button size="sm" variant="ghost" onClick={() => setForm(p => ({ ...p, photo_id: null, photo_url: '' }))} className="text-red-400">Remove</Button>}
+              </div>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.is_active} onChange={e => setForm(p => ({ ...p, is_active: e.target.checked }))} className="w-4 h-4 rounded" style={{ accentColor: '#ffcd57' }} /><span className="text-sm" style={{ color: '#cbd5e1' }}>Active</span></label>
+            <div className="flex justify-end gap-3 pt-4 border-t" style={{ borderColor: '#1e3040' }}>
+              <Button variant="ghost" onClick={() => { setEditingId(null); resetForm() }} className="text-gray-400">Cancel</Button>
+              <Button onClick={handleSubmit} loading={createMut.isPending || updateMut.isPending} style={{ background: '#09333f' }}>{editingId === -1 ? 'Create' : 'Update'}</Button>
+            </div>
           </div>
-        )}
-      />
+        </motion.div>
+      )}
 
-      <AdminModal
-        open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditing(null) }}
-        title={editing ? 'Edit Team Member' : 'Add Team Member'}
-        size="lg"
-      >
-        <AdminForm
-          fields={[
-            { name: 'name', label: 'Name', rules: { required: 'Name is required' } },
-            { name: 'role', label: 'Role', rules: { required: 'Role is required' } },
-            { name: 'bio', label: 'Bio', type: 'textarea' },
-            { name: 'photo_url', label: 'Photo URL', type: 'url' },
-            { name: 'sort_order', label: 'Sort Order', type: 'number' },
-            { name: 'is_active', label: 'Status', type: 'select', options: [{ value: 'true', label: 'Active' }, { value: 'false', label: 'Inactive' }] },
-          ]}
-          onSubmit={handleSubmit}
-          defaultValues={editing ? {
-            name: editing.name,
-            role: editing.role,
-            bio: editing.bio || '',
-            photo_url: editing.photo?.url || '',
-            sort_order: String(editing.sort_order || 0),
-            is_active: editing.is_active ? 'true' : 'false',
-          } : { is_active: 'true', sort_order: '0' }}
-          isSubmitting={createMutation.isPending || updateMutation.isPending}
-          submitLabel={editing ? 'Update Member' : 'Add Member'}
-        />
-      </AdminModal>
+      {!editingId && (
+        <>
+          <div className="relative max-w-xs"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#64748b' }} /><Input placeholder="Search team..." value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9', paddingLeft: '2.25rem' }} /></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {isLoading ? Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-xl border p-5 animate-pulse flex items-start gap-4" style={{ background: '#111820', borderColor: '#1e3040' }}>
+                <div className="w-14 h-14 rounded-full flex-shrink-0" style={{ background: '#1c2a38' }} />
+                <div className="flex-1"><div className="h-4 rounded w-2/3" style={{ background: '#1c2a38' }} /><div className="h-3 rounded w-1/2 mt-2" style={{ background: '#1c2a38' }} /></div>
+              </div>
+            )) : items.map((t: any) => (
+              <motion.div key={t.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl border p-5 flex items-start gap-4 group" style={{ background: '#111820', borderColor: '#1e3040' }}>
+                <div className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden" style={{ background: 'linear-gradient(135deg,#09333f,#0d4555)' }}>
+                  {t.photo_url ? <img src={t.photo_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white font-bold text-lg">{t.name?.charAt(0)}</div>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-white">{t.name}</h3>
+                  <p className="text-sm" style={{ color: '#94a3b8' }}>{t.role}</p>
+                  {t.bio && <p className="text-xs mt-1 line-clamp-2" style={{ color: '#64748b' }}>{t.bio}</p>}
+                </div>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => openEdit(t.id)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white"><Edit2 size={14} /></button>
+                  <button onClick={() => setDeleteId(t.id)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 hover:text-red-400"><Trash2 size={14} /></button>
+                </div>
+              </motion.div>
+            ))}
+            {items.length === 0 && !isLoading && <div className="col-span-full text-center py-12" style={{ color: '#64748b' }}>No team members found</div>}
+          </div>
+        </>
+      )}
+
+      <MediaPicker open={pickerOpen} onClose={() => setPickerOpen(false)} onSelect={(m: MediaItem) => { setForm(p => ({ ...p, photo_id: m.id, photo_url: m.url })); setPickerOpen(false) }} />
+      <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={() => deleteMut.mutate(deleteId!)} isLoading={deleteMut.isPending} />
     </div>
   )
 }

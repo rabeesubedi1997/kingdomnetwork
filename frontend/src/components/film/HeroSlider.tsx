@@ -69,7 +69,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ films, loading }) => {
             />
           ) : (
             <div className='w-full h-full bg-brand-dark flex items-center justify-center'>
-              <span className='text-4xl text-brand-primary/50'>&#127916;</span>
+              <FilmIcon size={48} className='text-brand-primary/50' />
             </div>
           )}
 

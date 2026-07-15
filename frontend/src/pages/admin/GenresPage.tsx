@@ -1,139 +1,91 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getGenres, createGenre, updateGenre, deleteGenre } from '@/lib/admin-api'
-import { AdminTable, type Column } from '@/components/admin/AdminTable'
-import { AdminModal } from '@/components/admin/AdminModal'
-import { AdminForm } from '@/components/admin/AdminForm'
+import { getGenres, getGenre, createGenre, updateGenre, deleteGenre } from '@/lib/admin-api'
+import { motion } from 'framer-motion'
+import { Edit2, Trash2, Plus, Search } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Edit2, Trash2, Plus } from 'lucide-react'
+import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog'
 import { toast } from 'react-hot-toast'
-import type { Genre } from '@/types'
-
-interface GenreForm {
-  name: string
-  slug: string
-  description: string
-  color: string
-}
 
 export const GenresPage: React.FC = () => {
-  const queryClient = useQueryClient()
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Genre | null>(null)
+  const qc = useQueryClient(); const [search, setSearch] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null); const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [form, setForm] = useState({ name: '', slug: '', description: '', color: '#6366f1' })
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'genres', page, search],
-    queryFn: () => getGenres({ page, per_page: 15, search: search || undefined }),
-  })
+  const { data, isLoading } = useQuery({ queryKey: ['admin', 'genres', search], queryFn: () => getGenres({ search: search || undefined, per_page: 100 }) })
+  const createMut = useMutation({ mutationFn: createGenre, onSuccess: () => { toast.success('Created'); qc.invalidateQueries({ queryKey: ['admin', 'genres'] }); setEditingId(-1); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
+  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => updateGenre(id, data), onSuccess: () => { toast.success('Updated'); qc.invalidateQueries({ queryKey: ['admin', 'genres'] }); setEditingId(null); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
+  const deleteMut = useMutation({ mutationFn: deleteGenre, onSuccess: () => { toast.success('Deleted'); qc.invalidateQueries({ queryKey: ['admin', 'genres'] }); setDeleteId(null) } })
 
-  const createMutation = useMutation({
-    mutationFn: createGenre,
-    onSuccess: () => {
-      toast.success('Genre created')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'genres'] })
-      setModalOpen(false)
-    },
-    onError: () => toast.error('Failed to create genre'),
-  })
+  const resetForm = () => setForm({ name: '', slug: '', description: '', color: '#6366f1' })
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Record<string, unknown> }) => updateGenre(id, data),
-    onSuccess: () => {
-      toast.success('Genre updated')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'genres'] })
-      setModalOpen(false)
-      setEditing(null)
-    },
-    onError: () => toast.error('Failed to update genre'),
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteGenre,
-    onSuccess: () => {
-      toast.success('Genre deleted')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'genres'] })
-    },
-    onError: () => toast.error('Failed to delete genre'),
-  })
-
-  const handleSubmit = async (formData: GenreForm) => {
-    if (editing) {
-      updateMutation.mutate({ id: editing.id, data: formData as unknown as Record<string, unknown> })
-    } else {
-      createMutation.mutate(formData as unknown as Record<string, unknown>)
-    }
+  const openEdit = async (id: number) => {
+    setEditingId(id)
+    try { const r = await getGenre(id); const g = r.data || r; setForm({ name: g.name || '', slug: g.slug || '', description: g.description || '', color: g.color || '#6366f1' }) }
+    catch { toast.error('Failed to load') }
   }
 
-  const columns: Column<Genre>[] = [
-    { key: 'id', label: 'ID', sortable: true, className: 'w-16' },
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'slug', label: 'Slug', sortable: true },
-    { key: 'description', label: 'Description', render: (g) => g.description || '-' },
-    { key: 'color', label: 'Color', render: (g) => g.color ? (
-      <div className="flex items-center gap-2">
-        <div className="w-4 h-4 rounded-full border" style={{ backgroundColor: g.color }} />
-        <span className="text-xs text-brand-muted">{g.color}</span>
-      </div>
-    ) : '-' },
-  ]
+  const handleSubmit = () => {
+    if (editingId && editingId > 0) updateMut.mutate({ id: editingId, data: form })
+    else createMut.mutate(form as any)
+  }
+
+  const items = data?.data || []
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-brand-text">Genres</h1>
-          <p className="text-brand-muted text-sm mt-1">Manage film genres</p>
-        </div>
-        <Button onClick={() => { setEditing(null); setModalOpen(true) }}>
-          <Plus size={18} className="mr-1.5" />
-          Add Genre
-        </Button>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div><h1 className="text-xl font-bold text-white">Genres</h1><p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Manage film genres</p></div>
+        <Button onClick={() => { setEditingId(-1); resetForm() }} style={{ background: '#09333f' }}><Plus size={16} className="mr-1.5" /> Add Genre</Button>
       </div>
 
-      <AdminTable
-        columns={columns}
-        data={data?.data || []}
-        keyExtractor={(g) => g.id}
-        isLoading={isLoading}
-        currentPage={data?.current_page || page}
-        lastPage={data?.last_page || 1}
-        total={data?.total || 0}
-        onPageChange={setPage}
-        onSearch={(val) => { setSearch(val); setPage(1) }}
-        searchPlaceholder="Search genres..."
-        actions={(item) => (
-          <div className="flex items-center gap-1 justify-end">
-            <button onClick={() => { setEditing(item); setModalOpen(true) }} className="p-1.5 rounded-lg hover:bg-brand-primary/10 text-brand-muted hover:text-brand-primary transition-colors"><Edit2 size={16} /></button>
-            <button onClick={() => { if (window.confirm(`Delete "${item.name}"?`)) deleteMutation.mutate(item.id) }} className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+      {editingId !== null && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border" style={{ background: '#111820', borderColor: '#1e3040' }}>
+          <div className="px-6 py-4 border-b" style={{ borderColor: '#1e3040' }}><h2 className="font-semibold text-white">{editingId === -1 ? 'Add Genre' : 'Edit Genre'}</h2></div>
+          <div className="p-5 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Name *</label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Slug</label><Input value={form.slug} onChange={e => setForm(p => ({ ...p, slug: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Color</label><div className="flex gap-2 items-center"><Input type="color" value={form.color} onChange={e => setForm(p => ({ ...p, color: e.target.value }))} className="w-10 h-10 p-0.5" style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /><Input value={form.color} onChange={e => setForm(p => ({ ...p, color: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div></div>
+            </div>
+            <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Description</label><Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={2} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            <div className="flex justify-end gap-3 pt-4 border-t" style={{ borderColor: '#1e3040' }}>
+              <Button variant="ghost" onClick={() => { setEditingId(null); resetForm() }} className="text-gray-400">Cancel</Button>
+              <Button onClick={handleSubmit} loading={createMut.isPending || updateMut.isPending} style={{ background: '#09333f' }}>{editingId === -1 ? 'Create' : 'Update'}</Button>
+            </div>
           </div>
-        )}
-      />
+        </motion.div>
+      )}
 
-      <AdminModal
-        open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditing(null) }}
-        title={editing ? 'Edit Genre' : 'Add Genre'}
-      >
-        <AdminForm
-          fields={[
-            { name: 'name', label: 'Name', rules: { required: 'Name is required' } },
-            { name: 'slug', label: 'Slug', rules: { required: 'Slug is required' } },
-            { name: 'description', label: 'Description', type: 'textarea' },
-            { name: 'color', label: 'Color (hex)', placeholder: '#09333f' },
-          ]}
-          onSubmit={handleSubmit}
-          defaultValues={editing ? {
-            name: editing.name,
-            slug: editing.slug,
-            description: editing.description || '',
-            color: editing.color || '',
-          } : undefined}
-          isSubmitting={createMutation.isPending || updateMutation.isPending}
-          submitLabel={editing ? 'Update Genre' : 'Add Genre'}
-        />
-      </AdminModal>
+      {!editingId && (
+        <div className="rounded-xl border overflow-hidden" style={{ background: '#111820', borderColor: '#1e3040' }}>
+          <div className="p-4 border-b" style={{ borderColor: '#1e3040' }}>
+            <div className="relative max-w-xs"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#64748b' }} /><Input placeholder="Search genres..." value={search} onChange={e => setSearch(e.target.value)} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9', paddingLeft: '2.25rem' }} /></div>
+          </div>
+          <table className="w-full text-sm">
+            <thead><tr style={{ background: '#0a0f14' }}><th className="text-left px-4 py-3 font-medium" style={{ color: '#94a3b8' }}>Name</th><th className="text-left px-4 py-3 font-medium" style={{ color: '#94a3b8' }}>Slug</th><th className="text-right px-4 py-3 font-medium w-32" style={{ color: '#94a3b8' }}>Actions</th></tr></thead>
+            <tbody>
+              {isLoading ? Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-t" style={{ borderColor: '#1e3040' }}><td colSpan={3} className="px-4 py-3"><div className="h-4 rounded w-full animate-pulse" style={{ background: '#1c2a38' }} /></td></tr>
+              )) : items.map((g: any) => (
+                <tr key={g.id} className="border-t" style={{ borderColor: '#1e3040' }}>
+                  <td className="px-4 py-3"><div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full" style={{ backgroundColor: g.color || '#6366f1' }} /><span className="font-medium text-white">{g.name}</span></div></td>
+                  <td className="px-4 py-3" style={{ color: '#94a3b8' }}>{g.slug}</td>
+                  <td className="px-4 py-3 text-right"><div className="flex items-center gap-1 justify-end">
+                    <button onClick={() => openEdit(g.id)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white"><Edit2 size={15} /></button>
+                    <button onClick={() => setDeleteId(g.id)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 hover:text-red-400"><Trash2 size={15} /></button>
+                  </div></td>
+                </tr>
+              ))}
+              {items.length === 0 && !isLoading && <tr><td colSpan={3} className="px-4 py-12 text-center" style={{ color: '#64748b' }}>No genres found</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={() => deleteMut.mutate(deleteId!)} isLoading={deleteMut.isPending} />
     </div>
   )
 }

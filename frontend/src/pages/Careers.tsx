@@ -6,7 +6,8 @@ import { CareerCard } from '@/components/career/CareerCard'
 import { CareerFilters } from '@/components/career/CareerFilters'
 import { CareerApplicationForm } from '@/components/career/CareerApplicationForm'
 import { Loading, GridSkeleton } from '@/components/ui/Loading'
-import { Briefcase, Filter, ArrowLeft, MapPin as MapPinIcon, Clock as ClockIcon, DollarSign as DollarSignIcon } from 'lucide-react'
+import { SEOHead } from '@/components/seo/SEOHead'
+import { Briefcase, Filter, ArrowLeft, MapPin as MapPinIcon, Clock as ClockIcon, DollarSign as DollarSignIcon, Film, Globe, Award, BookOpen, Handshake, Scale } from 'lucide-react'
 import { useState } from 'react'
 
 export const Careers: React.FC = () => {
@@ -22,6 +23,7 @@ export const Careers: React.FC = () => {
 
   return (
     <>
+      <SEOHead title="Careers" description="Join Our Team" />
       <Section id='careers-hero' background='dark' padding='xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
@@ -42,18 +44,18 @@ export const Careers: React.FC = () => {
 
       <Section id='benefits' padding='xl' background='surface'>
         <Container>
-          <h2 className='heading-2 mb-12 text-center text-brand-primary'>Why Work With Us</h2>
-          <div className='grid gap-8 md:grid-cols-3'>
+          <h2 className='heading-2 mb-5 text-center text-brand-primary'>Why Work With Us</h2>
+          <div className='grid gap-5 md:grid-cols-3'>
             {[
-              { icon: '🎬', title: 'Creative Freedom', desc: 'Shape stories that matter with artistic autonomy and collaborative support.' },
-              { icon: '🌍', title: 'Global Exposure', desc: 'Work on international co-productions reaching audiences worldwide.' },
-              { icon: '🏆', title: 'Award-Winning', desc: 'Be part of nationally and internationally recognized productions.' },
-              { icon: '📚', title: 'Continuous Learning', desc: 'Access to workshops, festivals, and industry mentorship programs.' },
-              { icon: '🤝', title: 'Collaborative Culture', desc: 'Join a close-knit team where every voice matters and ideas flourish.' },
-              { icon: '⚖️', title: 'Work-Life Balance', desc: 'Flexible schedules and understanding of the creative process rhythms.' },
+              { icon: Film, title: 'Creative Freedom', desc: 'Shape stories that matter with artistic autonomy and collaborative support.' },
+              { icon: Globe, title: 'Global Exposure', desc: 'Work on international co-productions reaching audiences worldwide.' },
+              { icon: Award, title: 'Award-Winning', desc: 'Be part of nationally and internationally recognized productions.' },
+              { icon: BookOpen, title: 'Continuous Learning', desc: 'Access to workshops, festivals, and industry mentorship programs.' },
+              { icon: Handshake, title: 'Collaborative Culture', desc: 'Join a close-knit team where every voice matters and ideas flourish.' },
+              { icon: Scale, title: 'Work-Life Balance', desc: 'Flexible schedules and understanding of the creative process rhythms.' },
             ].map((benefit, index) => (
-              <motion.div key={benefit.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='rounded-xl border border-brand-surface bg-brand-surface/50 p-6 transition-colors hover:border-brand-primary/50'>
-                <div className='mb-4 text-4xl'>{benefit.icon}</div>
+              <motion.div key={benefit.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='rounded-xl border border-brand-surface bg-brand-surface/50 p-5 transition-colors hover:border-brand-primary/50'>
+                <div className='mb-4'><benefit.icon size={32} className='text-brand-primary' /></div>
                 <h3 className='heading-3 mb-2 text-brand-primary'>{benefit.title}</h3>
                 <p className='text-brand-muted'>{benefit.desc}</p>
               </motion.div>
@@ -64,7 +66,7 @@ export const Careers: React.FC = () => {
 
       <Section id='open-positions' padding='xl'>
         <Container>
-          <div className='mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
+          <div className='mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
             <div>
               <h2 className='heading-2 text-brand-primary'>Open Positions</h2>
               <p className='mt-2 text-brand-muted'>Find your role in our next production.</p>
@@ -76,12 +78,12 @@ export const Careers: React.FC = () => {
           </div>
 
           {showFilters && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className='mb-8 rounded-xl border border-brand-surface bg-brand-surface/50 p-6'>
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className='mb-5 rounded-xl border border-brand-surface bg-brand-surface/50 p-5'>
               <CareerFilters onClose={() => setShowFilters(false)} onFilterChange={setFilters} />
             </motion.div>
           )}
 
-          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+          <div className='grid gap-5 md:grid-cols-2 lg:grid-cols-3'>
             {isLoading ? (
               <GridSkeleton count={6} />
             ) : jobs?.data?.map((job, index) => (
@@ -108,7 +110,7 @@ export const Careers: React.FC = () => {
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
             <h2 className='heading-2 mb-4 text-brand-white'>Don't See Your Perfect Role?</h2>
-            <p className='mb-8 text-lg text-brand-white/70'>We're always looking for exceptional talent. Send us your portfolio and tell us why you'd be a great fit for Kingdom Network.</p>
+            <p className='mb-5 text-lg text-brand-white/70'>We're always looking for exceptional talent. Send us your portfolio and tell us why you'd be a great fit for Kingdom Network.</p>
             <Link to='/contact'>
               <button className='btn-primary'>Send Your Portfolio</button>
             </Link>
@@ -142,10 +144,11 @@ export const CareerDetail: React.FC = () => {
 
   return (
     <>
+      <SEOHead title={job.title} description={`Join our team as ${job.title}`} />
       <Section id='job-hero' padding='xl' background='surface'>
         <Container>
           <div className='mx-auto max-w-3xl'>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='mb-8'>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='mb-5'>
               <Link to='/careers' className='mb-4 inline-flex items-center gap-1 text-sm font-medium text-brand-primary hover:text-brand-secondary'>
                 <ArrowLeft className='h-4 w-4' />
                 Back to Careers
@@ -165,7 +168,7 @@ export const CareerDetail: React.FC = () => {
 
       <Section padding='xl'>
         <Container>
-          <div className='grid gap-12 lg:grid-cols-3'>
+          <div className='grid gap-5 lg:grid-cols-3'>
             <div className='space-y-10 lg:col-span-2'>
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <h2 className='heading-2 mb-4 text-brand-primary'>About This Role</h2>
@@ -199,7 +202,7 @@ export const CareerDetail: React.FC = () => {
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
             <h2 className='heading-2 mb-4 text-brand-white'>Don't See Your Perfect Role?</h2>
-            <p className='mb-8 text-lg text-brand-white/70'>We're always looking for exceptional talent. Send us your portfolio and tell us why you'd be a great fit for Kingdom Network.</p>
+            <p className='mb-5 text-lg text-brand-white/70'>We're always looking for exceptional talent. Send us your portfolio and tell us why you'd be a great fit for Kingdom Network.</p>
             <Link to='/contact'>
               <button className='btn-primary'>Send Your Portfolio</button>
             </Link>

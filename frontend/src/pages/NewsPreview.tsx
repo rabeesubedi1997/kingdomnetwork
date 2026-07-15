@@ -18,7 +18,7 @@ export const NewsPreview = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <div className='mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
+          <div className='mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
             <div>
               <h2 className='heading-2 mb-2 text-brand-primary'>Latest News</h2>
               <p className='text-brand-muted'>Stay updated with our latest film releases, announcements, and behind-the-scenes stories.</p>
@@ -38,7 +38,7 @@ export const NewsPreview = () => {
             transition={{ delay: 0.1 }}
           >
             <h3 className='mb-6 font-semibold text-brand-primary'>Featured Story</h3>
-            <div className='mb-12 grid gap-8 lg:grid-cols-2'>
+            <div className='mb-5 grid gap-6 lg:grid-cols-2'>
               {featured.slice(0, 2).map((post: any, index: number) => (
                 <motion.div
                   key={post.id}

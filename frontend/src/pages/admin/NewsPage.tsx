@@ -1,151 +1,121 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getNews, createNews, updateNews, deleteNews } from '@/lib/admin-api'
-import { AdminTable, type Column } from '@/components/admin/AdminTable'
-import { AdminModal } from '@/components/admin/AdminModal'
-import { AdminForm } from '@/components/admin/AdminForm'
+import { getNews, getNewsItem, createNews, updateNews, deleteNews } from '@/lib/admin-api'
+import { motion } from 'framer-motion'
+import { Edit2, Trash2, Plus, Search, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Edit2, Trash2, Plus } from 'lucide-react'
+import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
+import { Select } from '@/components/ui/Select'
+import { MediaPicker } from '@/components/admin/MediaPicker'
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog'
 import { toast } from 'react-hot-toast'
-import type { Post } from '@/types'
-
-interface NewsForm {
-  title: string
-  slug: string
-  excerpt: string
-  status: string
-  content: string
-}
+import { cn } from '@/lib/utils'
 
 const statusOptions = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'published', label: 'Published' },
-  { value: 'scheduled', label: 'Scheduled' },
-  { value: 'archived', label: 'Archived' },
+  { value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' },
+  { value: 'scheduled', label: 'Scheduled' }, { value: 'archived', label: 'Archived' },
 ]
+
+const statusColors: Record<string, string> = {
+  draft: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
+  published: 'bg-green-500/10 text-green-400 border-green-500/20',
+  scheduled: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  archived: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+}
+
+interface MediaItem { id: number; url: string; name: string }
 
 export const NewsPage: React.FC = () => {
   const queryClient = useQueryClient()
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Post | null>(null)
+  const [page, setPage] = useState(1); const [search, setSearch] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [form, setForm] = useState({ title: '', slug: '', excerpt: '', content: '', status: 'draft', featured_image_url: '' })
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'news', page, search],
-    queryFn: () => getNews({ page, per_page: 15, search: search || undefined }),
-  })
+  const { data, isLoading } = useQuery({ queryKey: ['admin', 'news', page, search], queryFn: () => getNews({ page, per_page: 15, search: search || undefined }) })
 
-  const createMutation = useMutation({
-    mutationFn: createNews,
-    onSuccess: () => {
-      toast.success('News post created')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'news'] })
-      setModalOpen(false)
-    },
-    onError: () => toast.error('Failed to create news post'),
-  })
+  const createMutation = useMutation({ mutationFn: createNews, onSuccess: () => { toast.success('Created'); queryClient.invalidateQueries({ queryKey: ['admin', 'news'] }); setEditingId(-1); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
+  const updateMutation = useMutation({ mutationFn: ({ id, data }: any) => updateNews(id, data), onSuccess: () => { toast.success('Updated'); queryClient.invalidateQueries({ queryKey: ['admin', 'news'] }); setEditingId(null); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
+  const deleteMutation = useMutation({ mutationFn: deleteNews, onSuccess: () => { toast.success('Deleted'); queryClient.invalidateQueries({ queryKey: ['admin', 'news'] }); setDeleteId(null) } })
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Record<string, unknown> }) => updateNews(id, data),
-    onSuccess: () => {
-      toast.success('News post updated')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'news'] })
-      setModalOpen(false)
-      setEditing(null)
-    },
-    onError: () => toast.error('Failed to update news post'),
-  })
+  const resetForm = () => setForm({ title: '', slug: '', excerpt: '', content: '', status: 'draft', featured_image_url: '' })
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteNews,
-    onSuccess: () => {
-      toast.success('News post deleted')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'news'] })
-    },
-    onError: () => toast.error('Failed to delete news post'),
-  })
-
-  const handleSubmit = async (formData: NewsForm) => {
-    if (editing) {
-      updateMutation.mutate({ id: editing.id, data: formData as unknown as Record<string, unknown> })
-    } else {
-      createMutation.mutate(formData as unknown as Record<string, unknown>)
-    }
+  const openEdit = async (id: number) => {
+    setEditingId(id)
+    try { const r = await getNewsItem(id); const p = r.data || r; setForm({ title: p.title || '', slug: p.slug || '', excerpt: p.excerpt || '', content: p.content || '', status: p.status || 'draft', featured_image_url: p.featured_image_url || '' }) }
+    catch { toast.error('Failed to load') }
   }
 
-  const columns: Column<Post>[] = [
-    { key: 'id', label: 'ID', sortable: true, className: 'w-16' },
-    { key: 'title', label: 'Title', sortable: true },
-    { key: 'status', label: 'Status', sortable: true, render: (p) => (
-      <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${
-        p.status === 'published' ? 'bg-green-100 text-green-700' :
-        p.status === 'draft' ? 'bg-gray-100 text-gray-600' :
-        p.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
-        'bg-orange-100 text-orange-700'
-      }`}>{p.status}</span>
-    )},
-    { key: 'published_at', label: 'Published', sortable: true, render: (p) => p.published_at ? new Date(p.published_at).toLocaleDateString() : '-' },
-  ]
+  const handleSubmit = () => {
+    if (editingId && editingId > 0) updateMutation.mutate({ id: editingId, data: form })
+    else createMutation.mutate(form as any)
+  }
+
+  const items = data?.data || []
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-brand-text">News</h1>
-          <p className="text-brand-muted text-sm mt-1">Manage news posts</p>
-        </div>
-        <Button onClick={() => { setEditing(null); setModalOpen(true) }}>
-          <Plus size={18} className="mr-1.5" />
-          Add News
-        </Button>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div><h1 className="text-xl font-bold text-white">News</h1><p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Manage news & articles</p></div>
+        <Button onClick={() => { setEditingId(-1); resetForm() }} style={{ background: '#09333f' }}><Plus size={16} className="mr-1.5" /> Add News</Button>
       </div>
 
-      <AdminTable
-        columns={columns}
-        data={data?.data || []}
-        keyExtractor={(p) => p.id}
-        isLoading={isLoading}
-        currentPage={data?.current_page || page}
-        lastPage={data?.last_page || 1}
-        total={data?.total || 0}
-        onPageChange={setPage}
-        onSearch={(val) => { setSearch(val); setPage(1) }}
-        searchPlaceholder="Search news..."
-        actions={(item) => (
-          <div className="flex items-center gap-1 justify-end">
-            <button onClick={() => { setEditing(item); setModalOpen(true) }} className="p-1.5 rounded-lg hover:bg-brand-primary/10 text-brand-muted hover:text-brand-primary transition-colors"><Edit2 size={16} /></button>
-            <button onClick={() => { if (window.confirm(`Delete "${item.title}"?`)) deleteMutation.mutate(item.id) }} className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+      {editingId !== null && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border" style={{ background: '#111820', borderColor: '#1e3040' }}>
+          <div className="px-6 py-4 border-b" style={{ borderColor: '#1e3040' }}><h2 className="font-semibold text-white">{editingId === -1 ? 'Create News' : 'Edit News'}</h2></div>
+          <div className="p-5 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Title *</label><Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Slug</label><Input value={form.slug} onChange={e => setForm(p => ({ ...p, slug: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Status</label><Select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))} options={statusOptions} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            </div>
+            <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Excerpt</label><Textarea value={form.excerpt} onChange={e => setForm(p => ({ ...p, excerpt: e.target.value }))} rows={2} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Content</label><Textarea value={form.content} onChange={e => setForm(p => ({ ...p, content: e.target.value }))} rows={6} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Featured Image</label>
+              <div className="flex items-start gap-3">
+                {form.featured_image_url && <img src={form.featured_image_url} className="w-20 h-14 object-cover rounded-lg border" style={{ borderColor: '#1e3040' }} />}
+                <Button size="sm" variant="outline" onClick={() => setPickerOpen(true)} style={{ borderColor: '#1e3040', color: '#cbd5e1' }}>{form.featured_image_url ? 'Change' : 'Select Image'}</Button>
+                {form.featured_image_url && <Button size="sm" variant="ghost" onClick={() => setForm(p => ({ ...p, featured_image_url: '' }))} className="text-red-400">Remove</Button>}
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t" style={{ borderColor: '#1e3040' }}>
+              <Button variant="ghost" onClick={() => { setEditingId(null); resetForm() }} className="text-gray-400">Cancel</Button>
+              <Button onClick={handleSubmit} loading={createMutation.isPending || updateMutation.isPending} style={{ background: '#09333f' }}>{editingId === -1 ? 'Create' : 'Update'}</Button>
+            </div>
           </div>
-        )}
-      />
+        </motion.div>
+      )}
 
-      <AdminModal
-        open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditing(null) }}
-        title={editing ? 'Edit News Post' : 'Create News Post'}
-        size="lg"
-      >
-        <AdminForm
-          fields={[
-            { name: 'title', label: 'Title', rules: { required: 'Title is required' } },
-            { name: 'slug', label: 'Slug', rules: { required: 'Slug is required' } },
-            { name: 'status', label: 'Status', type: 'select', options: statusOptions, rules: { required: 'Status is required' } },
-            { name: 'excerpt', label: 'Excerpt', type: 'textarea' },
-            { name: 'content', label: 'Content', type: 'textarea' },
-          ]}
-          onSubmit={handleSubmit}
-          defaultValues={editing ? {
-            title: editing.title,
-            slug: editing.slug,
-            status: editing.status,
-            excerpt: editing.excerpt || '',
-            content: editing.content || '',
-          } : { status: 'draft' }}
-          isSubmitting={createMutation.isPending || updateMutation.isPending}
-          submitLabel={editing ? 'Update News' : 'Create News'}
-        />
-      </AdminModal>
+      {!editingId && (
+        <div className="rounded-xl border overflow-hidden" style={{ background: '#111820', borderColor: '#1e3040' }}>
+          <div className="p-4 border-b" style={{ borderColor: '#1e3040' }}>
+            <div className="relative max-w-xs"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#64748b' }} /><Input placeholder="Search news..." value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9', paddingLeft: '2.25rem' }} /></div>
+          </div>
+          <table className="w-full text-sm">
+            <thead><tr style={{ background: '#0a0f14' }}><th className="text-left px-4 py-3 font-medium" style={{ color: '#94a3b8' }}>Title</th><th className="text-left px-4 py-3 font-medium" style={{ color: '#94a3b8' }}>Status</th><th className="text-right px-4 py-3 font-medium w-32" style={{ color: '#94a3b8' }}>Actions</th></tr></thead>
+            <tbody>
+              {isLoading ? Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-t" style={{ borderColor: '#1e3040' }}><td colSpan={3} className="px-4 py-3"><div className="h-4 rounded w-full animate-pulse" style={{ background: '#1c2a38' }} /></td></tr>
+              )) : items.map((p: any) => (
+                <tr key={p.id} className="border-t" style={{ borderColor: '#1e3040' }}>
+                  <td className="px-4 py-3"><p className="font-medium text-white">{p.title}</p><p className="text-xs" style={{ color: '#64748b' }}>/{p.slug}</p></td>
+                  <td className="px-4 py-3"><span className={cn('px-2.5 py-1 rounded-full text-xs font-medium border', statusColors[p.status] || '')}>{p.status}</span></td>
+                  <td className="px-4 py-3 text-right"><div className="flex items-center gap-1 justify-end">
+                    <button onClick={() => openEdit(p.id)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white"><Edit2 size={15} /></button>
+                    <button onClick={() => setDeleteId(p.id)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 hover:text-red-400"><Trash2 size={15} /></button>
+                  </div></td>
+                </tr>
+              ))}
+              {items.length === 0 && !isLoading && <tr><td colSpan={3} className="px-4 py-12 text-center" style={{ color: '#64748b' }}>No news found</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <MediaPicker open={pickerOpen} onClose={() => setPickerOpen(false)} onSelect={(m: MediaItem) => { setForm(p => ({ ...p, featured_image_url: m.url })); setPickerOpen(false) }} />
+      <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={() => deleteMutation.mutate(deleteId!)} isLoading={deleteMutation.isPending} />
     </div>
   )
 }

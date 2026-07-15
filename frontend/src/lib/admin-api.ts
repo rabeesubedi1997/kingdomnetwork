@@ -50,7 +50,7 @@ export async function getSiteSettings() {
 }
 
 export async function updateSiteSettings(data: Record<string, unknown>) {
-  const response = await adminApi.put('site-settings', data)
+  const response = await adminApi.post('site-settings/bulk-update', data)
   return response.data
 }
 
@@ -80,27 +80,27 @@ export async function deleteFilm(id: number) {
 }
 
 export async function getNews(params?: Record<string, unknown>) {
-  const response = await adminApi.get('news', { params })
+  const response = await adminApi.get('posts', { params })
   return response.data
 }
 
 export async function getNewsItem(id: number) {
-  const response = await adminApi.get(`news/${id}`)
+  const response = await adminApi.get(`posts/${id}`)
   return response.data
 }
 
 export async function createNews(data: Record<string, unknown>) {
-  const response = await adminApi.post('news', data)
+  const response = await adminApi.post('posts', data)
   return response.data
 }
 
 export async function updateNews(id: number, data: Record<string, unknown>) {
-  const response = await adminApi.put(`news/${id}`, data)
+  const response = await adminApi.put(`posts/${id}`, data)
   return response.data
 }
 
 export async function deleteNews(id: number) {
-  const response = await adminApi.delete(`news/${id}`)
+  const response = await adminApi.delete(`posts/${id}`)
   return response.data
 }
 
@@ -180,27 +180,27 @@ export async function deletePressKit(id: number) {
 }
 
 export async function getTeamMembers(params?: Record<string, unknown>) {
-  const response = await adminApi.get('team', { params })
+  const response = await adminApi.get('team-members', { params })
   return response.data
 }
 
 export async function getTeamMember(id: number) {
-  const response = await adminApi.get(`team/${id}`)
+  const response = await adminApi.get(`team-members/${id}`)
   return response.data
 }
 
 export async function createTeamMember(data: Record<string, unknown>) {
-  const response = await adminApi.post('team', data)
+  const response = await adminApi.post('team-members', data)
   return response.data
 }
 
 export async function updateTeamMember(id: number, data: Record<string, unknown>) {
-  const response = await adminApi.put(`team/${id}`, data)
+  const response = await adminApi.put(`team-members/${id}`, data)
   return response.data
 }
 
 export async function deleteTeamMember(id: number) {
-  const response = await adminApi.delete(`team/${id}`)
+  const response = await adminApi.delete(`team-members/${id}`)
   return response.data
 }
 
@@ -251,6 +251,189 @@ export async function updateGenre(id: number, data: Record<string, unknown>) {
 
 export async function deleteGenre(id: number) {
   const response = await adminApi.delete(`genres/${id}`)
+  return response.data
+}
+
+export async function getMedia(params?: Record<string, unknown>) {
+  const response = await adminApi.get('media-library', { params })
+  return response.data
+}
+
+export async function uploadMedia(file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await adminApi.post('media-library/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return response.data
+}
+
+export async function uploadMultipleMedia(files: File[]) {
+  const formData = new FormData()
+  files.forEach(f => formData.append('files[]', f))
+  const response = await adminApi.post('media-library/upload-multiple', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return response.data
+}
+
+export async function deleteMedia(id: number) {
+  const response = await adminApi.delete(`media-library/${id}`)
+  return response.data
+}
+
+export async function bulkDeleteMedia(ids: number[]) {
+  const response = await adminApi.post('media-library/bulk-delete', { ids })
+  return response.data
+}
+
+export async function getModules() {
+  const response = await adminApi.get('modules')
+  return response.data
+}
+
+export async function updateModule(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`modules/${id}`, data)
+  return response.data
+}
+
+export async function reorderModules(modules: { id: number; sort_order: number }[]) {
+  const response = await adminApi.post('modules/reorder', { modules })
+  return response.data
+}
+
+export async function bulkUpdateModules(modules: { id: number; is_enabled: boolean }[]) {
+  const response = await adminApi.post('modules/bulk-update', { modules })
+  return response.data
+}
+
+export async function getBanners() {
+  const response = await adminApi.get('banners')
+  return response.data
+}
+
+export async function getBanner(id: number) {
+  const response = await adminApi.get(`banners/${id}`)
+  return response.data
+}
+
+export async function createBanner(data: Record<string, unknown>) {
+  const response = await adminApi.post('banners', data)
+  return response.data
+}
+
+export async function updateBanner(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`banners/${id}`, data)
+  return response.data
+}
+
+export async function deleteBanner(id: number) {
+  const response = await adminApi.delete(`banners/${id}`)
+  return response.data
+}
+
+export async function reorderBanners(banners: { id: number; sort_order: number }[]) {
+  const response = await adminApi.post('banners/reorder', { banners })
+  return response.data
+}
+
+export async function getAdvertisements() {
+  const response = await adminApi.get('advertisements')
+  return response.data
+}
+
+export async function getAdvertisement(id: number) {
+  const response = await adminApi.get(`advertisements/${id}`)
+  return response.data
+}
+
+export async function createAdvertisement(data: Record<string, unknown>) {
+  const response = await adminApi.post('advertisements', data)
+  return response.data
+}
+
+export async function updateAdvertisement(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`advertisements/${id}`, data)
+  return response.data
+}
+
+export async function deleteAdvertisement(id: number) {
+  const response = await adminApi.delete(`advertisements/${id}`)
+  return response.data
+}
+
+export async function getMenus() {
+  const response = await adminApi.get('menus')
+  return response.data
+}
+
+export async function getMenu(id: number) {
+  const response = await adminApi.get(`menus/${id}`)
+  return response.data
+}
+
+export async function createMenu(data: Record<string, unknown>) {
+  const response = await adminApi.post('menus', data)
+  return response.data
+}
+
+export async function updateMenu(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`menus/${id}`, data)
+  return response.data
+}
+
+export async function deleteMenu(id: number) {
+  const response = await adminApi.delete(`menus/${id}`)
+  return response.data
+}
+
+export async function getMenuItems(menuId: number) {
+  const response = await adminApi.get(`menus/${menuId}/items`)
+  return response.data
+}
+
+export async function createMenuItem(data: Record<string, unknown>) {
+  const response = await adminApi.post('menu-items', data)
+  return response.data
+}
+
+export async function updateMenuItem(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`menu-items/${id}`, data)
+  return response.data
+}
+
+export async function deleteMenuItem(id: number) {
+  const response = await adminApi.delete(`menu-items/${id}`)
+  return response.data
+}
+
+export async function reorderMenuItems(items: { id: number; sort_order: number }[]) {
+  const response = await adminApi.post('menu-items/reorder', { items })
+  return response.data
+}
+
+export async function getPages() {
+  const response = await adminApi.get('pages')
+  return response.data
+}
+
+export async function getPage(id: number) {
+  const response = await adminApi.get(`pages/${id}`)
+  return response.data
+}
+
+export async function createPage(data: Record<string, unknown>) {
+  const response = await adminApi.post('pages', data)
+  return response.data
+}
+
+export async function updatePage(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`pages/${id}`, data)
+  return response.data
+}
+
+export async function deletePage(id: number) {
+  const response = await adminApi.delete(`pages/${id}`)
   return response.data
 }
 

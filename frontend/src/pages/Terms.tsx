@@ -2,10 +2,12 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Section, Container } from '@/components/layout/Section'
 import { Button } from '@/components/ui/Button'
+import { SEOHead } from '@/components/seo/SEOHead'
 import { Home, ArrowLeft } from 'lucide-react'
 
 export const Terms: React.FC = () => (
   <>
+    <SEOHead title="Terms of Service" />
     <Section id='terms-hero' background='dark' padding='xl' className='relative overflow-hidden'>
       <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
       <Container>
@@ -137,7 +139,7 @@ export const Terms: React.FC = () => (
       <Container>
         <div className='max-w-3xl mx-auto text-center'>
           <h2 className='heading-2 text-brand-white mb-4'>Ready to Explore?</h2>
-          <p className='text-brand-white/80 text-lg mb-8'>
+          <p className='text-brand-white/80 text-lg mb-5'>
             Now that you're familiar with our terms, dive into our cinematic world.
           </p>
           <div className='flex flex-col sm:flex-row gap-4 justify-center'>

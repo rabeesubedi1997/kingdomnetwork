@@ -1,30 +1,56 @@
-import { NavLink } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { getModules, reorderModules } from '@/lib/admin-api'
 import { cn } from '@/lib/utils'
 import {
-  LayoutDashboard,
-  Settings,
-  Film,
-  Newspaper,
-  Briefcase,
-  Images,
-  FileText,
-  Users,
-  UserCircle,
-  Tags,
-  X,
+  LayoutDashboard, Library, Settings, Film, Newspaper, Briefcase, Images,
+  FileText, Users, UserCircle, Tags, Puzzle, LogOut, ChevronDown,
+  GripVertical, Check, X, Menu as MenuIcon, Image as ImageIcon, DollarSign,
+  MenuSquare, Globe, Trophy, Search as SearchIcon, Mail,
+  ShoppingBag, Award, Calendar, Radio, Monitor, BookOpen, EyeOff, TrendingUp,
 } from 'lucide-react'
+import { useAdminStore } from '@/lib/admin-store'
+import { toast } from 'react-hot-toast'
 
-const navItems = [
-  { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/admin/site-settings', icon: Settings, label: 'Site Settings' },
-  { to: '/admin/films', icon: Film, label: 'Films' },
-  { to: '/admin/news', icon: Newspaper, label: 'News' },
-  { to: '/admin/jobs', icon: Briefcase, label: 'Jobs' },
-  { to: '/admin/gallery', icon: Images, label: 'Gallery' },
-  { to: '/admin/press-kits', icon: FileText, label: 'Press Kit' },
-  { to: '/admin/team', icon: Users, label: 'Team' },
-  { to: '/admin/people', icon: UserCircle, label: 'People' },
-  { to: '/admin/genres', icon: Tags, label: 'Genres' },
+const iconMap: Record<string, any> = {
+  dashboard: LayoutDashboard, media: Library, settings: Settings, films: Film,
+  news: Newspaper, careers: Briefcase, gallery: Images, press_kit: FileText,
+  team: Users, people: UserCircle, genres: Tags, modules: Puzzle,
+  banners: ImageIcon, advertisements: DollarSign,
+  menus: MenuSquare, pages: Globe, awards: Trophy, search: SearchIcon, newsletter: Mail,
+  shop: ShoppingBag, membership: Award, events: Calendar, podcasts: Radio,
+  tv: Monitor, comics: BookOpen, screening: EyeOff, investors: TrendingUp,
+}
+
+const adminModules = [
+  { key: 'dashboard', label: 'Dashboard', path: '/admin', icon: 'dashboard', end: true },
+  { key: 'media', label: 'Media Library', path: '/admin/media-library', icon: 'media', end: false },
+  { key: 'settings', label: 'Site Settings', path: '/admin/site-settings', icon: 'settings', end: false },
+  { key: 'modules', label: 'Modules', path: '/admin/modules', icon: 'modules', end: false },
+  { key: 'films', label: 'Films', path: '/admin/films', icon: 'films', end: false, module: 'films' },
+  { key: 'news', label: 'News', path: '/admin/news', icon: 'news', end: false, module: 'news' },
+  { key: 'gallery', label: 'Gallery', path: '/admin/gallery', icon: 'gallery', end: false, module: 'gallery' },
+  { key: 'careers', label: 'Jobs', path: '/admin/jobs', icon: 'careers', end: false, module: 'careers' },
+  { key: 'press_kit', label: 'Press Kits', path: '/admin/press-kits', icon: 'press_kit', end: false, module: 'press_kit' },
+  { key: 'team', label: 'Team', path: '/admin/team', icon: 'team', end: false, module: 'core' },
+  { key: 'people', label: 'People', path: '/admin/people', icon: 'people', end: false, module: 'people' },
+  { key: 'newsletter', label: 'Newsletter', path: '/admin/newsletter', icon: 'newsletter', end: false, module: 'newsletter' },
+  { key: 'genres', label: 'Genres', path: '/admin/genres', icon: 'genres', end: false, module: 'films' },
+  { key: 'banners', label: 'Banner Slider', path: '/admin/banners', icon: 'banners', end: false },
+  { key: 'advertisements', label: 'Advertisements', path: '/admin/advertisements', icon: 'advertisements', end: false },
+  { key: 'menus', label: 'Menu Management', path: '/admin/menus', icon: 'menus', end: false },
+  { key: 'pages', label: 'Pages', path: '/admin/pages', icon: 'pages', end: false },
+  { key: 'awards', label: 'Awards', path: '/admin/awards', icon: 'awards', end: false, module: 'awards' },
+  { key: 'search', label: 'Search Settings', path: '/admin/search', icon: 'search', end: false, module: 'search' },
+  { key: 'shop', label: 'Shop', path: '/admin/modules', icon: 'shop', end: false, module: 'shop' },
+  { key: 'membership', label: 'Membership', path: '/admin/modules', icon: 'membership', end: false, module: 'membership' },
+  { key: 'events', label: 'Events', path: '/admin/modules', icon: 'events', end: false, module: 'events' },
+  { key: 'podcasts', label: 'Podcasts', path: '/admin/modules', icon: 'podcasts', end: false, module: 'podcasts' },
+  { key: 'tv', label: 'TV', path: '/admin/modules', icon: 'tv', end: false, module: 'tv' },
+  { key: 'comics', label: 'Comics', path: '/admin/modules', icon: 'comics', end: false, module: 'comics' },
+  { key: 'screening', label: 'Screenings', path: '/admin/modules', icon: 'screening', end: false, module: 'screening' },
+  { key: 'investors', label: 'Investors', path: '/admin/modules', icon: 'investors', end: false, module: 'investors' },
 ]
 
 interface AdminSidebarProps {
@@ -33,60 +59,155 @@ interface AdminSidebarProps {
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({ open, onClose }) => {
+  const { user, logout } = useAdminStore()
+  const location = useLocation()
+  const queryClient = useQueryClient()
+  const [items, setItems] = useState(adminModules)
+  const [dragIdx, setDragIdx] = useState<number | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
+
+  const { data: modules } = useQuery({
+    queryKey: ['admin', 'modules'],
+    queryFn: getModules,
+  })
+
+  useEffect(() => {
+    if (modules) {
+      const moduleMap: Record<string, any> = {}
+      ;(Array.isArray(modules) ? modules : modules.data || []).forEach((m: any) => {
+        moduleMap[m.module_name] = m
+      })
+    const sorted = [...adminModules].sort((a, b) => {
+      const aHasModule = !!a.module
+      const bHasModule = !!b.module
+      if (!aHasModule && bHasModule) return -1
+      if (aHasModule && !bHasModule) return 1
+      const ma = moduleMap[a.module || a.key]
+      const mb = moduleMap[b.module || b.key]
+      const oa = ma?.sort_order ?? 99
+      const ob = mb?.sort_order ?? 99
+      return oa - ob
+    })
+      setItems(sorted)
+    }
+  }, [modules])
+
+  const reorderMut = useMutation({
+    mutationFn: reorderModules,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'modules'] }),
+  })
+
+  const handleDragStart = (idx: number) => setDragIdx(idx)
+  const handleDragOver = (e: React.DragEvent, idx: number) => { e.preventDefault(); setDragOverIdx(idx) }
+  const handleDrop = () => {
+    if (dragIdx === null || dragOverIdx === null || dragIdx === dragOverIdx) { setDragIdx(null); setDragOverIdx(null); return }
+    const newItems = [...items]
+    const [removed] = newItems.splice(dragIdx, 1)
+    newItems.splice(dragOverIdx, 0, removed)
+    setItems(newItems)
+    setDragIdx(null)
+    setDragOverIdx(null)
+    const moduleData = newItems.map((item, i) => {
+      const m = (Array.isArray(modules) ? modules : modules?.data || []).find(
+        (mod: any) => mod.module_name === (item.module || item.key)
+      )
+      return m ? { id: m.id, sort_order: i + 1 } : null
+    }).filter(Boolean)
+    if (moduleData.length > 0) reorderMut.mutate(moduleData as any)
+  }
+
+  const isModuleEnabled = (moduleName?: string) => {
+    if (!moduleName) return true
+    const m = (Array.isArray(modules) ? modules : modules?.data || []).find(
+      (mod: any) => mod.module_name === moduleName
+    )
+    return m ? m.is_enabled : true
+  }
+
+  const visibleItems = items.filter(item => isModuleEnabled(item.module))
+
   return (
     <>
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
-      <aside
-        className={cn(
-          'fixed top-0 left-0 z-50 h-full w-64 bg-brand-dark text-white flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:z-auto',
-          open ? 'translate-x-0' : '-translate-x-full'
-        )}
-      >
-        <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+      {open && <div className="fixed inset-0 bg-black/70 z-40 lg:hidden backdrop-blur-sm" onClick={onClose} />}
+      <aside style={{ width: 'var(--sidebar-width)' }} className={cn(
+        'fixed top-0 left-0 z-50 h-screen flex flex-col transition-all duration-300 ease-in-out lg:relative',
+        'bg-[#0a0f14] border-r border-[#1e3040]',
+        open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      )}>
+        <div className="flex items-center justify-between px-5 h-16 border-b border-[#1e3040] bg-[#0d1a24]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-brand-gold flex items-center justify-center">
-              <span className="text-brand-dark font-bold text-sm">K</span>
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#09333f] to-[#0d4555] flex items-center justify-center shadow-lg shadow-[#09333f]/30">
+              <span className="text-white font-bold text-lg">K</span>
             </div>
-            <span className="font-display font-semibold text-lg">Admin</span>
+            <div>
+              <span className="font-bold text-sm text-white tracking-wide">KINGDOM</span>
+              <span className="text-[#ffcd57] text-[10px] ml-1.5 uppercase tracking-widest font-medium">Admin</span>
+            </div>
           </div>
-          <button
-            onClick={onClose}
-            className="lg:hidden p-1 rounded-lg hover:bg-white/10 transition-colors"
-          >
-            <X size={20} />
+          <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-white/5 text-gray-500">
+            <X size={18} />
           </button>
         </div>
 
-        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={onClose}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                )
-              }
-            >
-              <item.icon size={18} />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-        </nav>
+        <div className="flex-1 py-3 px-2.5 space-y-0.5 overflow-y-auto overflow-x-hidden">
+          {visibleItems.map((item, idx) => {
+            const Icon = iconMap[item.icon] || LayoutDashboard
+            const isActive = item.end
+              ? location.pathname === item.path
+              : location.pathname.startsWith(item.path)
+            return (
+              <div
+                key={item.key}
+                draggable
+                onDragStart={() => handleDragStart(idx)}
+                onDragOver={(e) => handleDragOver(e, idx)}
+                onDrop={handleDrop}
+                onDragEnd={() => { setDragIdx(null); setDragOverIdx(null) }}
+                className={cn(
+                  'group flex items-center transition-all duration-150 rounded-lg',
+                  dragOverIdx === idx && dragIdx !== idx && 'pt-8',
+                  dragIdx === idx && 'opacity-50'
+                )}
+              >
+                <div className="flex items-center justify-center w-5 flex-shrink-0 opacity-0 group-hover:opacity-40 cursor-grab active:cursor-grabbing transition-opacity">
+                  <GripVertical size={14} className="text-gray-500" />
+                </div>
+                <NavLink
+                  to={item.path}
+                  end={item.end}
+                  onClick={(e) => { if (dragIdx !== null) e.preventDefault(); onClose() }}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 w-full ml-1',
+                    isActive
+                      ? 'bg-gradient-to-r from-[#09333f] to-[#0d4555] text-white shadow-md shadow-[#09333f]/20'
+                      : 'text-[#94a3b8] hover:text-white hover:bg-[#1c2a38]'
+                  )}
+                >
+                  <Icon size={18} className="flex-shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </NavLink>
+              </div>
+            )
+          })}
+        </div>
 
-        <div className="px-6 py-4 border-t border-white/10">
-          <p className="text-xs text-white/50">Kingdom Network</p>
-          <p className="text-xs text-white/30">Admin Panel v1.0</p>
+        <div className="px-3 py-3 border-t border-[#1e3040] bg-[#0d1a24]/50">
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg mb-1">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ffcd57] to-[#e6b84d] flex items-center justify-center text-[#09333f] font-bold text-xs shadow-sm">
+              {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white truncate">{user?.name || 'Admin'}</p>
+              <p className="text-[11px] text-[#64748b] truncate">{user?.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => { logout(); window.location.href = '/admin/login' }}
+            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-[#64748b] hover:text-red-400 hover:bg-red-500/5 transition-colors"
+          >
+            <LogOut size={16} />
+            <span>Sign Out</span>
+          </button>
         </div>
       </aside>
     </>

@@ -187,6 +187,13 @@ export interface Media {
   id: number
   url: string
   thumb?: string
+  name?: string
+  file_name?: string
+  mime_type?: string
+  size?: number
+  is_image?: boolean
+  is_video?: boolean
+  created_at?: string
 }
 
 export interface Post {
@@ -289,7 +296,16 @@ export interface TeamMember {
   name: string
   role: string
   bio?: string
-  photo?: Media
+  photo_url?: string
+  email?: string
+  phone?: string
+  birth_date?: string
+  birth_place?: string
+  imdb_url?: string
+  instagram_url?: string
+  twitter_url?: string
+  linkedin_url?: string
+  website_url?: string
   social_links?: SocialLinks
   sort_order: number
   is_active: boolean

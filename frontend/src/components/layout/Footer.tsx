@@ -74,7 +74,7 @@ export const Footer: React.FC = () => {
     <footer>
       <Section padding='xl' background='surface'>
         <Container>
-          <div className='grid md:grid-cols-3 gap-8 mb-16'>
+          <div className='grid md:grid-cols-3 gap-5 mb-6'>
             {[
               { icon: MapPin, label: 'Visit Us', value: brand.contact.address, href: '#' },
               { icon: Phone, label: 'Call Us', value: brand.contact.phone, href: 'tel:' + brand.contact.phone },
@@ -86,7 +86,7 @@ export const Footer: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className='text-center p-6 bg-brand-surface/50 rounded-xl border border-brand-surface'
+                className='text-center p-5 bg-brand-surface/50 rounded-xl border border-brand-surface'
               >
                 <div className='w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-xl flex items-center justify-center'>
                   <item.icon className='w-7 h-7 text-brand-primary' />
@@ -132,8 +132,8 @@ export const Footer: React.FC = () => {
 
       <Section padding='lg' background='dark'>
         <Container>
-          <div className='flex flex-col md:flex-row justify-between items-center gap-6'>
-            <div className='flex flex-wrap justify-center gap-6'>
+          <div className='flex flex-col md:flex-row justify-between items-center gap-5'>
+            <div className='flex flex-wrap justify-center gap-5'>
               {footerLinks.map(link => (
                 <Link key={link.href} to={link.href} className='text-brand-white/70 hover:text-brand-white text-sm transition-colors'>
                   {link.label}

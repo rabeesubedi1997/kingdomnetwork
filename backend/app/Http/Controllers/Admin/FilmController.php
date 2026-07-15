@@ -8,6 +8,7 @@ use App\Models\Film;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Storage;
 
 class FilmController extends Controller
 {
@@ -52,6 +53,8 @@ class FilmController extends Controller
             'published_at' => 'nullable|date',
             'genres' => 'nullable|array',
             'genres.*' => 'exists:genres,id',
+            'poster_url' => 'nullable|string',
+            'banner_url' => 'nullable|string',
         ]);
 
         $film = Film::create($data);
@@ -59,6 +62,8 @@ class FilmController extends Controller
         if ($request->has('genres')) {
             $film->genres()->sync($request->genres);
         }
+
+        $this->syncMedia($film, $request);
 
         return response()->json(new FilmResource($film->load('genres')), 201);
     }
@@ -92,6 +97,8 @@ class FilmController extends Controller
             'published_at' => 'nullable|date',
             'genres' => 'nullable|array',
             'genres.*' => 'exists:genres,id',
+            'poster_url' => 'nullable|string',
+            'banner_url' => 'nullable|string',
         ]);
 
         $film->update($data);
@@ -99,6 +106,8 @@ class FilmController extends Controller
         if ($request->has('genres')) {
             $film->genres()->sync($request->genres);
         }
+
+        $this->syncMedia($film, $request);
 
         return new FilmResource($film->load('genres'));
     }
@@ -108,5 +117,29 @@ class FilmController extends Controller
         $film->delete();
 
         return response()->json(null, 204);
+    }
+
+    private function syncMedia(Film $film, Request $request): void
+    {
+        $collections = ['poster', 'banner'];
+
+        foreach ($collections as $collection) {
+            $url = $request->input("{$collection}_url");
+
+            if (!$url) {
+                $film->clearMediaCollection($collection);
+                continue;
+            }
+
+            $relativePath = str_replace('/storage/', '', $url);
+            $fullPath = Storage::disk('public')->path($relativePath);
+
+            if (file_exists($fullPath)) {
+                $film->clearMediaCollection($collection);
+                $film->addMedia($fullPath)
+                    ->preservingOriginal()
+                    ->toMediaCollection($collection);
+            }
+        }
     }
 }

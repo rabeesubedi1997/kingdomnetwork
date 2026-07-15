@@ -54,8 +54,8 @@ export const LoginPage: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-brand-surface/50">
-          <div className="text-center mb-8">
+        <div className="bg-white rounded-2xl shadow-xl p-5 border border-brand-surface/50">
+          <div className="text-center mb-5">
             <div className="w-14 h-14 rounded-xl bg-brand-primary flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-display font-bold text-xl">K</span>
             </div>

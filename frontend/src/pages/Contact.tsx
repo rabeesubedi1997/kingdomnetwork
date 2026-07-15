@@ -5,6 +5,7 @@ import { Section, Container } from '@/components/layout/Section';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Mail, MapPin, Phone, Send, CheckCircle } from 'lucide-react';
@@ -51,6 +52,7 @@ export const Contact: React.FC = () => {
 
   return (
     <>
+      <SEOHead title="Contact" description="Get in Touch" />
       <Section id='contact-hero' background='dark' padding='xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
@@ -86,7 +88,7 @@ export const Contact: React.FC = () => {
 
       <Section id='contact-info' padding='xl' background='surface'>
         <Container>
-          <div className='grid md:grid-cols-3 gap-8 mb-16'>
+          <div className='grid md:grid-cols-3 gap-5 mb-6'>
             {[
               { icon: MapPin, label: 'Visit Us', value: contact.address, href: '#' },
               { icon: Phone, label: 'Call Us', value: contact.phone, href: 'tel:' + contact.phone },
@@ -98,7 +100,7 @@ export const Contact: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className='text-center p-6 bg-brand-surface/50 rounded-xl border border-brand-surface'
+                className='text-center p-5 bg-brand-surface/50 rounded-xl border border-brand-surface'
               >
                 <div className='w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-xl flex items-center justify-center'>
                   <item.icon className='w-7 h-7 text-brand-primary' />
@@ -117,9 +119,9 @@ export const Contact: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className='heading-2 text-brand-primary text-center mb-8'>Send Us a Message</h2>
-              <form onSubmit={handleSubmit(onSubmit)} className='space-y-6' noValidate>
-                <div className='grid md:grid-cols-2 gap-6'>
+              <h2 className='heading-2 text-brand-primary text-center mb-5'>Send Us a Message</h2>
+              <form onSubmit={handleSubmit(onSubmit)} className='space-y-5' noValidate>
+                <div className='grid md:grid-cols-2 gap-5'>
                   <Input
                     label='Full Name'
                     placeholder='Your name'
@@ -171,8 +173,8 @@ export const Contact: React.FC = () => {
 
       <Section id='social' padding='xl' background='dark'>
         <Container>
-          <h2 className='heading-2 text-brand-white text-center mb-8'>Follow Our Journey</h2>
-          <div className='flex justify-center gap-6'>
+          <h2 className='heading-2 text-brand-white text-center mb-5'>Follow Our Journey</h2>
+          <div className='flex justify-center gap-5'>
             {[
               { icon: 'Facebook', href: 'https://facebook.com/Kingdomntwork' },
               { icon: 'Instagram', href: 'https://instagram.com/kingdomnetwork' },

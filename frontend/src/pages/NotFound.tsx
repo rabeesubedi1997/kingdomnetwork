@@ -12,7 +12,7 @@ export const NotFound: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className='mb-8'
+            className='mb-5'
           >
             <div className='w-24 h-24 mx-auto mb-6 bg-brand-primary/10 rounded-2xl flex items-center justify-center'>
               <Film className='w-12 h-12 text-brand-primary' />
@@ -40,7 +40,7 @@ export const NotFound: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className='text-brand-muted text-lg mb-8 max-w-sm mx-auto'
+            className='text-brand-muted text-lg mb-5 max-w-sm mx-auto'
           >
             The page you're looking for doesn't exist or has been moved.
             Maybe it's in post-production?
@@ -70,7 +70,7 @@ export const NotFound: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className='mt-12 pt-8 border-t border-brand-surface/50'
+            className='mt-8 pt-8 border-t border-brand-surface/50'
           >
             <p className='text-brand-muted text-sm mb-4'>Or search for what you need:</p>
             <form action='/films' method='GET' className='flex gap-2 max-w-sm mx-auto'>

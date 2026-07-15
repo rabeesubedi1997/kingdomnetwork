@@ -17,10 +17,10 @@ const backgroundClasses = {
 
 const paddingClasses = {
   none: '',
-  sm: 'py-8 md:py-12',
-  md: 'py-12 md:py-16 lg:py-20',
-  lg: 'py-16 md:py-20 lg:py-24 xl:py-28',
-  xl: 'py-20 md:py-24 lg:py-28 xl:py-32',
+  sm: 'py-3 md:py-5',
+  md: 'py-5 md:py-6 lg:py-8',
+  lg: 'py-6 md:py-8 lg:py-10',
+  xl: 'py-8 md:py-10 lg:py-12',
 }
 
 export const Section: React.FC<SectionProps> = ({

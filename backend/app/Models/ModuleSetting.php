@@ -13,6 +13,7 @@ class ModuleSetting extends Model
         'module_name',
         'is_enabled',
         'config',
+        'sort_order',
     ];
 
     protected $casts = [

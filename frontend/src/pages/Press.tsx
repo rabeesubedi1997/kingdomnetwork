@@ -3,6 +3,7 @@ import { usePressKits } from '@/hooks/useData'
 import { Section, Container } from '@/components/layout/Section'
 import { PressKitCard } from '@/components/press/PressKitCard'
 import { GridSkeleton } from '@/components/ui/Loading'
+import { SEOHead } from '@/components/seo/SEOHead'
 import { FileText } from 'lucide-react'
 
 export const Press = () => {
@@ -10,6 +11,7 @@ export const Press = () => {
 
   return (
     <>
+      <SEOHead title="Press" description="Press & Media Kit" />
       <Section id='press-hero' background='dark' padding='xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
@@ -49,7 +51,7 @@ export const Press = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className='mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
+            <div className='mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
               <div>
                 <h2 className='heading-2 mb-2 text-brand-primary'>Press Kits</h2>
                 <p className='text-brand-muted'>Download official press materials for our film productions.</p>

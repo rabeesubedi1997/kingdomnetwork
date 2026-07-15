@@ -7,13 +7,13 @@ interface StatusBadgeProps {
   showLabel?: boolean
 }
 
-const statusStyles: Record<Film['status'], { label: string; color: string; icon: string }> = {
-  released: { label: 'Released', color: 'bg-green-500', icon: '✓' },
-  post_production: { label: 'Post-Production', color: 'bg-blue-500', icon: '🎬' },
-  pre_production: { label: 'Pre-Production', color: 'bg-yellow-500', icon: '📋' },
-  development: { label: 'Development', color: 'bg-purple-500', icon: '✏️' },
-  announced: { label: 'Announced', color: 'bg-gray-500', icon: '📢' },
-  cancelled: { label: 'Cancelled', color: 'bg-red-500', icon: '✕' },
+const statusStyles: Record<Film['status'], { label: string; color: string; dot: string }> = {
+  released: { label: 'Released', color: 'bg-green-500', dot: 'bg-green-400' },
+  post_production: { label: 'Post-Production', color: 'bg-blue-500', dot: 'bg-blue-400' },
+  pre_production: { label: 'Pre-Production', color: 'bg-yellow-500', dot: 'bg-yellow-400' },
+  development: { label: 'Development', color: 'bg-purple-500', dot: 'bg-purple-400' },
+  announced: { label: 'Announced', color: 'bg-gray-500', dot: 'bg-gray-400' },
+  cancelled: { label: 'Cancelled', color: 'bg-red-500', dot: 'bg-red-400' },
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, large = false, showLabel = true }) => {
@@ -26,7 +26,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, large = false,
         config.color,
         'text-white'
       )}>
-        <span className='text-lg'>{config.icon}</span>
+        <span className={cn('w-2 h-2 rounded-full', config.dot)} />
         {showLabel && <span>{config.label}</span>}
       </div>
     )
@@ -38,7 +38,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, large = false,
       config.color,
       'text-white'
     )}>
-      <span>{config.icon}</span>
+      <span className={cn('w-1.5 h-1.5 rounded-full', config.dot)} />
       {showLabel && <span>{config.label}</span>}
     </span>
   )

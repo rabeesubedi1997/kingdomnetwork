@@ -1,78 +1,79 @@
 import { useState, useEffect } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAdminStore } from '@/lib/admin-store'
 import { AdminSidebar } from './AdminSidebar'
-import { Menu, LogOut, User } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { toast } from 'react-hot-toast'
+import { Menu, Search, Bell, Maximize2 } from 'lucide-react'
+
+const pageTitles: Record<string, string> = {
+  '/admin': 'Dashboard', '/admin/media-library': 'Media Library',
+  '/admin/site-settings': 'Site Settings', '/admin/modules': 'Modules',
+  '/admin/films': 'Films', '/admin/news': 'News', '/admin/jobs': 'Jobs',
+  '/admin/gallery': 'Gallery Albums', '/admin/press-kits': 'Press Kits',
+  '/admin/team': 'Team Members', '/admin/people': 'People', '/admin/genres': 'Genres',
+}
 
 export const AdminLayout: React.FC = () => {
-  const { isAuthenticated, isLoading, user, logout, checkAuth } = useAdminStore()
+  const { isAuthenticated, isLoading, checkAuth } = useAdminStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  useEffect(() => { checkAuth() }, [])
   useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
+    if (!isLoading && !isAuthenticated) navigate('/admin/login')
+  }, [isLoading, isAuthenticated])
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate('/admin/login')
-    }
-  }, [isLoading, isAuthenticated, navigate])
-
-  if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-brand-surface">
-        <div className="w-10 h-10 rounded-full border-3 border-brand-primary/20 border-t-brand-primary animate-spin" />
-      </div>
-    )
-  }
-
+  if (isLoading) return (
+    <div className="h-screen flex items-center justify-center" style={{ background: '#0a0f14' }}>
+      <div className="w-10 h-10 rounded-full border-3 border-[#09333f]/30 border-t-[#09333f] animate-spin" />
+    </div>
+  )
   if (!isAuthenticated) return null
 
-  const handleLogout = () => {
-    logout()
-    toast.success('Logged out')
-    navigate('/admin/login')
-  }
+  const currentTitle = Object.entries(pageTitles).find(([path]) =>
+    location.pathname === path || (path !== '/admin' && location.pathname.startsWith(path))
+  )?.[1] || 'Admin'
 
   return (
-    <div className="min-h-screen bg-brand-surface flex">
+    <div className="admin-dark h-screen flex overflow-hidden" style={{ background: '#0a0f14', color: '#f1f5f9' }}>
       <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-brand-surface/50 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-brand-primary/10 transition-colors"
-          >
-            <Menu size={20} className="text-brand-text" />
-          </button>
-
-          <div className="flex-1" />
-
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 text-sm text-brand-muted">
-              <User size={16} />
-              <span>{user?.name || 'Admin'}</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
+      <div className="flex-1 flex flex-col min-w-0 h-screen">
+        <header
+          className="h-16 flex-shrink-0 flex items-center justify-between px-4 lg:px-6 border-b"
+          style={{ background: '#0d1a24', borderColor: '#1e3040' }}
+        >
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
             >
-              <LogOut size={16} className="mr-1.5" />
-              Logout
-            </Button>
+              <Menu size={20} className="text-[#94a3b8]" />
+            </button>
+            <div>
+              <h1 className="text-lg font-bold text-white tracking-tight">{currentTitle}</h1>
+              <p className="text-[11px] text-[#64748b] hidden sm:block font-mono">{location.pathname}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-text" style={{ background: '#1c2a38' }}>
+              <Search size={14} className="text-[#64748b]" />
+              <span className="text-xs text-[#64748b]">Search...</span>
+              <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ background: '#0a0f14', color: '#64748b' }}>⌘K</kbd>
+            </div>
+            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors relative">
+              <Bell size={18} className="text-[#94a3b8]" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: '#ffcd57' }} />
+            </button>
+            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors hidden sm:block">
+              <Maximize2 size={16} className="text-[#64748b]" />
+            </button>
           </div>
         </header>
-
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">
+        <main className="flex-1 p-4 lg:p-6 overflow-y-auto min-h-0">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
           >

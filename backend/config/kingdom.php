@@ -27,6 +27,9 @@ return [
         'investors'     => false,  // Investor relations portal
         'newsletter'    => true,   // Email capture + campaigns
         'seo_sitemap'   => true,   // Auto sitemap, robots.txt, JSON-LD
+        'awards'        => true,   // Awards & accolades page with wins/nominations
+        'people'        => true,   // Individual cast/crew profile pages with filmography
+        'search'        => true,   // Global search across all content types
     ],
 
     /*

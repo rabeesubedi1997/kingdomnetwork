@@ -1,163 +1,116 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getJobs, createJob, updateJob, deleteJob } from '@/lib/admin-api'
-import { AdminTable, type Column } from '@/components/admin/AdminTable'
-import { AdminModal } from '@/components/admin/AdminModal'
-import { AdminForm } from '@/components/admin/AdminForm'
+import { getJobs, getJob, createJob, updateJob, deleteJob } from '@/lib/admin-api'
+import { motion } from 'framer-motion'
+import { Edit2, Trash2, Plus, Search } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Edit2, Trash2, Plus } from 'lucide-react'
+import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
+import { Select } from '@/components/ui/Select'
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog'
 import { toast } from 'react-hot-toast'
-import type { Job } from '@/types'
-
-interface JobForm {
-  title: string
-  slug: string
-  department: string
-  type: string
-  location: string
-  description: string
-  requirements: string
-  is_open: string
-}
+import { cn } from '@/lib/utils'
 
 const typeOptions = [
-  { value: 'full_time', label: 'Full Time' },
-  { value: 'part_time', label: 'Part Time' },
-  { value: 'contract', label: 'Contract' },
-  { value: 'internship', label: 'Internship' },
-  { value: 'freelance', label: 'Freelance' },
+  { value: 'full_time', label: 'Full Time' }, { value: 'part_time', label: 'Part Time' },
+  { value: 'contract', label: 'Contract' }, { value: 'internship', label: 'Internship' }, { value: 'freelance', label: 'Freelance' },
 ]
 
+const typeColors: Record<string, string> = {
+  full_time: 'bg-blue-500/10 text-blue-400', part_time: 'bg-purple-500/10 text-purple-400',
+  contract: 'bg-amber-500/10 text-amber-400', internship: 'bg-green-500/10 text-green-400',
+  freelance: 'bg-cyan-500/10 text-cyan-400',
+}
+
 export const JobsPage: React.FC = () => {
-  const queryClient = useQueryClient()
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Job | null>(null)
+  const qc = useQueryClient(); const [page, setPage] = useState(1); const [search, setSearch] = useState('')
+  const [editingId, setEditingId] = useState<number | null>(null); const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [form, setForm] = useState({ title: '', slug: '', department: '', type: 'full_time', location: '', description: '', requirements: '', benefits: '', salary_range: '', is_remote: false, is_open: true })
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'jobs', page, search],
-    queryFn: () => getJobs({ page, per_page: 15, search: search || undefined }),
-  })
+  const { data, isLoading } = useQuery({ queryKey: ['admin', 'jobs', page, search], queryFn: () => getJobs({ page, per_page: 15, search: search || undefined }) })
 
-  const createMutation = useMutation({
-    mutationFn: createJob,
-    onSuccess: () => {
-      toast.success('Job created')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'jobs'] })
-      setModalOpen(false)
-    },
-    onError: () => toast.error('Failed to create job'),
-  })
+  const createMut = useMutation({ mutationFn: createJob, onSuccess: () => { toast.success('Created'); qc.invalidateQueries({ queryKey: ['admin', 'jobs'] }); setEditingId(-1); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
+  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => updateJob(id, data), onSuccess: () => { toast.success('Updated'); qc.invalidateQueries({ queryKey: ['admin', 'jobs'] }); setEditingId(null); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
+  const deleteMut = useMutation({ mutationFn: deleteJob, onSuccess: () => { toast.success('Deleted'); qc.invalidateQueries({ queryKey: ['admin', 'jobs'] }); setDeleteId(null) } })
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Record<string, unknown> }) => updateJob(id, data),
-    onSuccess: () => {
-      toast.success('Job updated')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'jobs'] })
-      setModalOpen(false)
-      setEditing(null)
-    },
-    onError: () => toast.error('Failed to update job'),
-  })
+  const resetForm = () => setForm({ title: '', slug: '', department: '', type: 'full_time', location: '', description: '', requirements: '', benefits: '', salary_range: '', is_remote: false, is_open: true })
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteJob,
-    onSuccess: () => {
-      toast.success('Job deleted')
-      queryClient.invalidateQueries({ queryKey: ['admin', 'jobs'] })
-    },
-    onError: () => toast.error('Failed to delete job'),
-  })
-
-  const handleSubmit = async (formData: JobForm) => {
-    const payload = { ...formData, is_open: formData.is_open === 'true' }
-    if (editing) {
-      updateMutation.mutate({ id: editing.id, data: payload as unknown as Record<string, unknown> })
-    } else {
-      createMutation.mutate(payload as unknown as Record<string, unknown>)
-    }
+  const openEdit = async (id: number) => {
+    setEditingId(id)
+    try { const r = await getJob(id); const j = r.data || r; setForm({ title: j.title || '', slug: j.slug || '', department: j.department || '', type: j.type || 'full_time', location: j.location || '', description: j.description || '', requirements: j.requirements || '', benefits: j.benefits || '', salary_range: j.salary_range || '', is_remote: j.is_remote || false, is_open: j.is_open !== false }) }
+    catch { toast.error('Failed to load') }
   }
 
-  const columns: Column<Job>[] = [
-    { key: 'id', label: 'ID', sortable: true, className: 'w-16' },
-    { key: 'title', label: 'Title', sortable: true },
-    { key: 'department', label: 'Department', sortable: true },
-    { key: 'type', label: 'Type', sortable: true, render: (j) => (
-      <span className="capitalize">{j.type.replace('_', ' ')}</span>
-    )},
-    { key: 'location', label: 'Location', sortable: true },
-    { key: 'is_open', label: 'Status', sortable: true, render: (j) => (
-      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${j.is_open ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-        {j.is_open ? 'Open' : 'Closed'}
-      </span>
-    )},
-  ]
+  const handleSubmit = () => {
+    if (editingId && editingId > 0) updateMut.mutate({ id: editingId, data: form })
+    else createMut.mutate(form as any)
+  }
+
+  const items = data?.data || []
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-brand-text">Jobs</h1>
-          <p className="text-brand-muted text-sm mt-1">Manage career listings</p>
-        </div>
-        <Button onClick={() => { setEditing(null); setModalOpen(true) }}>
-          <Plus size={18} className="mr-1.5" />
-          Add Job
-        </Button>
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div><h1 className="text-xl font-bold text-white">Jobs</h1><p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Manage career listings</p></div>
+        <Button onClick={() => { setEditingId(-1); resetForm() }} style={{ background: '#09333f' }}><Plus size={16} className="mr-1.5" /> Add Job</Button>
       </div>
 
-      <AdminTable
-        columns={columns}
-        data={data?.data || []}
-        keyExtractor={(j) => j.id}
-        isLoading={isLoading}
-        currentPage={data?.current_page || page}
-        lastPage={data?.last_page || 1}
-        total={data?.total || 0}
-        onPageChange={setPage}
-        onSearch={(val) => { setSearch(val); setPage(1) }}
-        searchPlaceholder="Search jobs..."
-        actions={(item) => (
-          <div className="flex items-center gap-1 justify-end">
-            <button onClick={() => { setEditing(item); setModalOpen(true) }} className="p-1.5 rounded-lg hover:bg-brand-primary/10 text-brand-muted hover:text-brand-primary transition-colors"><Edit2 size={16} /></button>
-            <button onClick={() => { if (window.confirm(`Delete "${item.title}"?`)) deleteMutation.mutate(item.id) }} className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+      {editingId !== null && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border" style={{ background: '#111820', borderColor: '#1e3040' }}>
+          <div className="px-6 py-4 border-b" style={{ borderColor: '#1e3040' }}><h2 className="font-semibold text-white">{editingId === -1 ? 'Create Job' : 'Edit Job'}</h2></div>
+          <div className="p-5 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Title *</label><Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Slug</label><Input value={form.slug} onChange={e => setForm(p => ({ ...p, slug: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Department</label><Input value={form.department} onChange={e => setForm(p => ({ ...p, department: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Type</label><Select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))} options={typeOptions} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Location</label><Input value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Salary Range</label><Input value={form.salary_range} onChange={e => setForm(p => ({ ...p, salary_range: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            </div>
+            <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Description</label><Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={3} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Requirements</label><Textarea value={form.requirements} onChange={e => setForm(p => ({ ...p, requirements: e.target.value }))} rows={3} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Benefits</label><Textarea value={form.benefits} onChange={e => setForm(p => ({ ...p, benefits: e.target.value }))} rows={2} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} /></div>
+            <div className="flex items-center gap-5">
+              <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.is_remote} onChange={e => setForm(p => ({ ...p, is_remote: e.target.checked }))} className="w-4 h-4 rounded" style={{ accentColor: '#ffcd57' }} /><span className="text-sm" style={{ color: '#cbd5e1' }}>Remote</span></label>
+              <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.is_open} onChange={e => setForm(p => ({ ...p, is_open: e.target.checked }))} className="w-4 h-4 rounded" style={{ accentColor: '#ffcd57' }} /><span className="text-sm" style={{ color: '#cbd5e1' }}>Open</span></label>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t" style={{ borderColor: '#1e3040' }}>
+              <Button variant="ghost" onClick={() => { setEditingId(null); resetForm() }} className="text-gray-400">Cancel</Button>
+              <Button onClick={handleSubmit} loading={createMut.isPending || updateMut.isPending} style={{ background: '#09333f' }}>{editingId === -1 ? 'Create' : 'Update'}</Button>
+            </div>
           </div>
-        )}
-      />
+        </motion.div>
+      )}
 
-      <AdminModal
-        open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditing(null) }}
-        title={editing ? 'Edit Job' : 'Create Job'}
-        size="lg"
-      >
-        <AdminForm
-          fields={[
-            { name: 'title', label: 'Title', rules: { required: 'Title is required' } },
-            { name: 'slug', label: 'Slug', rules: { required: 'Slug is required' } },
-            { name: 'department', label: 'Department', rules: { required: 'Department is required' } },
-            { name: 'type', label: 'Type', type: 'select', options: typeOptions, rules: { required: 'Type is required' } },
-            { name: 'location', label: 'Location' },
-            { name: 'is_open', label: 'Status', type: 'select', options: [{ value: 'true', label: 'Open' }, { value: 'false', label: 'Closed' }] },
-            { name: 'description', label: 'Description', type: 'textarea' },
-            { name: 'requirements', label: 'Requirements', type: 'textarea' },
-          ]}
-          onSubmit={handleSubmit}
-          defaultValues={editing ? {
-            title: editing.title,
-            slug: editing.slug,
-            department: editing.department,
-            type: editing.type,
-            location: editing.location || '',
-            is_open: editing.is_open ? 'true' : 'false',
-            description: editing.description || '',
-            requirements: editing.requirements || '',
-          } : { type: 'full_time', is_open: 'true' }}
-          isSubmitting={createMutation.isPending || updateMutation.isPending}
-          submitLabel={editing ? 'Update Job' : 'Create Job'}
-        />
-      </AdminModal>
+      {!editingId && (
+        <div className="rounded-xl border overflow-hidden" style={{ background: '#111820', borderColor: '#1e3040' }}>
+          <div className="p-4 border-b" style={{ borderColor: '#1e3040' }}>
+            <div className="relative max-w-xs"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#64748b' }} /><Input placeholder="Search jobs..." value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9', paddingLeft: '2.25rem' }} /></div>
+          </div>
+          <table className="w-full text-sm">
+            <thead><tr style={{ background: '#0a0f14' }}><th className="text-left px-4 py-3 font-medium" style={{ color: '#94a3b8' }}>Title</th><th className="text-left px-4 py-3 font-medium" style={{ color: '#94a3b8' }}>Department</th><th className="text-left px-4 py-3 font-medium" style={{ color: '#94a3b8' }}>Type</th><th className="text-left px-4 py-3 font-medium" style={{ color: '#94a3b8' }}>Status</th><th className="text-right px-4 py-3 font-medium w-32" style={{ color: '#94a3b8' }}>Actions</th></tr></thead>
+            <tbody>
+              {isLoading ? Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-t" style={{ borderColor: '#1e3040' }}><td colSpan={5} className="px-4 py-3"><div className="h-4 rounded w-full animate-pulse" style={{ background: '#1c2a38' }} /></td></tr>
+              )) : items.map((j: any) => (
+                <tr key={j.id} className="border-t" style={{ borderColor: '#1e3040' }}>
+                  <td className="px-4 py-3"><p className="font-medium text-white">{j.title}</p></td>
+                  <td className="px-4 py-3" style={{ color: '#94a3b8' }}>{j.department || '-'}</td>
+                  <td className="px-4 py-3"><span className={cn('px-2.5 py-1 rounded-full text-xs font-medium border', typeColors[j.type] || '')}>{(j.type || '').replace(/_/g, ' ')}</span></td>
+                  <td className="px-4 py-3"><span className={cn('px-2.5 py-1 rounded-full text-xs font-medium border', j.is_open ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20')}>{j.is_open ? 'Open' : 'Closed'}</span></td>
+                  <td className="px-4 py-3 text-right"><div className="flex items-center gap-1 justify-end">
+                    <button onClick={() => openEdit(j.id)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white"><Edit2 size={15} /></button>
+                    <button onClick={() => setDeleteId(j.id)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 hover:text-red-400"><Trash2 size={15} /></button>
+                  </div></td>
+                </tr>
+              ))}
+              {items.length === 0 && !isLoading && <tr><td colSpan={5} className="px-4 py-12 text-center" style={{ color: '#64748b' }}>No jobs found</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={() => deleteMut.mutate(deleteId!)} isLoading={deleteMut.isPending} />
     </div>
   )
 }

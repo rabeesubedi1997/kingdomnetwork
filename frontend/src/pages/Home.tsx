@@ -1,19 +1,19 @@
 import { Suspense, lazy } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useFilms, useFeaturedFilms, useSiteSettings } from '@/hooks/useData'
+import { useFilms, useSiteSettings } from '@/hooks/useData'
 import { Section, Container } from '@/components/layout/Section'
 import { FilmCard } from '@/components/film/FilmCard'
-import { HeroSlider } from '@/components/film/HeroSlider'
+import { BannerSlider } from '@/components/banner/BannerSlider'
 import { Loading, GridSkeleton } from '@/components/ui/Loading'
 import { Button } from '@/components/ui/Button'
+import { SEOHead } from '@/components/seo/SEOHead'
 import { ArrowRight, Film as FilmIcon, Award, Users, Globe } from 'lucide-react'
 
 const AboutPreview = lazy(() => import('./AboutPreview').then(m => ({ default: m.AboutPreview })))
 const NewsPreview = lazy(() => import('./NewsPreview').then(m => ({ default: m.NewsPreview })))
 
 export const Home: React.FC = () => {
-  const { data: featuredFilms, isLoading: featuredLoading } = useFeaturedFilms()
   const { data: filmsData, isLoading: filmsLoading } = useFilms({ per_page: 8 })
   const { data: site } = useSiteSettings()
 
@@ -24,13 +24,16 @@ export const Home: React.FC = () => {
     { icon: Globe, value: '15+', label: 'International Festivals' },
   ]
 
+  const aboutShort = (site as any)?.brand?.tagline
+
   return (
     <>
-      <HeroSlider films={featuredFilms?.slice(0, 4) || []} loading={featuredLoading} />
+      <SEOHead title="Home" description={aboutShort || "Kingdom Network is a leading film and media production company in Nepal, dedicated to creating world-class stories that inspire and connect audiences worldwide."} />
+      <BannerSlider />
 
       <Section id="stats" background="brand" padding="md">
         <Container>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -52,7 +55,7 @@ export const Home: React.FC = () => {
 
       <Section id="films" padding="xl">
         <Container>
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-5">
             <div>
               <h2 className="heading-2 text-brand-primary">Our Films</h2>
               <p className="text-brand-muted mt-2 max-w-xl">
@@ -93,7 +96,7 @@ export const Home: React.FC = () => {
             <h2 className="heading-2 text-brand-white mb-4">
               Have a Story to Tell?
             </h2>
-            <p className="text-brand-white/80 text-lg mb-8">
+            <p className="text-brand-white/80 text-lg mb-5">
               We&apos;re always looking for compelling stories and talented collaborators.
               Let&apos;s create something extraordinary together.
             </p>

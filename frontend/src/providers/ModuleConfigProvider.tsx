@@ -46,6 +46,9 @@ export const ModuleConfigProvider = ({ children }: { children: ReactNode }) => {
             screening: false,
             investors: false,
             seo_sitemap: true,
+            awards: true,
+            people: true,
+            search: true,
           },
           brand: {
             name: 'Kingdom Network',

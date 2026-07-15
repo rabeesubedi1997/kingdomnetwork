@@ -4,6 +4,7 @@ import { Section, Container } from '@/components/layout/Section'
 import { NewsCard } from '@/components/news/NewsCard'
 import { NewsFilters } from '@/components/news/NewsFilters'
 import { Loading, GridSkeleton } from '@/components/ui/Loading'
+import { SEOHead } from '@/components/seo/SEOHead'
 import { Newspaper, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 
@@ -15,6 +16,7 @@ export const News: React.FC = () => {
 
   return (
     <>
+      <SEOHead title="News" description="Latest News & Updates" />
       <Section id='news-hero' background='dark' padding='xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
@@ -56,8 +58,8 @@ export const News: React.FC = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <h2 className='heading-2 text-brand-primary mb-8'>Featured Stories</h2>
-              <div className='grid lg:grid-cols-2 gap-8 mb-12'>
+              <h2 className='heading-2 text-brand-primary mb-5'>Featured Stories</h2>
+              <div className='grid lg:grid-cols-2 gap-6 mb-5'>
                 {featured.slice(0, 2).map((post, index) => (
                   <motion.div
                     key={post.id}

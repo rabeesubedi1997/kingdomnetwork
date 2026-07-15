@@ -5,6 +5,7 @@ import { FilmCard } from '@/components/film/FilmCard'
 import { FilmStatusTabs } from '@/components/film/FilmStatusTabs'
 import { Loading, GridSkeleton } from '@/components/ui/Loading'
 import { Button } from '@/components/ui/Button'
+import { SEOHead } from '@/components/seo/SEOHead'
 import { Film as FilmIcon } from 'lucide-react'
 
 export const Films: React.FC = () => {
@@ -27,6 +28,7 @@ export const Films: React.FC = () => {
 
   return (
     <>
+      <SEOHead title="Films" description="Our Film Portfolio" />
       <Section id="films-hero" background="dark" padding="xl" className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent" />
         <Container>
@@ -68,7 +70,7 @@ export const Films: React.FC = () => {
 
       <Section id="all-films" padding="xl">
         <Container>
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-5">
             <div>
               <h2 className="heading-2 text-brand-primary">All Films</h2>
               <p className="text-brand-muted mt-2">
@@ -81,7 +83,7 @@ export const Films: React.FC = () => {
             <GridSkeleton count={8} />
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-5">
                 {allFilms?.data?.slice(0, 8).map((film, index) => (
                   <FilmCard key={film.id} film={film} index={index} />
                 ))}
