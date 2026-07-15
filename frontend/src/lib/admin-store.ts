@@ -22,7 +22,7 @@ export const useAdminStore = create<AdminState>()((set) => ({
   token: localStorage.getItem('admin_token'),
   user: JSON.parse(localStorage.getItem('admin_user') || 'null'),
   isAuthenticated: !!localStorage.getItem('admin_token'),
-  isLoading: true,
+  isLoading: false,
 
   login: async (email: string, password: string) => {
     const data = await adminLogin(email, password)

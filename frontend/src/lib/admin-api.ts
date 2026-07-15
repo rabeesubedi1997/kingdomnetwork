@@ -30,10 +30,7 @@ adminApi.interceptors.response.use(
 )
 
 export async function adminLogin(email: string, password: string) {
-  const response = await axios.post(
-    `${import.meta.env.VITE_API_URL || '/api/v1'}/admin/login`,
-    { email, password }
-  )
+  const response = await adminApi.post('login', { email, password })
   return response.data
 }
 
