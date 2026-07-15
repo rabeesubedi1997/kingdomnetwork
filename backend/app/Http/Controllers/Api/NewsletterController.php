@@ -17,13 +17,18 @@ class NewsletterController extends Controller
             'tags' => 'nullable|array',
         ]);
 
+        $token = Str::random(64);
+        $existing = NewsletterSubscriber::where('email', $validated['email'])->first();
         $subscriber = NewsletterSubscriber::updateOrCreate(
             ['email' => $validated['email']],
             [
                 'name' => $validated['name'] ?? null,
                 'tags' => $validated['tags'] ?? [],
-                'is_subscribed' => true,
-                'confirmation_token' => Str::random(64),
+                'status' => 'pending',
+                'metadata' => array_merge(
+                    $existing?->metadata ?? [],
+                    ['confirmation_token' => $token]
+                ),
             ]
         );
 
@@ -38,16 +43,19 @@ class NewsletterController extends Controller
             'token' => 'required|string',
         ]);
 
-        $subscriber = NewsletterSubscriber::where('metadata->confirmation_token', $validated['token'])->first();
+        $subscriber = NewsletterSubscriber::all()->first(fn($s) => ($s->metadata['confirmation_token'] ?? null) === $validated['token']);
 
         if (!$subscriber) {
             return response()->json(['message' => 'Invalid confirmation token.'], 404);
         }
 
+        $metadata = $subscriber->metadata;
+        unset($metadata['confirmation_token']);
+
         $subscriber->update([
-            'is_confirmed' => true,
+            'status' => 'confirmed',
             'confirmed_at' => now(),
-            'confirmation_token' => null,
+            'metadata' => $metadata,
         ]);
 
         return response()->json(['message' => 'Email confirmed successfully.']);
@@ -66,7 +74,7 @@ class NewsletterController extends Controller
         }
 
         $subscriber->update([
-            'is_subscribed' => false,
+            'status' => 'unsubscribed',
             'unsubscribed_at' => now(),
         ]);
 
@@ -87,9 +95,12 @@ class NewsletterController extends Controller
             return response()->json(['message' => 'Email not found.'], 404);
         }
 
+        $metadata = array_merge($subscriber->metadata ?? [], [
+            'frequency' => $validated['frequency'] ?? 'weekly',
+        ]);
         $subscriber->update([
             'tags' => $validated['tags'],
-            'frequency' => $validated['frequency'] ?? 'weekly',
+            'metadata' => $metadata,
         ]);
 
         return response()->json(['message' => 'Preferences updated.']);

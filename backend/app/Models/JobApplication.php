@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class JobApplication extends Model
+class JobApplication extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'job_id',
@@ -35,5 +37,12 @@ class JobApplication extends Model
     public function resume(): BelongsTo
     {
         return $this->belongsTo(\Spatie\MediaLibrary\MediaCollections\Models\Media::class, 'resume_id');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('resume')
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
     }
 }

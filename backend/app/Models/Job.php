@@ -22,6 +22,7 @@ class Job extends Model
         'salary_range',
         'is_remote',
         'is_open',
+        'sort_order',
         'closes_at',
         'published_at',
     ];

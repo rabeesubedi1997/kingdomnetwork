@@ -54,13 +54,13 @@ class CareerController extends Controller
             'linkedin_url' => 'nullable|url|max:500',
         ]);
 
-        $data = $request->except('resume');
+        $application = $job->applications()->create($request->except('resume'));
 
         if ($request->hasFile('resume')) {
-            $data['resume_path'] = $request->file('resume')->store('resumes', 'media');
+            $application->addMedia($request->file('resume'))
+                ->toMediaCollection('resume');
+            $application->update(['resume_id' => $application->getFirstMedia('resume')?->id]);
         }
-
-        $application = $job->applications()->create($data);
 
         return response()->json($application, 201);
     }

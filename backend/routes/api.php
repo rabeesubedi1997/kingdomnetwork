@@ -1,8 +1,19 @@
 <?php
 
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\FilmController;
+use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\JobController;
+use App\Http\Controllers\Admin\AlbumController;
+use App\Http\Controllers\Admin\PressKitController;
+use App\Http\Controllers\Admin\TeamMemberController;
+use App\Http\Controllers\Admin\PersonController;
+use App\Http\Controllers\Admin\GenreController;
 use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\SiteController;
-use App\Http\Controllers\Api\FilmController;
+use App\Http\Controllers\Api\FilmController as ApiFilmController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\CareerController;
 use App\Http\Controllers\Api\EventController;
@@ -20,13 +31,13 @@ Route::prefix('v1')->group(function () {
     Route::get('/about', [AboutController::class, 'show']);
 
     // Films
-    Route::get('/films', [FilmController::class, 'index']);
-    Route::get('/films/featured', [FilmController::class, 'featured']);
-    Route::get('/films/status/{status}', [FilmController::class, 'byStatus']);
-    Route::get('/films/{slug}', [FilmController::class, 'show']);
-    Route::get('/films/{slug}/gallery', [FilmController::class, 'gallery']);
-    Route::get('/films/{slug}/press-kit', [FilmController::class, 'pressKit']);
-    Route::get('/films/{slug}/screenings', [FilmController::class, 'screenings']);
+    Route::get('/films', [ApiFilmController::class, 'index']);
+    Route::get('/films/featured', [ApiFilmController::class, 'featured']);
+    Route::get('/films/status/{status}', [ApiFilmController::class, 'byStatus']);
+    Route::get('/films/{slug}', [ApiFilmController::class, 'show']);
+    Route::get('/films/{slug}/gallery', [ApiFilmController::class, 'gallery']);
+    Route::get('/films/{slug}/press-kit', [ApiFilmController::class, 'pressKit']);
+    Route::get('/films/{slug}/screenings', [ApiFilmController::class, 'screenings']);
 
     // News
     Route::get('/news', [NewsController::class, 'index']);
@@ -71,5 +82,23 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', fn(Request $request) => $request->user());
         Route::post('/logout', fn(Request $request) => $request->user()->currentAccessToken()->delete());
+    });
+
+    // Admin routes
+    Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+        Route::post('/login', [AuthController::class, 'login'])->withoutMiddleware('auth:sanctum');
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/me', [AuthController::class, 'me']);
+        Route::get('/dashboard', [DashboardController::class, 'index']);
+
+        Route::apiResource('site-settings', SiteSettingController::class);
+        Route::apiResource('films', FilmController::class);
+        Route::apiResource('posts', PostController::class);
+        Route::apiResource('jobs', JobController::class);
+        Route::apiResource('albums', AlbumController::class);
+        Route::apiResource('press-kits', PressKitController::class);
+        Route::apiResource('team-members', TeamMemberController::class);
+        Route::apiResource('people', PersonController::class);
+        Route::apiResource('genres', GenreController::class);
     });
 });

@@ -55,7 +55,7 @@ class NewsController extends Controller
     public function byTag(string $slug)
     {
         $tag = Tag::where('slug', $slug)->firstOrFail();
-        $posts = Post::published()->whereHas('tags', fn($q) => $q->where('id', $tag->id))
+        $posts = Post::published()->whereHas('tags', fn($q) => $q->where('tags.id', $tag->id))
             ->with(['author', 'category', 'tags', 'media'])
             ->orderBy('published_at', 'desc')
             ->paginate(12);

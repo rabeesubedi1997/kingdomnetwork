@@ -14,7 +14,7 @@ class EventController extends Controller
         $query = Event::public()->upcoming()->orderBy('start_datetime');
 
         if ($request->filled('type')) {
-            $query->where('type', $request->type);
+            $query->where('event_type', $request->type);
         }
 
         $perPage = min($request->integer('per_page', 20), 50);

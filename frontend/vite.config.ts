@@ -14,35 +14,11 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8000',
-        changeOrigin: false,
-      },
-      '/admin': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: false,
-      },
-      '/livewire': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: false,
-      },
-      '/css': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: false,
-      },
-      '/js': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: false,
-      },
-      '/fonts': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: false,
-      },
-      '/filament': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: false,
+        changeOrigin: true,
       },
       '/storage': {
         target: 'http://127.0.0.1:8000',
-        changeOrigin: false,
+        changeOrigin: true,
       },
     },
   },

@@ -175,6 +175,7 @@ class ContentSeeder extends Seeder
             'salary_range' => 'Negotiable',
             'is_remote' => false,
             'is_open' => true,
+            'published_at' => Carbon::now()->subDays(3),
         ]);
 
         Job::create([
@@ -189,6 +190,7 @@ class ContentSeeder extends Seeder
             'salary_range' => 'Negotiable',
             'is_remote' => false,
             'is_open' => true,
+            'published_at' => Carbon::now()->subDays(1),
         ]);
 
         Album::create([
