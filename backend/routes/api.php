@@ -113,10 +113,13 @@ Route::prefix('v1')->group(function () {
     // Screening Requests
     Route::post('/screenings/request', [ScreeningController::class, 'request']);
 
+    // Public login/logout (no auth)
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
     // Protected routes (Sanctum)
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', fn(Request $request) => $request->user());
-        Route::post('/logout', fn(Request $request) => $request->user()->currentAccessToken()->delete());
     });
 
     // Admin login (no auth)
