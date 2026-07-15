@@ -5,8 +5,15 @@ import { useNewsletterSubscribe } from '@/hooks/useForms'
 import { useToast } from '@/hooks/useToast'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, MapPin, Phone, Send, Facebook, Instagram, Twitter, Youtube, Linkedin } from 'lucide-react'
+import { Mail, MapPin, Phone, Send, Facebook, Instagram, Twitter, Youtube, Linkedin, ArrowUpRight } from 'lucide-react'
 import { Section, Container } from '@/components/layout/Section'
+
+const fadeUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.5 },
+}
 
 export const Footer: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -72,94 +79,96 @@ export const Footer: React.FC = () => {
 
   return (
     <footer>
-      <Section padding='xl' background='surface'>
+      {/* Contact & Newsletter Section */}
+      <Section padding="2xl" background="surface">
         <Container>
-          <div className='grid md:grid-cols-3 gap-5 mb-6'>
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
             {[
               { icon: MapPin, label: 'Visit Us', value: brand.contact.address, href: '#' },
               { icon: Phone, label: 'Call Us', value: brand.contact.phone, href: 'tel:' + brand.contact.phone },
               { icon: Mail, label: 'Email Us', value: brand.contact.email, href: 'mailto:' + brand.contact.email },
             ].map((item, index) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className='text-center p-5 bg-brand-surface/50 rounded-xl border border-brand-surface'
+              <motion.div key={item.label} {...fadeUp} transition={{ delay: index * 0.1, duration: 0.4 }}
+                className="text-center p-6 md:p-8 bg-white dark:bg-brand-dark rounded-2xl border border-brand-surface/80 hover:shadow-lg hover:shadow-brand-primary/5 hover:border-brand-primary/20 transition-all duration-300 group"
               >
-                <div className='w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-xl flex items-center justify-center'>
-                  <item.icon className='w-7 h-7 text-brand-primary' />
+                <div className="w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-brand-primary group-hover:scale-110 transition-all duration-300">
+                  <item.icon className="w-7 h-7 text-brand-primary group-hover:text-white transition-colors duration-300" />
                 </div>
-                <h3 className='font-semibold text-brand-primary mb-2'>{item.label}</h3>
-                <a href={item.href} className='text-brand-text hover:text-brand-primary transition-colors'>
+                <h3 className="font-semibold text-brand-primary mb-2">{item.label}</h3>
+                <a href={item.href} className="text-brand-text/70 hover:text-brand-primary transition-colors text-sm">
                   {item.value}
                 </a>
               </motion.div>
             ))}
           </div>
 
-          <div className='max-w-xl mx-auto text-center'>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <h3 className='font-semibold text-brand-primary mb-2'>Stay Updated</h3>
-              <p className='text-sm text-brand-muted mb-6'>Subscribe to our newsletter for the latest updates.</p>
-              <form onSubmit={handleSubmit} className='flex flex-col sm:flex-row gap-3 max-w-md mx-auto'>
-                <input
-                  type='email'
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder='your@email.com'
-                  required
-                  className='flex-1 px-4 py-2.5 rounded-lg border border-brand-surface/50 bg-white text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary'
-                />
-                <button
-                  type='submit'
-                  disabled={subscribeMutation.isPending}
-                  className='btn-primary flex items-center gap-2 px-6'
-                >
-                  <Send className='w-4 h-4' />
-                  Subscribe
-                </button>
-              </form>
-            </motion.div>
-          </div>
+          {/* Newsletter */}
+          <motion.div className="max-w-2xl mx-auto text-center" {...fadeUp}>
+            <div className="section-divider" />
+            <h3 className="heading-3 text-brand-primary mb-3">Stay Updated</h3>
+            <p className="text-brand-muted mb-8 max-w-md mx-auto">
+              Subscribe to our newsletter for the latest film releases, behind-the-scenes content, and exclusive updates.
+            </p>
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="your@email.com" required
+                className="input-field flex-1"
+              />
+              <button type="submit" disabled={subscribeMutation.isPending} className="btn-primary flex items-center gap-2 px-8">
+                <Send className="w-4 h-4" /> Subscribe
+              </button>
+            </form>
+          </motion.div>
         </Container>
       </Section>
 
-      <Section padding='lg' background='dark'>
+      {/* Bottom Bar */}
+      <Section padding="lg" background="dark">
         <Container>
-          <div className='flex flex-col md:flex-row justify-between items-center gap-5'>
-            <div className='flex flex-wrap justify-center gap-5'>
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-8">
+            {/* Brand */}
+            <div className="text-center lg:text-left">
+              <Link to="/" className="inline-flex items-center gap-2.5 mb-3">
+                <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-display font-bold text-lg">KN</span>
+                </div>
+                <span className="font-display font-bold text-lg text-white">{brand.name}</span>
+              </Link>
+              <p className="text-white/50 text-sm max-w-xs">
+                Redefining Nepali Cinema through compelling storytelling and world-class production.
+              </p>
+            </div>
+
+            {/* Links */}
+            <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
               {footerLinks.map(link => (
-                <Link key={link.href} to={link.href} className='text-brand-white/70 hover:text-brand-white text-sm transition-colors'>
+                <Link key={link.href} to={link.href}
+                  className="text-white/60 hover:text-white text-sm transition-colors flex items-center gap-1 group">
                   {link.label}
+                  <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200" />
                 </Link>
               ))}
             </div>
-            <div className='flex gap-4'>
+
+            {/* Social */}
+            <div className="flex gap-3">
               {socialLinks.map(({ icon: Icon, url, label }) => (
-                <a
-                  key={label}
-                  href={url}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='w-10 h-10 rounded-lg bg-brand-white/10 flex items-center justify-center text-brand-white/70 hover:bg-brand-primary hover:text-white transition-colors'
-                  aria-label={'Follow us on ' + label}
-                >
-                  <Icon className='w-5 h-5' />
+                <a key={label} href={url} target="_blank" rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 hover:bg-brand-primary hover:text-white hover:scale-110 transition-all duration-200"
+                  aria-label={'Follow us on ' + label}>
+                  <Icon className="w-5 h-5" />
                 </a>
               ))}
             </div>
           </div>
-          <div className='mt-8 pt-6 border-t border-brand-white/10 flex flex-col md:flex-row justify-between items-center gap-4'>
-            <p className='text-brand-white/50 text-sm'>&copy; {new Date().getFullYear()} {brand.name}. All rights reserved.</p>
-            <div className='flex gap-4'>
+
+          {/* Copyright */}
+          <div className="mt-8 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} {brand.name}. All rights reserved.</p>
+            <div className="flex gap-6">
               {legalLinks.map(link => (
-                <Link key={link.href} to={link.href} className='text-brand-white/50 hover:text-brand-white text-sm transition-colors'>
+                <Link key={link.href} to={link.href}
+                  className="text-white/40 hover:text-white/70 text-sm transition-colors">
                   {link.label}
                 </Link>
               ))}

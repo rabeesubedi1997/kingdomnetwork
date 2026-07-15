@@ -12,7 +12,7 @@ export const Press = () => {
   return (
     <>
       <SEOHead title="Press" description="Press & Media Kit" />
-      <Section id='press-hero' background='dark' padding='xl' className='relative overflow-hidden'>
+      <Section id='press-hero' background='dark' padding='2xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
@@ -44,13 +44,14 @@ export const Press = () => {
         </Container>
       </Section>
 
-      <Section id='press-kits' padding='xl'>
+      <Section id='press-kits' padding='2xl'>
         <Container>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
+            <div className="section-divider mb-5" />
             <div className='mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
               <div>
                 <h2 className='heading-2 mb-2 text-brand-primary'>Press Kits</h2>
@@ -69,7 +70,9 @@ export const Press = () => {
               ) : (
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
                   {pressKits?.map((kit: any, index: number) => (
-                    <PressKitCard key={kit.id} kit={kit} index={index} />
+                    <div key={kit.id} className="card card-hover">
+                      <PressKitCard kit={kit} index={index} />
+                    </div>
                   ))}
                 </div>
               )}

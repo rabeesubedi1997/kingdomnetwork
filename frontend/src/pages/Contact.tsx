@@ -53,7 +53,7 @@ export const Contact: React.FC = () => {
   return (
     <>
       <SEOHead title="Contact" description="Get in Touch" />
-      <Section id='contact-hero' background='dark' padding='xl' className='relative overflow-hidden'>
+      <Section id='contact-hero' background='dark' padding='2xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='max-w-3xl mx-auto text-center'>
@@ -100,10 +100,10 @@ export const Contact: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className='text-center p-5 bg-brand-surface/50 rounded-xl border border-brand-surface'
+                className='card group text-center p-5'
               >
-                <div className='w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-xl flex items-center justify-center'>
-                  <item.icon className='w-7 h-7 text-brand-primary' />
+                <div className='w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-xl flex items-center justify-center group-hover:bg-brand-primary group-hover:scale-110 transition-all duration-300'>
+                  <item.icon className='w-7 h-7 text-brand-primary group-hover:text-white transition-colors' />
                 </div>
                 <h3 className='font-semibold text-brand-primary mb-2'>{item.label}</h3>
                 <a href={item.href} className='text-brand-text hover:text-brand-primary transition-colors'>
@@ -118,6 +118,7 @@ export const Contact: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              className='card p-6 md:p-8'
             >
               <h2 className='heading-2 text-brand-primary text-center mb-5'>Send Us a Message</h2>
               <form onSubmit={handleSubmit(onSubmit)} className='space-y-5' noValidate>
@@ -126,6 +127,7 @@ export const Contact: React.FC = () => {
                     label='Full Name'
                     placeholder='Your name'
                     error={errors.name?.message}
+                    className='input-field'
                     {...register('name')}
                   />
                   <Input
@@ -133,6 +135,7 @@ export const Contact: React.FC = () => {
                     type='email'
                     placeholder='your@email.com'
                     error={errors.email?.message}
+                    className='input-field'
                     {...register('email')}
                   />
                 </div>
@@ -140,6 +143,7 @@ export const Contact: React.FC = () => {
                   label='Subject'
                   placeholder='What is this about?'
                   error={errors.subject?.message}
+                  className='input-field'
                   {...register('subject')}
                 />
                 <Textarea
@@ -147,9 +151,10 @@ export const Contact: React.FC = () => {
                   placeholder='Tell us about your project, idea, or just say hello...'
                   rows={5}
                   error={errors.message?.message}
+                  className='input-field'
                   {...register('message')}
                 />
-                <Button type='submit' className='w-full' loading={isSubmitting}>
+                <Button type='submit' className='btn-primary w-full' loading={isSubmitting}>
                   {isSubmitting ? (
                     <>
                       <svg className='animate-spin -ml-1 mr-2 h-5 w-5' fill='none' viewBox='0 0 24 24'>
@@ -173,6 +178,7 @@ export const Contact: React.FC = () => {
 
       <Section id='social' padding='xl' background='dark'>
         <Container>
+          <div className='section-divider w-16 h-1 bg-gradient-to-r from-brand-primary to-brand-gold rounded-full mx-auto mb-6' />
           <h2 className='heading-2 text-brand-white text-center mb-5'>Follow Our Journey</h2>
           <div className='flex justify-center gap-5'>
             {[

@@ -44,7 +44,7 @@ export const PersonProfile = () => {
 
   if (isLoading) {
     return (
-      <Section padding="xl">
+      <Section padding="2xl">
         <Container>
           <Loading text="Loading profile..." />
         </Container>
@@ -54,7 +54,7 @@ export const PersonProfile = () => {
 
   if (error || !person) {
     return (
-      <Section padding="xl">
+      <Section padding="2xl">
         <Container>
           <div className="max-w-2xl mx-auto text-center">
             <h1 className="heading-2 text-brand-primary mb-4">Profile Not Found</h1>
@@ -71,10 +71,10 @@ export const PersonProfile = () => {
   return (
     <>
       <SEOHead title={person.name} description={person.bio || `${person.name} - ${person.role} at Kingdom Network`} ogImage={person.photo_url} />
-      <Section id="person-profile" padding="xl" className="relative overflow-hidden">
+      <Section id="person-profile" padding="2xl" className="relative overflow-hidden">
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/10 to-transparent' />
         <Container>
-          <Link to="/films" className="inline-flex items-center gap-2 text-brand-muted hover:text-brand-primary transition-colors mb-5">
+          <Link to="/films" className="btn-ghost mb-5">
             <ArrowLeft size={16} />
             Back to Films
           </Link>
@@ -110,12 +110,13 @@ export const PersonProfile = () => {
             <div className="lg:col-span-2">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-5">
                 {person.bio && (
-                  <div className="bg-brand-surface/50 rounded-xl p-5 border border-brand-surface">
+                  <div className="card p-6">
+                    <div className="section-divider mb-4" />
                     <h2 className="heading-3 text-brand-primary mb-4">Biography</h2>
                     <p className="text-brand-text leading-relaxed whitespace-pre-line">{person.bio}</p>
                   </div>
                 )}
-                <div className="bg-brand-surface/50 rounded-xl p-5 border border-brand-surface">
+                <div className="card p-6">
                   <h2 className="heading-3 text-brand-primary mb-6">Filmography</h2>
                   {person.films.length === 0 ? (
                     <p className="text-brand-muted">No films listed yet.</p>

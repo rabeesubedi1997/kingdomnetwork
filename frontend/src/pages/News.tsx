@@ -17,7 +17,7 @@ export const News: React.FC = () => {
   return (
     <>
       <SEOHead title="News" description="Latest News & Updates" />
-      <Section id='news-hero' background='dark' padding='xl' className='relative overflow-hidden'>
+      <Section id='news-hero' background='dark' padding='2xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='max-w-3xl mx-auto text-center'>
@@ -33,7 +33,7 @@ export const News: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className='heading-1 text-brand-white mb-4'
+              className='heading-1 text-brand-white mb-6'
             >
               News & Announcements
             </motion.h1>
@@ -49,7 +49,7 @@ export const News: React.FC = () => {
         </Container>
       </Section>
 
-      <Section id='featured-news' padding='xl'>
+      <Section id='featured-news' padding='2xl'>
         <Container>
           {featured && featured.length > 0 && (
             <motion.div
@@ -58,7 +58,8 @@ export const News: React.FC = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <h2 className='heading-2 text-brand-primary mb-5'>Featured Stories</h2>
+              <div className="section-divider mb-5" />
+              <h2 className='heading-2 text-brand-primary mb-6'>Featured Stories</h2>
               <div className='grid lg:grid-cols-2 gap-6 mb-5'>
                 {featured.slice(0, 2).map((post, index) => (
                   <motion.div
@@ -67,6 +68,7 @@ export const News: React.FC = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
+                    className="card"
                   >
                     <NewsCard post={post} featured index={index} />
                   </motion.div>
@@ -83,6 +85,7 @@ export const News: React.FC = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
+            <div className="section-divider mt-8 mb-5" />
             <h3 className='font-semibold text-brand-primary mb-6'>Recent Updates</h3>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
               {isLoading ? (

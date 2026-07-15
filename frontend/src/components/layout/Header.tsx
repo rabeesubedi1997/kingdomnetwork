@@ -1,4 +1,4 @@
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Menu, X, ChevronDown, Search as SearchIcon, Sun, Moon } from 'lucide-react'
@@ -8,6 +8,11 @@ import { getMenus } from '@/lib/public-api'
 import { useModuleConfig } from '@/providers/ModuleConfigProvider'
 import { useTheme } from '@/providers/ThemeProvider'
 import { SearchOverlay } from '@/components/search/SearchOverlay'
+
+const navItemVariants = {
+  hidden: { opacity: 0, y: -4 },
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.04, duration: 0.2 } }),
+}
 
 export const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -50,6 +55,11 @@ export const Header: React.FC = () => {
     setMobileMenuOpen(false)
     setOpenDropdown(null)
   }, [location.pathname])
+
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileMenuOpen])
 
   const defaultNav = [
     { name: 'Home', href: '/', module: null },
@@ -94,46 +104,48 @@ export const Header: React.FC = () => {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-40 transition-all duration-300',
+        'fixed top-0 left-0 right-0 z-40 transition-all duration-500',
         scrolled
-          ? 'bg-brand-white/95 dark:bg-brand-dark/95 backdrop-blur-sm shadow-sm border-b border-brand-surface/50'
+          ? 'bg-white/90 dark:bg-brand-dark/90 backdrop-blur-xl shadow-sm shadow-black/5 border-b border-brand-surface/50'
           : 'bg-transparent'
       )}
     >
       <nav className='container mx-auto px-4 sm:px-6 lg:px-8' aria-label='Main navigation'>
         <div className='flex items-center justify-between h-16 md:h-20'>
-          <Link to='/' className='flex items-center gap-2' aria-label='Kingdom Network Home'>
-            <div className='w-10 h-10 bg-brand-primary rounded-lg flex items-center justify-center'>
-              <span className='text-brand-white font-display font-bold text-xl'>KN</span>
+          <Link to='/' className='flex items-center gap-2.5 group' aria-label='Kingdom Network Home'>
+            <div className='w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/20 group-hover:shadow-brand-primary/40 transition-shadow duration-300'>
+              <span className='text-brand-white font-display font-bold text-xl tracking-tight'>KN</span>
             </div>
-            <span className='font-display font-bold text-xl text-brand-primary hidden sm:block'>
+            <span className='font-display font-bold text-xl text-brand-primary hidden sm:block tracking-tight'>
               Kingdom Network
             </span>
           </Link>
 
-          <div className='hidden md:flex md:items-center md:gap-1' ref={dropdownRef}>
-            {filteredNavigation.map((item: any) =>
+          {/* Desktop Navigation */}
+          <div className='hidden md:flex md:items-center md:gap-0.5' ref={dropdownRef}>
+            {filteredNavigation.map((item: any, i: number) =>
               item.children?.length > 0 ? (
-                <div key={item.name} className='relative'>
+                <motion.div key={item.name} custom={i} initial="hidden" animate="visible" variants={navItemVariants} className='relative'>
                   <button
                     onClick={() => setOpenDropdown(openDropdown === item.name ? null : item.name)}
                     className={cn(
-                      'flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors rounded-lg',
+                      'flex items-center gap-1 px-3.5 py-2 text-sm font-medium transition-colors rounded-lg',
                       openDropdown === item.name || location.pathname.startsWith(item.href)
                         ? 'text-brand-primary'
-                        : 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-surface/50'
-                    )}
+                        : 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
+                      )}
                   >
                     {item.name}
-                    <ChevronDown size={14} className={cn('transition-transform', openDropdown === item.name && 'rotate-180')} />
+                    <ChevronDown size={14} className={cn('transition-transform duration-200', openDropdown === item.name && 'rotate-180')} />
                   </button>
                   <AnimatePresence>
                     {openDropdown === item.name && (
                       <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        className='absolute top-full left-0 mt-1 w-48 bg-brand-dark border border-brand-surface rounded-xl shadow-xl py-2 z-50'
+                        initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                        transition={{ duration: 0.15 }}
+                        className='absolute top-full left-0 mt-1.5 w-48 bg-white dark:bg-brand-dark rounded-xl shadow-xl shadow-black/10 border border-brand-surface/80 dark:border-brand-white/10 py-1.5 z-50'
                       >
                         {item.children.map((child: any) => (
                           <NavLink
@@ -141,10 +153,10 @@ export const Header: React.FC = () => {
                             to={child.url}
                             className={({ isActive }) =>
                               cn(
-                                'block px-4 py-2 text-sm transition-colors',
+                                'block px-4 py-2.5 text-sm transition-colors mx-1.5 rounded-lg',
                                 isActive
-                                  ? 'text-brand-primary bg-brand-primary/5'
-                                  : 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-surface/50'
+                                  ? 'text-brand-primary bg-brand-primary/5 font-medium'
+                                  : 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
                               )
                             }
                             onClick={() => setOpenDropdown(null)}
@@ -155,113 +167,150 @@ export const Header: React.FC = () => {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
+                </motion.div>
               ) : (
-                <NavLink
-                  key={item.name}
-                  to={item.href}
-                  className={({ isActive }) =>
-                    cn(
-                      'px-3 py-2 text-sm font-medium transition-colors rounded-lg',
-                      isActive
-                        ? 'text-brand-primary bg-brand-primary/5'
-                        : 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-surface/50'
-                    )
-                  }
-                  end={item.href === '/'}
-                >
-                  {item.name}
-                </NavLink>
+                <motion.div key={item.name} custom={i} initial="hidden" animate="visible" variants={navItemVariants}>
+                  <NavLink
+                    to={item.href}
+                    className={({ isActive }) =>
+                      cn(
+                        'relative px-3.5 py-2 text-sm font-medium transition-colors rounded-lg',
+                        isActive
+                          ? 'text-brand-primary'
+                          : 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
+                      )
+                    }
+                    end={item.href === '/'}
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {item.name}
+                        {isActive && (
+                          <motion.span
+                            layoutId="nav-underline"
+                            className='absolute -bottom-0.5 left-2 right-2 h-0.5 bg-brand-primary rounded-full'
+                          />
+                        )}
+                      </>
+                    )}
+                  </NavLink>
+                </motion.div>
               )
             )}
           </div>
 
-          <div className='hidden lg:flex lg:items-center lg:gap-4'>
+          {/* Desktop Right Actions */}
+          <div className='hidden lg:flex lg:items-center lg:gap-2'>
             {modules.search !== false && (
-              <button onClick={() => setSearchOpen(true)} className='p-2 text-brand-text/70 hover:text-brand-primary hover:bg-brand-surface/50 rounded-lg transition-colors' aria-label='Search'>
-                <SearchIcon size={20} />
+              <button onClick={() => setSearchOpen(true)}
+                className='p-2.5 text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5 rounded-xl transition-colors'
+                aria-label='Search'>
+                <SearchIcon size={18} />
               </button>
             )}
-            <button
-              onClick={toggleTheme}
-              className='p-2 text-brand-text/70 hover:text-brand-primary hover:bg-brand-surface/50 rounded-lg transition-colors'
-              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            <button onClick={toggleTheme}
+              className='p-2.5 text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5 rounded-xl transition-colors'
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <Link to='/contact' className='btn-secondary'>Get in Touch</Link>
+            <Link to='/contact' className='btn-primary text-sm px-5 py-2.5 ml-2'>
+              Get in Touch
+            </Link>
           </div>
 
-          <div className='flex items-center gap-4 md:hidden'>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className='p-2 rounded-lg text-brand-text hover:bg-brand-surface'
+          {/* Mobile Menu Toggle */}
+          <div className='flex items-center gap-2 md:hidden'>
+            <button onClick={toggleTheme}
+              className='p-2.5 text-brand-text/60 hover:text-brand-primary rounded-xl transition-colors'
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className='p-2.5 rounded-xl text-brand-text hover:bg-brand-primary/5 transition-colors'
               aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={mobileMenuOpen}
-            >
-              {mobileMenuOpen ? <X className='w-6 h-6' /> : <Menu className='w-6 h-6' />}
+              aria-expanded={mobileMenuOpen}>
+              {mobileMenuOpen ? <X className='w-5 h-5' /> : <Menu className='w-5 h-5' />}
             </button>
           </div>
         </div>
+      </nav>
 
-        <AnimatePresence>
-          {mobileMenuOpen && (
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
             <motion.div
-              className='md:hidden py-4 border-t border-brand-surface/50 bg-brand-white dark:bg-brand-dark'
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className='fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden'
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, x: '100%' }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className='fixed top-0 right-0 bottom-0 w-72 max-w-[85vw] bg-white dark:bg-brand-dark z-50 shadow-2xl md:hidden'
             >
-              <div className='flex flex-col gap-1'>
-                {filteredNavigation.map((item: any) => (
-                  <div key={item.name}>
-                    {item.children?.length > 0 ? (
-                      <>
-                        <span className='px-3 py-2 text-xs font-semibold uppercase tracking-wider text-brand-muted'>{item.name}</span>
-                        {item.children.map((child: any) => (
-                          <NavLink
-                            key={child.label || child.name}
-                            to={child.url}
-                            className={({ isActive }) =>
-                              cn(
-                                'block px-6 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                                isActive
-                                  ? 'bg-brand-primary/10 text-brand-primary'
-                                  : 'text-brand-text/70 hover:bg-brand-surface hover:text-brand-primary'
-                              )
-                            }
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            {child.label || child.name}
-                          </NavLink>
-                        ))}
-                      </>
-                    ) : (
-                      <NavLink
-                        to={item.href}
-                        className={({ isActive }) =>
-                          cn(
-                            'block px-3 py-3 rounded-lg text-base font-medium transition-colors',
-                            isActive
-                              ? 'bg-brand-primary/10 text-brand-primary'
-                              : 'text-brand-text/70 hover:bg-brand-surface hover:text-brand-primary'
-                          )
-                        }
-                        onClick={() => setMobileMenuOpen(false)}
-                        end={item.href === '/'}
-                      >
-                        {item.name}
-                      </NavLink>
-                    )}
-                  </div>
-                ))}
-                <Link to='/contact' className='btn-primary mt-4 w-full text-center'>Get in Touch</Link>
+              <div className='flex items-center justify-between px-5 h-16 border-b border-brand-surface/50'>
+                <span className='font-display font-bold text-brand-primary'>Menu</span>
+                <button onClick={() => setMobileMenuOpen(false)}
+                  className='p-2 rounded-xl hover:bg-brand-primary/5 transition-colors'>
+                  <X className='w-5 h-5' />
+                </button>
+              </div>
+              <div className='p-4 overflow-y-auto h-[calc(100%-4rem)]'>
+                <div className='flex flex-col gap-1'>
+                  {filteredNavigation.map((item: any) => (
+                    <div key={item.name}>
+                      {item.children?.length > 0 ? (
+                        <>
+                          <span className='block px-3 py-2 text-xs font-semibold uppercase tracking-widest text-brand-muted'>
+                            {item.name}
+                          </span>
+                          {item.children.map((child: any) => (
+                            <NavLink key={child.label || child.name} to={child.url}
+                              className={({ isActive }) =>
+                                cn('block px-5 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                                  isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-brand-text/70 hover:bg-brand-primary/5 hover:text-brand-primary'
+                                )}
+                              onClick={() => setMobileMenuOpen(false)}>
+                              {child.label || child.name}
+                            </NavLink>
+                          ))}
+                        </>
+                      ) : (
+                        <NavLink to={item.href} end={item.href === '/'}
+                          className={({ isActive }) =>
+                            cn('block px-4 py-3 rounded-xl text-base font-medium transition-colors',
+                              isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-brand-text/70 hover:bg-brand-primary/5 hover:text-brand-primary'
+                            )}
+                          onClick={() => setMobileMenuOpen(false)}>
+                          {item.name}
+                        </NavLink>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className='mt-6 pt-6 border-t border-brand-surface/50 space-y-3'>
+                  <Link to='/contact' className='btn-primary w-full text-center' onClick={() => setMobileMenuOpen(false)}>
+                    Get in Touch
+                  </Link>
+                  {modules.search !== false && (
+                    <button onClick={() => { setSearchOpen(true); setMobileMenuOpen(false) }}
+                      className='btn-secondary w-full text-center'>
+                      Search
+                    </button>
+                  )}
+                </div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+          </>
+        )}
+      </AnimatePresence>
+
       {modules.search !== false && <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />}
-      </header>
+    </header>
   )
 }

@@ -24,7 +24,7 @@ export const Careers: React.FC = () => {
   return (
     <>
       <SEOHead title="Careers" description="Join Our Team" />
-      <Section id='careers-hero' background='dark' padding='xl' className='relative overflow-hidden'>
+      <Section id='careers-hero' background='dark' padding='2xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
@@ -42,8 +42,9 @@ export const Careers: React.FC = () => {
         </Container>
       </Section>
 
-      <Section id='benefits' padding='xl' background='surface'>
+      <Section id='benefits' padding='2xl' background='surface'>
         <Container>
+          <div className="section-divider mb-5" />
           <h2 className='heading-2 mb-5 text-center text-brand-primary'>Why Work With Us</h2>
           <div className='grid gap-5 md:grid-cols-3'>
             {[
@@ -54,7 +55,7 @@ export const Careers: React.FC = () => {
               { icon: Handshake, title: 'Collaborative Culture', desc: 'Join a close-knit team where every voice matters and ideas flourish.' },
               { icon: Scale, title: 'Work-Life Balance', desc: 'Flexible schedules and understanding of the creative process rhythms.' },
             ].map((benefit, index) => (
-              <motion.div key={benefit.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='rounded-xl border border-brand-surface bg-brand-surface/50 p-5 transition-colors hover:border-brand-primary/50'>
+              <motion.div key={benefit.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='card p-6 card-hover'>
                 <div className='mb-4'><benefit.icon size={32} className='text-brand-primary' /></div>
                 <h3 className='heading-3 mb-2 text-brand-primary'>{benefit.title}</h3>
                 <p className='text-brand-muted'>{benefit.desc}</p>
@@ -64,8 +65,9 @@ export const Careers: React.FC = () => {
         </Container>
       </Section>
 
-      <Section id='open-positions' padding='xl'>
+      <Section id='open-positions' padding='2xl'>
         <Container>
+          <div className="section-divider mb-5" />
           <div className='mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
             <div>
               <h2 className='heading-2 text-brand-primary'>Open Positions</h2>
@@ -78,7 +80,7 @@ export const Careers: React.FC = () => {
           </div>
 
           {showFilters && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className='mb-5 rounded-xl border border-brand-surface bg-brand-surface/50 p-5'>
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className='card p-5 mb-5'>
               <CareerFilters onClose={() => setShowFilters(false)} onFilterChange={setFilters} />
             </motion.div>
           )}
@@ -87,7 +89,7 @@ export const Careers: React.FC = () => {
             {isLoading ? (
               <GridSkeleton count={6} />
             ) : jobs?.data?.map((job, index) => (
-              <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }}>
+              <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }} className="card card-hover">
                 <CareerCard job={job} index={index} />
               </motion.div>
             )) || (
@@ -105,7 +107,7 @@ export const Careers: React.FC = () => {
         </Container>
       </Section>
 
-      <Section id='cta' background='dark' padding='xl' className='relative overflow-hidden'>
+      <Section id='cta' background='dark' padding='2xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
@@ -126,12 +128,12 @@ export const CareerDetail: React.FC = () => {
   const { data: job, isLoading } = useJob(slug!)
 
   if (isLoading) {
-    return <Section padding='xl'><Container><Loading text='Loading position...' /></Container></Section>
+    return <Section padding='2xl'><Container><Loading text='Loading position...' /></Container></Section>
   }
 
   if (!job) {
     return (
-      <Section padding='xl'>
+      <Section padding='2xl'>
         <Container>
           <div className='mx-auto max-w-2xl text-center'>
             <h1 className='heading-2 mb-4 text-brand-primary'>Position Not Found</h1>
@@ -145,7 +147,7 @@ export const CareerDetail: React.FC = () => {
   return (
     <>
       <SEOHead title={job.title} description={`Join our team as ${job.title}`} />
-      <Section id='job-hero' padding='xl' background='surface'>
+      <Section id='job-hero' padding='2xl' background='surface'>
         <Container>
           <div className='mx-auto max-w-3xl'>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='mb-5'>
@@ -166,8 +168,9 @@ export const CareerDetail: React.FC = () => {
         </Container>
       </Section>
 
-      <Section padding='xl'>
+      <Section padding='2xl'>
         <Container>
+          <div className="section-divider mb-5" />
           <div className='grid gap-5 lg:grid-cols-3'>
             <div className='space-y-10 lg:col-span-2'>
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
@@ -197,7 +200,7 @@ export const CareerDetail: React.FC = () => {
         </Container>
       </Section>
 
-      <Section id='cta' background='dark' padding='xl' className='relative overflow-hidden'>
+      <Section id='cta' background='dark' padding='2xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='mx-auto max-w-3xl text-center'>

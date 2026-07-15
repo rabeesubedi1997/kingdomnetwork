@@ -12,7 +12,7 @@ export const TeamProfile = () => {
 
   if (isLoading) {
     return (
-      <Section padding="xl">
+      <Section padding="2xl">
         <Container>
           <Loading text="Loading profile..." />
         </Container>
@@ -22,7 +22,7 @@ export const TeamProfile = () => {
 
   if (error || !member) {
     return (
-      <Section padding="xl">
+      <Section padding="2xl">
         <Container>
           <div className="max-w-2xl mx-auto text-center">
             <h1 className="heading-2 text-brand-primary mb-4">Profile Not Found</h1>
@@ -37,10 +37,10 @@ export const TeamProfile = () => {
   return (
     <>
       <SEOHead title={member.name} description={member.bio || `Meet ${member.name}, ${member.role} at Kingdom Network`} ogImage={member.photo_url} />
-      <Section id="team-profile" padding="xl" className="relative overflow-hidden">
+      <Section id="team-profile" padding="2xl" className="relative overflow-hidden">
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/10 to-transparent' />
         <Container>
-          <Link to="/team" className="inline-flex items-center gap-2 text-brand-muted hover:text-brand-primary transition-colors mb-5">
+          <Link to="/team" className="btn-ghost mb-5">
             <ArrowLeft size={16} />
             Back to Team
           </Link>
@@ -89,14 +89,15 @@ export const TeamProfile = () => {
             <div className="lg:col-span-2">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-5">
                 {member.bio && (
-                  <div className="bg-brand-surface/50 rounded-xl p-5 border border-brand-surface">
+                  <div className="card p-6">
+                    <div className="section-divider mb-4" />
                     <h2 className="heading-3 text-brand-primary mb-4">About</h2>
                     <div className="prose prose-invert max-w-none">
                       <p className="text-brand-text leading-relaxed whitespace-pre-line">{member.bio}</p>
                     </div>
                   </div>
                 )}
-                <div className="bg-brand-surface/50 rounded-xl p-5 border border-brand-surface">
+                <div className="card p-6">
                   <h2 className="heading-3 text-brand-primary mb-6">Contact Information</h2>
                   <div className="grid sm:grid-cols-2 gap-4">
                     {member.email && (

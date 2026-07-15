@@ -14,7 +14,7 @@ export const Gallery = () => {
   return (
     <>
       <SEOHead title="Gallery" description="Photo & Video Gallery" />
-      <Section id="gallery-hero" background="dark" padding="xl" className="relative overflow-hidden">
+      <Section id="gallery-hero" background="dark" padding="2xl" className="relative overflow-hidden">
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='inline-flex items-center gap-2 bg-brand-white/10 px-4 py-2 rounded-full text-brand-gold text-sm font-medium mb-6'>
@@ -31,8 +31,9 @@ export const Gallery = () => {
         </Container>
       </Section>
 
-      <Section id="albums" padding="xl">
+      <Section id="albums" padding="2xl">
         <Container>
+          <div className="section-divider mb-5" />
           {isLoading ? (
             <GridSkeleton count={6} />
           ) : albums && albums.length > 0 ? (
@@ -53,12 +54,12 @@ export const AlbumDetail = () => {
   const { data: album, isLoading } = useAlbum(slug!)
 
   if (isLoading) {
-    return <Section padding="xl"><Container><Loading text="Loading album..." /></Container></Section>
+    return <Section padding="2xl"><Container><Loading text="Loading album..." /></Container></Section>
   }
 
   if (!album) {
     return (
-      <Section padding="xl">
+      <Section padding="2xl">
         <Container>
           <div className='max-w-2xl mx-auto text-center'>
             <h1 className='heading-2 text-brand-primary mb-4'>Album Not Found</h1>

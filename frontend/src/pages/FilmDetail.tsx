@@ -24,10 +24,12 @@ export const FilmDetail: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Section padding="xl">
+      <Section padding="2xl">
         <Container>
-          <div className="max-w-4xl mx-auto">
-            <Loading text="Loading film details..." />
+          <div className="max-w-lg mx-auto text-center">
+            <div className="card p-10">
+              <Loading text="Loading film details..." />
+            </div>
           </div>
         </Container>
       </Section>
@@ -36,14 +38,16 @@ export const FilmDetail: React.FC = () => {
 
   if (error || !film) {
     return (
-      <Section padding="xl">
+      <Section padding="2xl">
         <Container>
-          <div className="max-w-2xl mx-auto text-center">
-            <h1 className="heading-2 text-brand-primary mb-4">Film Not Found</h1>
-            <p className="text-brand-muted mb-5">The film you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-            <Link to="/films">
-              <button className="btn-primary">Back to Films</button>
-            </Link>
+          <div className="max-w-lg mx-auto text-center">
+            <div className="card p-10">
+              <h1 className="heading-2 text-brand-primary mb-4">Film Not Found</h1>
+              <p className="text-brand-muted mb-6">The film you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+              <Link to="/films">
+                <button className="btn-primary">Back to Films</button>
+              </Link>
+            </div>
           </div>
         </Container>
       </Section>
@@ -56,9 +60,9 @@ export const FilmDetail: React.FC = () => {
       <FilmSchema film={film} />
       <FilmHero film={film} />
       
-      <Section id="synopsis" padding="xl">
+      <Section id="synopsis" padding="2xl">
         <Container>
-          <div className="grid lg:grid-cols-3 gap-5">
+          <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <FilmInfo film={film} />
               <FilmCastCrew film={film} />
@@ -74,7 +78,7 @@ export const FilmDetail: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="mt-8 bg-brand-surface/50 rounded-xl p-5 border border-brand-surface"
+                  className="mt-8 card p-6"
                 >
                   <h3 className="heading-3 text-brand-primary mb-4 flex items-center gap-2">
                     <TrendingUp size={20} />
@@ -113,7 +117,7 @@ export const FilmDetail: React.FC = () => {
                 viewport={{ once: true }}
                 className="sticky top-24"
               >
-                <div className="bg-brand-surface/50 rounded-xl p-5 border border-brand-surface">
+                <div className="card p-6 md:p-8">
                   <h3 className="heading-3 text-brand-primary mb-4">Quick Facts</h3>
                   <dl className="space-y-4 text-sm">
                     <div className="flex justify-between">
@@ -220,13 +224,11 @@ export const FilmDetail: React.FC = () => {
         </Container>
       </Section>
 
-      <Section id="related" padding="xl" background="surface">
+      <Section id="related" padding="2xl" background="surface">
         <Container>
-          <div className="flex items-center justify-between mb-5">
+          <div>
+            <div className="section-divider" />
             <h2 className="heading-2 text-brand-primary">More Films</h2>
-            <Link to="/films" className="text-brand-primary hover:text-brand-secondary font-medium flex items-center gap-1">
-              View All <ArrowLeft className="w-4 h-4" />
-            </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {relatedFilms.length > 0 ? relatedFilms.map((relatedFilm, index) => (

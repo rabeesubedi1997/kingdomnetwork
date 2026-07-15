@@ -115,7 +115,7 @@ export const BannerSlider: React.FC = () => {
                     {current.link_url.startsWith('/') ? (
                       <Link
                         to={current.link_url}
-                        className='inline-flex items-center gap-2 px-6 py-3 bg-[#09333f] hover:bg-[#0d4555] text-white rounded-lg font-medium transition-colors'
+                        className='btn-primary'
                       >
                         {current.link_text || 'View Details'}
                         <ExternalLink size={18} />
@@ -125,7 +125,7 @@ export const BannerSlider: React.FC = () => {
                         href={current.link_url}
                         target='_blank'
                         rel='noopener noreferrer'
-                        className='inline-flex items-center gap-2 px-6 py-3 bg-[#09333f] hover:bg-[#0d4555] text-white rounded-lg font-medium transition-colors'
+                        className='btn-primary'
                       >
                         {current.link_text || 'Learn More'}
                         <ExternalLink size={18} />
