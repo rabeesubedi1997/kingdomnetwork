@@ -57,8 +57,20 @@ export const Header: React.FC = () => {
   }, [location.pathname])
 
   useEffect(() => {
-    document.body.style.overflow = mobileMenuOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    if (mobileMenuOpen) {
+      const scrollY = window.scrollY
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.left = '0'
+      document.body.style.right = '0'
+      return () => {
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.left = ''
+        document.body.style.right = ''
+        window.scrollTo(0, scrollY)
+      }
+    }
   }, [mobileMenuOpen])
 
   const defaultNav = [
@@ -243,7 +255,7 @@ export const Header: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className='fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden'
+              className='fixed inset-0 bg-black/60 z-50 md:hidden'
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div
@@ -251,16 +263,16 @@ export const Header: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className='fixed top-0 right-0 bottom-0 w-72 max-w-[85vw] bg-white dark:bg-brand-dark z-50 shadow-2xl md:hidden'
+              className='fixed inset-y-0 right-0 w-72 max-w-[85vw] bg-white dark:bg-brand-dark z-[60] shadow-2xl md:hidden flex flex-col'
             >
-              <div className='flex items-center justify-between px-5 h-16 border-b border-brand-surface/50'>
+              <div className='flex items-center justify-between px-5 h-16 shrink-0 border-b border-brand-surface/50'>
                 <span className='font-display font-bold text-brand-primary'>Menu</span>
                 <button onClick={() => setMobileMenuOpen(false)}
                   className='p-2 rounded-xl hover:bg-brand-primary/5 transition-colors'>
                   <X className='w-5 h-5' />
                 </button>
               </div>
-              <div className='p-4 overflow-y-auto h-[calc(100%-4rem)]'>
+              <div className='p-4 overflow-y-auto flex-1 min-h-0'>
                 <div className='flex flex-col gap-1'>
                   {filteredNavigation.map((item: any) => (
                     <div key={item.name}>

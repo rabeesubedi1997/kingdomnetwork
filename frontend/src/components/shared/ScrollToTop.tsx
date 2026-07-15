@@ -6,7 +6,11 @@ export const ScrollToTop: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [location.pathname])
+  }, [location.pathname, location.search])
+
+  useEffect(() => {
+    window.history.scrollRestoration = 'manual'
+  }, [])
 
   return null
 }
