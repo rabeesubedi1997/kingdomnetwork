@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getModules, updateModule, bulkUpdateModules } from '@/lib/admin-api'
 import { motion } from 'framer-motion'
-import { ToggleLeft, ToggleRight, GripVertical, Save, Search, Puzzle, Film, Newspaper, Briefcase, Images, FileText, ShoppingBag, Users, Radio, Monitor, BookOpen, Mail, Globe, EyeOff, Calendar, Award, TrendingUp, Trophy } from 'lucide-react'
+import { ToggleLeft, ToggleRight, Save, Search, Puzzle, Film, Newspaper, Briefcase, Images, FileText, ShoppingBag, Users, Radio, Monitor, BookOpen, Mail, Globe, EyeOff, Calendar, Award, TrendingUp, Trophy, X, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { cn } from '@/lib/utils'
@@ -43,6 +43,8 @@ export const ModulesPage: React.FC = () => {
   const [localModules, setLocalModules] = useState<any[]>([])
   const [search, setSearch] = useState('')
   const [dirty, setDirty] = useState(false)
+  const [selectedModule, setSelectedModule] = useState<any | null>(null)
+  const [configEntries, setConfigEntries] = useState<[string, string][]>([])
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'modules'],
@@ -62,6 +64,16 @@ export const ModulesPage: React.FC = () => {
     onError: () => toast.error('Failed to update'),
   })
 
+  const updateMut = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Record<string, unknown> }) => updateModule(id, data),
+    onSuccess: () => {
+      toast.success('Module config saved')
+      qc.invalidateQueries({ queryKey: ['admin', 'modules'] })
+      setSelectedModule(null)
+    },
+    onError: () => toast.error('Failed to save config'),
+  })
+
   const toggleModule = (id: number) => {
     setLocalModules(prev => prev.map(m => m.id === id ? { ...m, is_enabled: !m.is_enabled } : m))
     setDirty(true)
@@ -74,6 +86,42 @@ export const ModulesPage: React.FC = () => {
   const handleSave = () => {
     const updates = localModules.map(m => ({ id: m.id, is_enabled: m.is_enabled }))
     bulkMut.mutate(updates)
+  }
+
+  const openConfig = (module: any) => {
+    setSelectedModule(module)
+    const config = module.config || {}
+    setConfigEntries(Object.entries(config).map(([k, v]) => [k, String(v)]))
+    if (Object.keys(config).length === 0) {
+      setConfigEntries([['', '']])
+    }
+  }
+
+  const addConfigRow = () => {
+    setConfigEntries(prev => [...prev, ['', '']])
+  }
+
+  const removeConfigRow = (idx: number) => {
+    setConfigEntries(prev => prev.filter((_, i) => i !== idx))
+  }
+
+  const updateConfigKey = (idx: number, key: string) => {
+    setConfigEntries(prev => prev.map((e, i) => i === idx ? [key, e[1]] : e))
+  }
+
+  const updateConfigValue = (idx: number, value: string) => {
+    setConfigEntries(prev => prev.map((e, i) => i === idx ? [e[0], value] : e))
+  }
+
+  const saveConfig = () => {
+    if (!selectedModule) return
+    const config: Record<string, any> = {}
+    configEntries.forEach(([k, v]) => {
+      if (k.trim()) {
+        config[k.trim()] = v
+      }
+    })
+    updateMut.mutate({ id: selectedModule.id, data: { config } })
   }
 
   return (
@@ -116,7 +164,8 @@ export const ModulesPage: React.FC = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.03 }}
-                  className="rounded-xl border p-5 transition-all hover:shadow-lg"
+                  onClick={() => openConfig(module)}
+                  className="rounded-xl border p-5 transition-all hover:shadow-lg cursor-pointer"
                   style={{
                     background: '#111820',
                     borderColor: module.is_enabled ? '#1e3040' : '#1a1a2e',
@@ -134,7 +183,7 @@ export const ModulesPage: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-white capitalize">{module.module_name.replace(/_/g, ' ')}</h3>
                         <button
-                          onClick={() => toggleModule(module.id)}
+                          onClick={(e) => { e.stopPropagation(); toggleModule(module.id) }}
                           className={cn(
                             'p-1.5 rounded-lg transition-all',
                             module.is_enabled ? 'text-[#ffcd57]' : 'text-gray-600'
@@ -174,6 +223,71 @@ export const ModulesPage: React.FC = () => {
             </div>
           )}
         </>
+      )}
+
+      {selectedModule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setSelectedModule(null)}>
+          <div className="bg-[#111820] border border-[#1e3040] rounded-xl w-full max-w-lg mx-4 p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                {(() => { const Icon = moduleIcons[selectedModule.module_name] || Puzzle; return <Icon size={22} className="text-[#ffcd57]" /> })()}
+                <h2 className="text-lg font-bold text-white capitalize">{selectedModule.module_name.replace(/_/g, ' ')}</h2>
+              </div>
+              <button onClick={() => setSelectedModule(null)} className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500">
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="text-sm mb-4" style={{ color: '#94a3b8' }}>
+              {moduleDescriptions[selectedModule.module_name] || 'Configure module settings'}
+            </p>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium" style={{ color: '#cbd5e1' }}>Status</label>
+                <span className={cn(
+                  'px-2.5 py-1 rounded text-xs font-medium',
+                  selectedModule.is_enabled ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-500'
+                )}>
+                  {selectedModule.is_enabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#cbd5e1' }}>Configuration</label>
+                {configEntries.map(([key, value], idx) => (
+                  <div key={idx} className="flex items-center gap-2 mb-2">
+                    <Input
+                      placeholder="Key"
+                      value={key}
+                      onChange={e => updateConfigKey(idx, e.target.value)}
+                      style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9', flex: 1 }}
+                    />
+                    <Input
+                      placeholder="Value"
+                      value={value}
+                      onChange={e => updateConfigValue(idx, e.target.value)}
+                      style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9', flex: 1 }}
+                    />
+                    <button onClick={() => removeConfigRow(idx)} className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+                <button onClick={addConfigRow} className="flex items-center gap-1.5 text-sm mt-1 px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors" style={{ color: '#64748b' }}>
+                  <Plus size={14} /> Add Config
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-[#1e3040]">
+              <Button variant="ghost" onClick={() => setSelectedModule(null)}>Cancel</Button>
+              <Button onClick={saveConfig} loading={updateMut.isPending} style={{ background: '#09333f' }}>
+                <Save size={16} className="mr-1.5" /> Save Config
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

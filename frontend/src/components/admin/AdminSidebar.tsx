@@ -8,7 +8,7 @@ import {
   FileText, Users, UserCircle, Tags, Puzzle, LogOut, ChevronDown,
   GripVertical, Check, X, Menu as MenuIcon, Image as ImageIcon, DollarSign,
   MenuSquare, Globe, Trophy, Search as SearchIcon, Mail,
-  ShoppingBag, Award, Calendar, Radio, Monitor, BookOpen, EyeOff, TrendingUp,
+  ShoppingBag, Award, Calendar, Radio, Monitor, BookOpen, EyeOff, TrendingUp, MessageSquare, UserPlus,
 } from 'lucide-react'
 import { useAdminStore } from '@/lib/admin-store'
 import { toast } from 'react-hot-toast'
@@ -18,9 +18,11 @@ const iconMap: Record<string, any> = {
   news: Newspaper, careers: Briefcase, gallery: Images, press_kit: FileText,
   team: Users, people: UserCircle, genres: Tags, modules: Puzzle,
   banners: ImageIcon, advertisements: DollarSign,
-  menus: MenuSquare, pages: Globe, awards: Trophy, search: SearchIcon, newsletter: Mail,
+  menus: MenuSquare, pages: Globe,   awards: Trophy, search: SearchIcon, newsletter: Mail, testimonials: MessageSquare,
+  partners: Briefcase,
   shop: ShoppingBag, membership: Award, events: Calendar, podcasts: Radio,
   tv: Monitor, comics: BookOpen, screening: EyeOff, investors: TrendingUp,
+  users: UserPlus,
 }
 
 const adminModules = [
@@ -43,6 +45,9 @@ const adminModules = [
   { key: 'pages', label: 'Pages', path: '/admin/pages', icon: 'pages', end: false },
   { key: 'awards', label: 'Awards', path: '/admin/awards', icon: 'awards', end: false, module: 'awards' },
   { key: 'search', label: 'Search Settings', path: '/admin/search', icon: 'search', end: false, module: 'search' },
+  { key: 'testimonials', label: 'Testimonials', path: '/admin/testimonials', icon: 'testimonials', end: false },
+  { key: 'partners', label: 'Partners', path: '/admin/partners', icon: 'partners', end: false },
+  { key: 'users', label: 'Admin Users', path: '/admin/users', icon: 'users', end: false, permission: 'manage_users' },
   { key: 'shop', label: 'Shop', path: '/admin/modules', icon: 'shop', end: false, module: 'shop' },
   { key: 'membership', label: 'Membership', path: '/admin/modules', icon: 'membership', end: false, module: 'membership' },
   { key: 'events', label: 'Events', path: '/admin/modules', icon: 'events', end: false, module: 'events' },
@@ -59,7 +64,7 @@ interface AdminSidebarProps {
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({ open, onClose }) => {
-  const { user, logout } = useAdminStore()
+  const { user, logout, canManage } = useAdminStore()
   const location = useLocation()
   const queryClient = useQueryClient()
   const [items, setItems] = useState(adminModules)
@@ -116,15 +121,16 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ open, onClose }) => 
     if (moduleData.length > 0) reorderMut.mutate(moduleData as any)
   }
 
-  const isModuleEnabled = (moduleName?: string) => {
+  const isModuleEnabled = (moduleName?: string, permission?: string) => {
     if (!moduleName) return true
+    if (permission && !canManage(permission)) return false
     const m = (Array.isArray(modules) ? modules : modules?.data || []).find(
       (mod: any) => mod.module_name === moduleName
     )
     return m ? m.is_enabled : true
   }
 
-  const visibleItems = items.filter(item => isModuleEnabled(item.module))
+  const visibleItems = items.filter(item => isModuleEnabled(item.module, item.permission))
 
   return (
     <>

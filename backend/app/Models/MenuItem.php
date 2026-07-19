@@ -47,7 +47,7 @@ class MenuItem extends Model
             return false;
         }
         if ($this->module) {
-            return config("kingdom.modules.{$this->module}", false);
+            return ModuleSetting::isEnabled($this->module);
         }
         return true;
     }

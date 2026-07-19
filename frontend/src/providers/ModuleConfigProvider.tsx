@@ -3,17 +3,56 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 interface ModuleConfig {
   modules: Record<string, boolean>
   brand: Record<string, any>
+  logo_url: string | null
+  favicon_url: string | null
+  dark_logo_url: string | null
+  seo: {
+    default_title: string
+    title_template: string
+    default_description: string
+    twitter_handle: string
+  }
+  analytics: {
+    ga4_id: string
+    gtm_id: string
+  }
 }
 
 const ModuleConfigContext = createContext<ModuleConfig>({
   modules: {},
   brand: {},
+  logo_url: null,
+  favicon_url: null,
+  dark_logo_url: null,
+  seo: {
+    default_title: 'Kingdom Network - Redefining Nepali Cinema',
+    title_template: '%s | Kingdom Network',
+    default_description: '',
+    twitter_handle: '@kingdomnetwork',
+  },
+  analytics: {
+    ga4_id: '',
+    gtm_id: '',
+  },
 })
 
 export const ModuleConfigProvider = ({ children }: { children: ReactNode }) => {
   const [config, setConfig] = useState<ModuleConfig>({
     modules: {},
     brand: {},
+    logo_url: null,
+    favicon_url: null,
+    dark_logo_url: null,
+    seo: {
+      default_title: 'Kingdom Network - Redefining Nepali Cinema',
+      title_template: '%s | Kingdom Network',
+      default_description: '',
+      twitter_handle: '@kingdomnetwork',
+    },
+    analytics: {
+      ga4_id: '',
+      gtm_id: '',
+    },
   })
 
   useEffect(() => {
@@ -24,6 +63,16 @@ export const ModuleConfigProvider = ({ children }: { children: ReactNode }) => {
           setConfig({
             modules: { ...data.modules },
             brand: { ...data.brand },
+logo_url: data.logo_url || null,
+          favicon_url: data.favicon_url || null,
+          dark_logo_url: data.dark_logo_url || null,
+            seo: data.seo || {
+              default_title: 'Kingdom Network - Redefining Nepali Cinema',
+              title_template: '%s | Kingdom Network',
+              default_description: '',
+              twitter_handle: '@kingdomnetwork',
+            },
+            analytics: data.analytics || { ga4_id: '', gtm_id: '' },
           })
         }
       })
@@ -69,6 +118,16 @@ export const ModuleConfigProvider = ({ children }: { children: ReactNode }) => {
               display: 'Plus Jakarta Sans',
             },
           },
+          logo_url: null,
+          favicon_url: null,
+          dark_logo_url: null,
+          seo: {
+            default_title: 'Kingdom Network - Redefining Nepali Cinema',
+            title_template: '%s | Kingdom Network',
+            default_description: '',
+            twitter_handle: '@kingdomnetwork',
+          },
+          analytics: { ga4_id: '', gtm_id: '' },
         })
       })
   }, [])

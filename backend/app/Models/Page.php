@@ -50,6 +50,16 @@ class Page extends Model implements HasMedia
         return $this->getFirstMediaUrl('meta_image') ?? $this->metaImage?->getUrl();
     }
 
+    public function sections(): HasMany
+    {
+        return $this->hasMany(PageSection::class)->orderBy('sort_order');
+    }
+
+    public function activeSections(): HasMany
+    {
+        return $this->hasMany(PageSection::class)->where('is_active', true)->orderBy('sort_order');
+    }
+
     public function getSchemaTypes(): array
     {
         return [

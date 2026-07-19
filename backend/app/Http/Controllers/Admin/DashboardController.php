@@ -9,6 +9,7 @@ use App\Models\Genre;
 use App\Models\Job;
 use App\Models\Person;
 use App\Models\Post;
+use App\Models\PressKit;
 use App\Models\TeamMember;
 use Illuminate\Http\JsonResponse;
 
@@ -23,6 +24,7 @@ class DashboardController extends Controller
             'albums' => Album::count(),
             'team_members' => TeamMember::count(),
             'people' => Person::count(),
+            'press_kits' => PressKit::count(),
             'genres' => Genre::count(),
         ]);
     }

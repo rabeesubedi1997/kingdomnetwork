@@ -437,4 +437,134 @@ export async function deletePage(id: number) {
   return response.data
 }
 
+export async function getPageSections(pageId: number) {
+  const response = await adminApi.get(`pages/${pageId}/sections`)
+  return response.data
+}
+
+export async function createPageSection(pageId: number, data: Record<string, unknown>) {
+  const response = await adminApi.post(`pages/${pageId}/sections`, data)
+  return response.data
+}
+
+export async function updatePageSection(pageId: number, sectionId: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`pages/${pageId}/sections/${sectionId}`, data)
+  return response.data
+}
+
+export async function deletePageSection(pageId: number, sectionId: number) {
+  const response = await adminApi.delete(`pages/${pageId}/sections/${sectionId}`)
+  return response.data
+}
+
+export async function reorderPageSections(pageId: number, sections: { id: number; sort_order: number }[]) {
+  const response = await adminApi.post(`pages/${pageId}/sections/reorder`, { sections })
+  return response.data
+}
+
+export async function getContactSubmissions(params?: Record<string, unknown>) {
+  const response = await adminApi.get('contact-submissions', { params })
+  return response.data
+}
+
+export async function updateContactSubmission(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`contact-submissions/${id}`, data)
+  return response.data
+}
+
+export async function deleteContactSubmission(id: number) {
+  const response = await adminApi.delete(`contact-submissions/${id}`)
+  return response.data
+}
+
+export async function getJobApplications(params?: Record<string, unknown>) {
+  const response = await adminApi.get('job-applications', { params })
+  return response.data
+}
+
+export async function updateJobApplication(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`job-applications/${id}`, data)
+  return response.data
+}
+
+export async function deleteJobApplication(id: number) {
+  const response = await adminApi.delete(`job-applications/${id}`)
+  return response.data
+}
+
+export async function getTestimonials() {
+  const response = await adminApi.get('testimonials')
+  return response.data
+}
+
+export async function createTestimonial(data: Record<string, unknown>) {
+  const response = await adminApi.post('testimonials', data)
+  return response.data
+}
+
+export async function updateTestimonial(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`testimonials/${id}`, data)
+  return response.data
+}
+
+export async function deleteTestimonial(id: number) {
+  const response = await adminApi.delete(`testimonials/${id}`)
+  return response.data
+}
+
+export async function getPartners() {
+  const response = await adminApi.get('partners')
+  return response.data
+}
+
+export async function createPartner(data: Record<string, unknown>) {
+  const response = await adminApi.post('partners', data)
+  return response.data
+}
+
+export async function updatePartner(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`partners/${id}`, data)
+  return response.data
+}
+
+export async function deletePartner(id: number) {
+  const response = await adminApi.delete(`partners/${id}`)
+  return response.data
+}
+
+export async function getUsers() {
+  const response = await adminApi.get('users')
+  return response.data
+}
+
+export async function createUser(data: Record<string, unknown>) {
+  const response = await adminApi.post('users', data)
+  return response.data
+}
+
+export async function updateUser(id: number, data: Record<string, unknown>) {
+  const response = await adminApi.put(`users/${id}`, data)
+  return response.data
+}
+
+export async function deleteUser(id: number) {
+  const response = await adminApi.delete(`users/${id}`)
+  return response.data
+}
+
+export async function getRoles() {
+  const response = await adminApi.get('roles')
+  return response.data
+}
+
+export async function uploadSiteLogo(file: File, type: 'logo' | 'favicon' | 'dark_logo') {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('type', type)
+  const response = await adminApi.post('site-settings/upload-logo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return response.data
+}
+
 export default adminApi

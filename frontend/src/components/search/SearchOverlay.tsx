@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search as SearchIcon, X, Film, Newspaper, UserCircle, Users, ExternalLink } from 'lucide-react'
+import { Search as SearchIcon, X, Film, Newspaper, UserCircle, Users, ExternalLink, ChevronRight } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -16,15 +16,11 @@ interface SearchResult {
   subtitle?: string
 }
 
-interface SearchOverlayProps {
-  open: boolean
-  onClose: () => void
-}
-
 const typeIcon: Record<string, any> = { film: Film, news: Newspaper, person: UserCircle, team: Users }
 const typeColors: Record<string, string> = { film: 'text-blue-400', news: 'text-green-400', person: 'text-purple-400', team: 'text-amber-400' }
+const typeLabels: Record<string, string> = { film: 'Film', news: 'News', person: 'People', team: 'Team' }
 
-export const SearchOverlay = ({ open, onClose }: SearchOverlayProps) => {
+export const SearchOverlay: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const [query, setQuery] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -51,49 +47,83 @@ export const SearchOverlay = ({ open, onClose }: SearchOverlayProps) => {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className='fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-black/80 backdrop-blur-sm'>
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className='w-full max-w-2xl mx-4 bg-brand-dark border border-brand-surface rounded-2xl shadow-2xl overflow-hidden'>
-            <div className='flex items-center gap-3 px-5 py-4 border-b border-brand-surface'>
-              <SearchIcon size={20} className='text-brand-muted flex-shrink-0' />
-              <input ref={inputRef} type='text' value={query} onChange={e => setQuery(e.target.value)} placeholder='Search films, news, people...' className='flex-1 bg-transparent text-brand-text text-lg outline-none placeholder:text-brand-muted/50' />
-              <button onClick={onClose} className='p-1.5 rounded-lg hover:bg-brand-surface/50 text-brand-muted hover:text-brand-primary transition-colors'>
-                <X size={20} />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh] bg-black/70 backdrop-blur-sm"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.98 }}
+            className="w-full max-w-3xl mx-4 bg-brand-dark border border-brand-surface/50 rounded-2xl shadow-2xl overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-brand-surface/50">
+              <SearchIcon size={22} className="text-brand-muted/60 flex-shrink-0" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search films, news, people, team..."
+                className="flex-1 bg-transparent text-white text-lg outline-none placeholder:text-brand-muted/40"
+              />
+              <button onClick={onClose} className="p-2 rounded-xl hover:bg-brand-surface/50 text-brand-muted hover:text-brand-primary transition-colors">
+                <X size={22} />
               </button>
             </div>
-            <div className='max-h-[50vh] overflow-y-auto'>
+            <div className="max-h-[60vh] overflow-y-auto">
               {query.length < 2 && (
-                <div className='p-8 text-center text-brand-muted text-sm'>
-                  Type at least 2 characters to search
+                <div className="px-6 py-10 text-center">
+                  <SearchIcon size={48} className="mx-auto text-brand-muted/30 mb-4" />
+                  <p className="text-brand-muted text-sm">Type at least 2 characters to search</p>
                 </div>
               )}
               {isFetching && query.length >= 2 && (
-                <div className='p-8 text-center text-brand-muted text-sm'>
-                  <div className='animate-pulse h-4 w-32 mx-auto rounded bg-brand-surface' />
+                <div className="px-6 py-10 text-center">
+                  <div className="inline-flex items-center gap-3 text-brand-muted text-sm">
+                    <div className="w-6 h-6 border-2 border-brand-primary/50 border-t-brand-primary rounded-full animate-spin" />
+                    <span>Searching...</span>
+                  </div>
                 </div>
               )}
               {data && data.length === 0 && query.length >= 2 && !isFetching && (
-                <div className='p-8 text-center text-brand-muted text-sm'>
-                  No results found for "{query}"
+                <div className="px-6 py-10 text-center">
+                  <SearchIcon size={48} className="mx-auto text-brand-muted/30 mb-4" />
+                  <p className="text-brand-muted text-sm">No results found for &ldquo;{query}&rdquo;</p>
                 </div>
               )}
               {data && data.length > 0 && (
-                <div className='py-2'>
+                <div className="divide-y divide-brand-surface/30">
                   {data.map((result) => {
                     const Icon = typeIcon[result.type] || ExternalLink
                     return (
-                      <Link key={`${result.type}-${result.id}`} to={result.url} onClick={onClose} className='flex items-center gap-4 px-5 py-3 hover:bg-brand-surface/50 transition-colors group'>
+                      <Link
+                        key={`${result.type}-${result.id}`}
+                        to={result.url}
+                        onClick={onClose}
+                        className="flex items-center gap-4 px-6 py-4 hover:bg-brand-surface/50 transition-colors group"
+                      >
                         {result.image ? (
-                          <img src={result.image} alt='' className='w-12 h-12 rounded-lg object-cover bg-brand-surface flex-shrink-0' />
+                          <img src={result.image} alt="" className="w-14 h-14 rounded-lg object-cover bg-brand-surface flex-shrink-0" />
                         ) : (
-                          <div className='w-12 h-12 rounded-lg bg-brand-surface flex items-center justify-center flex-shrink-0'>
-                            <Icon size={20} className={cn('text-brand-muted', typeColors[result.type])} />
+                          <div className="w-14 h-14 rounded-lg bg-brand-surface flex items-center justify-center flex-shrink-0">
+                            <Icon size={22} className={cn('text-brand-muted', typeColors[result.type])} />
                           </div>
                         )}
-                        <div className='flex-1 min-w-0'>
-                          <p className='text-brand-text font-medium truncate group-hover:text-brand-primary transition-colors'>{result.title}</p>
-                          {result.subtitle && <p className='text-brand-muted text-sm truncate'>{result.subtitle}</p>}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-white font-medium truncate group-hover:text-brand-primary transition-colors">{result.title}</p>
+                            <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', typeColors[result.type])}>
+                              {typeLabels[result.type]}
+                            </span>
+                          </div>
+                          {result.subtitle && <p className="text-brand-muted text-sm truncate mt-0.5">{result.subtitle}</p>}
                         </div>
-                        <span className={cn('text-xs font-medium capitalize flex-shrink-0', typeColors[result.type])}>{result.type}</span>
+                        <ChevronRight size={18} className="text-brand-muted/50 group-hover:text-brand-primary transition-colors flex-shrink-0" />
                       </Link>
                     )
                   })}

@@ -2,9 +2,10 @@ import { Album } from '@/types'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { Image, Maximize2, ChevronLeft, ChevronRight, Film, Check } from 'lucide-react'
+import { Image, Maximize2, ChevronLeft, ChevronRight, Film, Check, Expand } from 'lucide-react'
 import { useState } from 'react'
 import { Section, Container } from '@/components/layout/Section'
+import { Lightbox } from '@/components/shared/Lightbox'
 
 interface GalleryGridProps {
   albums: Album[]
@@ -76,6 +77,7 @@ interface AlbumViewerProps {
 export const AlbumViewer: React.FC<AlbumViewerProps> = ({ album }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const images = album.images || []
 
@@ -147,6 +149,13 @@ export const AlbumViewer: React.FC<AlbumViewerProps> = ({ album }) => {
                 aria-label='Next image'
               >
                 <ChevronRight className='w-6 h-6' />
+              </button>
+              <button
+                onClick={() => setLightboxOpen(true)}
+                className='absolute top-4 right-4 p-2 bg-brand-white/10 hover:bg-brand-white/20 rounded-full text-brand-white transition-colors'
+                aria-label='View fullscreen'
+              >
+                <Expand className='w-5 h-5' />
               </button>
             </div>
 
@@ -226,6 +235,17 @@ export const AlbumViewer: React.FC<AlbumViewerProps> = ({ album }) => {
           </Container>
         </Section>
       )}
+
+      <Lightbox
+        images={images.map(img => ({
+          url: img.media?.url || '',
+          alt: img.caption || album.title + ' image',
+          caption: img.caption || undefined,
+        }))}
+        initialIndex={currentIndex}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </>
   )
 }

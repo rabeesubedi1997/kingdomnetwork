@@ -14,6 +14,7 @@ class SiteController extends Controller
     public function show()
     {
         $settings = SiteSetting::publicSettings();
+        $allSettings = SiteSetting::pluck('value', 'key')->toArray();
         $brand = config('kingdom.brand');
         $configModules = config('kingdom.modules', []);
         $dbModules = ModuleSetting::orderBy('sort_order')->orderBy('module_name')->get();
@@ -29,11 +30,77 @@ class SiteController extends Controller
             }
         }
 
+        $logoUrl = $allSettings['logo_url'] ?? null;
+        $faviconUrl = $allSettings['favicon_url'] ?? null;
+        $logoDarkUrl = $allSettings['logo_dark_url'] ?? null;
+
+        if ($logoUrl && !str_starts_with($logoUrl, 'http')) {
+            $logoUrl = url($logoUrl);
+        }
+        if ($faviconUrl && !str_starts_with($faviconUrl, 'http')) {
+            $faviconUrl = url($faviconUrl);
+        }
+        if ($logoDarkUrl && !str_starts_with($logoDarkUrl, 'http')) {
+            $logoDarkUrl = url($logoDarkUrl);
+        }
+
         return response()->json([
             'brand' => $brand,
             'settings' => $settings,
+            'all_settings' => $allSettings,
             'modules' => $modules,
+            'logo_url' => $logoUrl,
+            'favicon_url' => $faviconUrl,
+            'logo_dark_url' => $logoDarkUrl,
+            'seo' => [
+                'default_title' => $allSettings['seo_default_title'] ?? 'Kingdom Network - Redefining Nepali Cinema',
+                'title_template' => $allSettings['seo_title_template'] ?? '%s | Kingdom Network',
+                'default_description' => $allSettings['seo_default_description'] ?? '',
+                'twitter_handle' => $allSettings['seo_twitter_handle'] ?? '@kingdomnetwork',
+            ],
+            'analytics' => [
+                'ga4_id' => $allSettings['analytics_ga4_id'] ?? '',
+                'gtm_id' => $allSettings['analytics_gtm_id'] ?? '',
+            ],
         ]);
+    }
+
+    public function sitemap()
+    {
+        $urls = [
+            ['loc' => url('/'), 'priority' => '1.0'],
+            ['loc' => url('/about'), 'priority' => '0.8'],
+            ['loc' => url('/films'), 'priority' => '0.9'],
+            ['loc' => url('/news'), 'priority' => '0.7'],
+            ['loc' => url('/careers'), 'priority' => '0.6'],
+            ['loc' => url('/gallery'), 'priority' => '0.5'],
+            ['loc' => url('/press'), 'priority' => '0.6'],
+            ['loc' => url('/contact'), 'priority' => '0.7'],
+            ['loc' => url('/awards'), 'priority' => '0.6'],
+            ['loc' => url('/people'), 'priority' => '0.7'],
+            ['loc' => url('/team'), 'priority' => '0.6'],
+        ];
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        foreach ($urls as $url) {
+            $xml .= '<url>';
+            $xml .= '<loc>' . e($url['loc']) . '</loc>';
+            $xml .= '<priority>' . $url['priority'] . '</priority>';
+            $xml .= '</url>';
+        }
+        $xml .= '</urlset>';
+
+        return response($xml, 200)->header('Content-Type', 'application/xml');
+    }
+
+    public function robots()
+    {
+        $content = "User-agent: *\n";
+        $content .= "Allow: /\n";
+        $content .= "Sitemap: " . url('/sitemap.xml') . "\n";
+
+        return response($content, 200)->header('Content-Type', 'text/plain');
     }
 
     public function menu(Request $request, string $location)

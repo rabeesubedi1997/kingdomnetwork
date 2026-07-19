@@ -70,4 +70,43 @@ class NewsController extends Controller
             ->firstOrFail();
         return response()->json($post);
     }
+
+    public function rss()
+    {
+        $posts = Post::published()
+            ->with(['author', 'category', 'media'])
+            ->orderBy('published_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        $siteUrl = url('/');
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+        $xml .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">';
+        $xml .= '<channel>';
+        $xml .= '<title>Kingdom Network News</title>';
+        $xml .= '<link>' . $siteUrl . 'news</link>';
+        $xml .= '<description>Latest news and updates from Kingdom Network</description>';
+        $xml .= '<language>en</language>';
+        $xml .= '<atom:link href="' . $siteUrl . 'api/v1/news/rss" rel="self" type="application/rss+xml"/>';
+
+        foreach ($posts as $post) {
+            $xml .= '<item>';
+            $xml .= '<title><![CDATA[' . $post->title . ']]></title>';
+            $xml .= '<link>' . $siteUrl . 'news/' . $post->slug . '</link>';
+            $xml .= '<description><![CDATA[' . ($post->excerpt ?? strip_tags(substr($post->content ?? '', 0, 200))) . ']]></description>';
+            $xml .= '<pubDate>' . $post->published_at->format('r') . '</pubDate>';
+            $xml .= '<guid isPermaLink="true">' . $siteUrl . 'news/' . $post->slug . '</guid>';
+            if ($post->category) {
+                $xml .= '<category><![CDATA[' . $post->category->name . ']]></category>';
+            }
+            $imageUrl = $post->getFirstMediaUrl('featured_image');
+            if ($imageUrl) {
+                $xml .= '<media:content url="' . $imageUrl . '" medium="image"/>';
+            }
+            $xml .= '</item>';
+        }
+
+        $xml .= '</channel></rss>';
+        return response($xml, 200)->header('Content-Type', 'application/rss+xml');
+    }
 }

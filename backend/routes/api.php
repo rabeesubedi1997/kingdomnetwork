@@ -30,11 +30,19 @@ use App\Http\Controllers\Api\BannerController as ApiBannerController;
 use App\Http\Controllers\Api\AdvertisementController as ApiAdvertisementController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ScreeningController;
+use App\Http\Controllers\Api\TestimonialController as ApiTestimonialController;
+use App\Http\Controllers\Api\PartnerController as ApiPartnerController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AdvertisementController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
+use App\Http\Controllers\Admin\PageSectionController;
+use App\Http\Controllers\Admin\ContactSubmissionController;
+use App\Http\Controllers\Admin\JobApplicationController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Api\PageController as ApiPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -59,6 +67,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/news/featured', [NewsController::class, 'featured']);
     Route::get('/news/category/{slug}', [NewsController::class, 'byCategory']);
     Route::get('/news/tag/{slug}', [NewsController::class, 'byTag']);
+    Route::get('/news/rss', [NewsController::class, 'rss']);
     Route::get('/news/{slug}', [NewsController::class, 'show']);
 
     // Careers
@@ -97,6 +106,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/advertisements', [ApiAdvertisementController::class, 'index']);
     Route::get('/advertisements/position/{position}', [ApiAdvertisementController::class, 'byPosition']);
 
+    // Testimonials
+    Route::get('/testimonials', [ApiTestimonialController::class, 'index']);
+
+    // Partners
+    Route::get('/partners', [ApiPartnerController::class, 'index']);
+
     // Contact
     Route::post('/contact', [ContactController::class, 'store']);
 
@@ -112,6 +127,10 @@ Route::prefix('v1')->group(function () {
 
     // Screening Requests
     Route::post('/screenings/request', [ScreeningController::class, 'request']);
+
+    // Sitemap & Robots
+    Route::get('/sitemap.xml', [SiteController::class, 'sitemap']);
+    Route::get('/robots.txt', [SiteController::class, 'robots']);
 
     // Public login/logout (no auth)
     Route::post('/login', [AuthController::class, 'login']);
@@ -132,6 +151,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index']);
 
         Route::post('/site-settings/bulk-update', [SiteSettingController::class, 'bulkUpdate']);
+        Route::post('/site-settings/upload-logo', [SiteSettingController::class, 'uploadLogo']);
         Route::apiResource('site-settings', SiteSettingController::class);
         Route::apiResource('films', FilmController::class);
         Route::apiResource('posts', PostController::class);
@@ -177,5 +197,36 @@ Route::prefix('v1')->group(function () {
         Route::post('menu-items/reorder', [MenuItemController::class, 'reorder']);
 
         Route::apiResource('pages', AdminPageController::class);
+        Route::get('users', [UserController::class, 'index']);
+        Route::post('users', [UserController::class, 'store']);
+        Route::get('users/{user}', [UserController::class, 'show']);
+        Route::put('users/{user}', [UserController::class, 'update']);
+        Route::delete('users/{user}', [UserController::class, 'destroy']);
+        Route::get('roles', [UserController::class, 'roles']);
+        Route::get('contact-submissions', [ContactSubmissionController::class, 'index']);
+        Route::get('contact-submissions/{contactSubmission}', [ContactSubmissionController::class, 'show']);
+        Route::put('contact-submissions/{contactSubmission}', [ContactSubmissionController::class, 'update']);
+        Route::delete('contact-submissions/{contactSubmission}', [ContactSubmissionController::class, 'destroy']);
+        Route::get('job-applications', [JobApplicationController::class, 'index']);
+        Route::get('job-applications/{jobApplication}', [JobApplicationController::class, 'show']);
+        Route::put('job-applications/{jobApplication}', [JobApplicationController::class, 'update']);
+        Route::delete('job-applications/{jobApplication}', [JobApplicationController::class, 'destroy']);
+
+        Route::get('testimonials', [TestimonialController::class, 'index']);
+        Route::post('testimonials', [TestimonialController::class, 'store']);
+        Route::get('testimonials/{testimonial}', [TestimonialController::class, 'show']);
+        Route::put('testimonials/{testimonial}', [TestimonialController::class, 'update']);
+        Route::delete('testimonials/{testimonial}', [TestimonialController::class, 'destroy']);
+
+        Route::get('partners', [PartnerController::class, 'index']);
+        Route::post('partners', [PartnerController::class, 'store']);
+        Route::get('partners/{partner}', [PartnerController::class, 'show']);
+        Route::put('partners/{partner}', [PartnerController::class, 'update']);
+        Route::delete('partners/{partner}', [PartnerController::class, 'destroy']);
+        Route::get('pages/{page}/sections', [PageSectionController::class, 'index']);
+        Route::post('pages/{page}/sections', [PageSectionController::class, 'store']);
+        Route::put('pages/{page}/sections/{pageSection}', [PageSectionController::class, 'update']);
+        Route::delete('pages/{page}/sections/{pageSection}', [PageSectionController::class, 'destroy']);
+        Route::post('pages/{page}/sections/reorder', [PageSectionController::class, 'reorder']);
     });
 });

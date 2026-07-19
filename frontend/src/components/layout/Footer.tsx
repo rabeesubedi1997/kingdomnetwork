@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import api from '@/lib/api'
+import { useModuleConfig } from '@/providers/ModuleConfigProvider'
 import { useNewsletterSubscribe } from '@/hooks/useForms'
 import { useToast } from '@/hooks/useToast'
 import { useState } from 'react'
@@ -18,6 +19,7 @@ const fadeUp = {
 export const Footer: React.FC = () => {
   const [email, setEmail] = useState('')
   const { toast } = useToast()
+  const { dark_logo_url } = useModuleConfig()
   const { data: settings } = useQuery({
     queryKey: ['site'],
     queryFn: async () => (await api.get('/site')).data,
@@ -38,6 +40,11 @@ export const Footer: React.FC = () => {
     })
   }
 
+  const siteSettings = settings?.settings || {}
+  const siteName = siteSettings.site_name || 'Kingdom Network'
+  const logoUrl = settings?.logo_url
+  const darkLogo = dark_logo_url
+
   const brand = settings?.brand || {
     name: 'Kingdom Network',
     social: {
@@ -48,18 +55,18 @@ export const Footer: React.FC = () => {
       linkedin: 'https://linkedin.com/company/kingdomnetwork',
     },
     contact: {
-      address: 'Kathmandu, Nepal',
-      phone: '+977-1-1234567',
-      email: 'info@kingdomnetwork.com.np',
+      address: siteSettings.contact_address || 'Kathmandu, Nepal',
+      phone: siteSettings.contact_phone || '+977-1-1234567',
+      email: siteSettings.contact_email || 'info@kingdomnetwork.com.np',
     },
   }
 
   const socialLinks = [
-    { icon: Facebook, url: brand.social.facebook, label: 'Facebook' },
-    { icon: Instagram, url: brand.social.instagram, label: 'Instagram' },
-    { icon: Twitter, url: brand.social.twitter, label: 'Twitter' },
-    { icon: Youtube, url: brand.social.youtube, label: 'YouTube' },
-    { icon: Linkedin, url: brand.social.linkedin, label: 'LinkedIn' },
+    { icon: Facebook, url: siteSettings.social_facebook || brand.social.facebook, label: 'Facebook' },
+    { icon: Instagram, url: siteSettings.social_instagram || brand.social.instagram, label: 'Instagram' },
+    { icon: Twitter, url: siteSettings.social_twitter || brand.social.twitter, label: 'Twitter' },
+    { icon: Youtube, url: siteSettings.social_youtube || brand.social.youtube, label: 'YouTube' },
+    { icon: Linkedin, url: siteSettings.social_linkedin || brand.social.linkedin, label: 'LinkedIn' },
   ]
 
   const footerLinks = [
@@ -129,10 +136,18 @@ export const Footer: React.FC = () => {
             {/* Brand */}
             <div className="text-center lg:text-left">
               <Link to="/" className="inline-flex items-center gap-2.5 mb-3">
-                <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
-                  <span className="text-white font-display font-bold text-lg">KN</span>
-                </div>
-                <span className="font-display font-bold text-lg text-white">{brand.name}</span>
+                {darkLogo ? (
+                  <img src={darkLogo} alt={siteName} className="h-9 w-auto" />
+                ) : logoUrl ? (
+                  <img src={logoUrl} alt={siteName} className="h-9 w-auto" />
+                ) : (
+                  <>
+                    <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
+                      <span className="text-white font-display font-bold text-lg">KN</span>
+                    </div>
+                    <span className="font-display font-bold text-lg text-white">{siteName}</span>
+                  </>
+                )}
               </Link>
               <p className="text-white/50 text-sm max-w-xs">
                 Redefining Nepali Cinema through compelling storytelling and world-class production.
@@ -164,7 +179,7 @@ export const Footer: React.FC = () => {
 
           {/* Copyright */}
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} {brand.name}. All rights reserved.</p>
+            <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} {siteName}. All rights reserved.</p>
             <div className="flex gap-6">
               {legalLinks.map(link => (
                 <Link key={link.href} to={link.href}

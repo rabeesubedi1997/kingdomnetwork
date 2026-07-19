@@ -9,7 +9,7 @@ class PageController extends Controller
 {
     public function show(string $slug)
     {
-        $page = Page::where('slug', $slug)->where('is_active', true)->firstOrFail();
+        $page = Page::where('slug', $slug)->where('is_active', true)->with('activeSections')->firstOrFail();
         return response()->json($page);
     }
 }

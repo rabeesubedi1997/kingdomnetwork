@@ -26,6 +26,9 @@ class ModuleSettingsSeeder extends Seeder
             ['module_name' => 'screening', 'is_enabled' => false, 'config' => [], 'sort_order' => 14],
             ['module_name' => 'investors', 'is_enabled' => false, 'config' => [], 'sort_order' => 15],
             ['module_name' => 'seo_sitemap', 'is_enabled' => true, 'config' => ['auto_generate' => true], 'sort_order' => 16],
+            ['module_name' => 'awards', 'is_enabled' => true, 'config' => ['per_page' => 20], 'sort_order' => 17],
+            ['module_name' => 'people', 'is_enabled' => true, 'config' => ['per_page' => 20], 'sort_order' => 18],
+            ['module_name' => 'search', 'is_enabled' => true, 'config' => ['limit' => 10], 'sort_order' => 19],
         ];
 
         foreach ($modules as $module) {

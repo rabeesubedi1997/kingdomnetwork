@@ -8,7 +8,6 @@ use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-
 class SiteSettingController extends Controller
 {
     public function index(): AnonymousResourceCollection
@@ -65,5 +64,30 @@ class SiteSettingController extends Controller
         }
 
         return response()->json(['message' => 'Settings updated']);
+    }
+
+    public function uploadLogo(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpg,jpeg,png,gif,webp,svg|max:5120',
+            'type' => 'required|in:logo,favicon',
+        ]);
+
+        $file = $request->file('file');
+        $filename = time() . '_' . $request->type . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('brand', $filename, 'public');
+
+        $key = $request->type === 'logo' ? 'logo_url' : 'favicon_url';
+        $value = '/storage/' . $path;
+
+        SiteSetting::updateOrCreate(
+            ['key' => $key],
+            ['value' => $value, 'group' => 'brand', 'is_public' => true]
+        );
+
+        return response()->json([
+            'message' => ucfirst($request->type) . ' uploaded successfully',
+            'url' => $value,
+        ]);
     }
 }

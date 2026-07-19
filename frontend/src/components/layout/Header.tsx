@@ -5,6 +5,7 @@ import { Menu, X, ChevronDown, Search as SearchIcon, Sun, Moon } from 'lucide-re
 import { useState, useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getMenus } from '@/lib/public-api'
+import api from '@/lib/api'
 import { useModuleConfig } from '@/providers/ModuleConfigProvider'
 import { useTheme } from '@/providers/ThemeProvider'
 import { SearchOverlay } from '@/components/search/SearchOverlay'
@@ -21,7 +22,7 @@ export const Header: React.FC = () => {
   const [searchOpen, setSearchOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
-  const { modules } = useModuleConfig()
+  const { modules, logo_url, favicon_url, dark_logo_url, brand } = useModuleConfig()
   const { theme, toggleTheme } = useTheme()
 
   const { data: headerData } = useQuery({
@@ -33,6 +34,12 @@ export const Header: React.FC = () => {
   const { data: mainData } = useQuery({
     queryKey: ['menu', 'main'],
     queryFn: () => getMenus('main'),
+    staleTime: 60000,
+  })
+
+  const { data: siteData } = useQuery({
+    queryKey: ['site'],
+    queryFn: async () => (await api.get('/site')).data,
     staleTime: 60000,
   })
 
@@ -72,6 +79,9 @@ export const Header: React.FC = () => {
       }
     }
   }, [mobileMenuOpen])
+
+  const siteName = siteData?.settings?.site_name || brand?.name || 'Kingdom Network'
+  const siteLogo = theme === 'dark' && dark_logo_url ? dark_logo_url : (siteData?.logo_url || logo_url)
 
   const defaultNav = [
     { name: 'Home', href: '/', module: null },
@@ -124,13 +134,19 @@ export const Header: React.FC = () => {
     >
       <nav className='container mx-auto px-4 sm:px-6 lg:px-8' aria-label='Main navigation'>
         <div className='flex items-center justify-between h-16 md:h-20'>
-          <Link to='/' className='flex items-center gap-2.5 group' aria-label='Kingdom Network Home'>
-            <div className='w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/20 group-hover:shadow-brand-primary/40 transition-shadow duration-300'>
-              <span className='text-brand-white font-display font-bold text-xl tracking-tight'>KN</span>
-            </div>
-            <span className='font-display font-bold text-xl text-brand-primary hidden sm:block tracking-tight'>
-              Kingdom Network
-            </span>
+          <Link to='/' className='flex items-center gap-2.5 group' aria-label={`${siteName} Home`}>
+            {siteLogo ? (
+              <img src={siteLogo} alt={siteName} className='h-9 w-auto' />
+            ) : (
+              <>
+                <div className='w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/20 group-hover:shadow-brand-primary/40 transition-shadow duration-300'>
+                  <span className='text-brand-white font-display font-bold text-xl tracking-tight'>KN</span>
+                </div>
+                <span className='font-display font-bold text-xl text-brand-primary hidden sm:block tracking-tight'>
+                  {siteName}
+                </span>
+              </>
+            )}
           </Link>
 
           {/* Desktop Navigation */}

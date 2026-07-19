@@ -11,6 +11,10 @@ const pageTitles: Record<string, string> = {
   '/admin/films': 'Films', '/admin/news': 'News', '/admin/jobs': 'Jobs',
   '/admin/gallery': 'Gallery Albums', '/admin/press-kits': 'Press Kits',
   '/admin/team': 'Team Members', '/admin/people': 'People', '/admin/genres': 'Genres',
+  '/admin/banners': 'Banner Slider', '/admin/advertisements': 'Advertisements',
+  '/admin/menus': 'Menu Management', '/admin/newsletter': 'Newsletter',
+  '/admin/awards': 'Awards', '/admin/search': 'Search Settings',
+  '/admin/pages': 'Pages', '/admin/testimonials': 'Testimonials', '/admin/partners': 'Partners',
 }
 
 export const AdminLayout: React.FC = () => {
