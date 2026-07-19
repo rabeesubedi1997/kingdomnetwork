@@ -1,5 +1,4 @@
 # Laravel
-/vendor
 /backend/vendor
 /node_modules
 /public/hot
@@ -23,7 +22,7 @@ Thumbs.db
 
 # Frontend
 /frontend/node_modules
-# /frontend/dist
+# /frontend/dist (COMMITTED for cPanel deployment)
 /frontend/.env
 /frontend/.env.local
 /frontend/.env.*.local
