@@ -48,7 +48,16 @@ if [ ! -f ".env" ]; then
 fi
 
 php artisan key:generate --force
+
+# storage:link refuses to touch public/storage if something already exists there,
+# so a stale plain directory from an old manual deploy silently stays in place and
+# every new upload becomes invisible to the web server. Replace it with a real symlink.
+if [ -e "public/storage" ] && [ ! -L "public/storage" ]; then
+    echo -e "${RED}⚠️  public/storage exists but is not a symlink — replacing with a proper symlink${NC}"
+    rm -rf public/storage
+fi
 php artisan storage:link
+
 php artisan migrate --force
 php artisan db:seed --class=RolesPermissionsSeeder --force
 php artisan db:seed --class=PagesSeeder --force

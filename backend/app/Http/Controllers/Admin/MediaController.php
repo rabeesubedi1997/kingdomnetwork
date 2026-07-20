@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Media;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -58,24 +57,7 @@ class MediaController extends Controller
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
         $filename = time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
-
-        Log::error('media-upload:before-store', [
-            'tmp_path' => $file->getRealPath(),
-            'tmp_exists' => $file->getRealPath() ? file_exists($file->getRealPath()) : null,
-            'tmp_size' => $file->getSize(),
-            'upload_error_code' => $file->getError(),
-            'disk_root' => Storage::disk('public')->path(''),
-        ]);
-
         $path = $file->storeAs('media', $filename, 'public');
-
-        $existsAfterStore = Storage::disk('public')->exists($path);
-        Log::error('media-upload:after-store', [
-            'path' => $path,
-            'exists_after_store' => $existsAfterStore,
-            'full_target_path' => Storage::disk('public')->path($path),
-            'size_on_disk' => $existsAfterStore ? Storage::disk('public')->size($path) : null,
-        ]);
 
         $media = Media::create([
             'name' => pathinfo($originalName, PATHINFO_FILENAME),
