@@ -154,18 +154,20 @@ export const Header: React.FC = () => {
             {filteredNavigation.map((item: any, i: number) =>
               item.children?.length > 0 ? (
                 <motion.div key={item.name} custom={i} initial="hidden" animate="visible" variants={navItemVariants} className='relative'>
-                  <button
-                    onClick={() => setOpenDropdown(openDropdown === item.name ? null : item.name)}
-                    className={cn(
-                      'flex items-center gap-1 px-3.5 py-2 text-sm font-medium transition-colors rounded-lg',
-                      openDropdown === item.name || location.pathname.startsWith(item.href)
-                        ? 'text-brand-primary'
-                        : 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
-                      )}
-                  >
-                    {item.name}
-                    <ChevronDown size={14} className={cn('transition-transform duration-200', openDropdown === item.name && 'rotate-180')} />
-                  </button>
+                    <button
+                      onClick={() => setOpenDropdown(openDropdown === item.name ? null : item.name)}
+                      className={cn(
+                        'flex items-center gap-1 px-3.5 py-2 text-sm font-medium transition-colors rounded-lg',
+                        openDropdown === item.name || location.pathname.startsWith(item.href)
+                          ? 'text-brand-primary'
+                          : scrolled
+                            ? 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
+                            : 'text-white/80 hover:text-white hover:bg-white/10'
+                        )}
+                    >
+                      {item.name}
+                      <ChevronDown size={14} className={cn('transition-transform duration-200', openDropdown === item.name && 'rotate-180')} />
+                    </button>
                   <AnimatePresence>
                     {openDropdown === item.name && (
                       <motion.div
@@ -205,7 +207,9 @@ export const Header: React.FC = () => {
                         'relative px-3.5 py-2 text-sm font-medium transition-colors rounded-lg',
                         isActive
                           ? 'text-brand-primary'
-                          : 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
+                          : scrolled
+                            ? 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
+                            : 'text-white/80 hover:text-white hover:bg-white/10'
                       )
                     }
                     end={item.href === '/'}
@@ -231,13 +235,13 @@ export const Header: React.FC = () => {
           <div className='hidden lg:flex lg:items-center lg:gap-2'>
             {modules.search !== false && (
               <button onClick={() => setSearchOpen(true)}
-                className='p-2.5 text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5 rounded-xl transition-colors'
+                className={cn('p-2.5 rounded-xl transition-colors', scrolled ? 'text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5' : 'text-white/70 hover:text-white hover:bg-white/10')}
                 aria-label='Search'>
                 <SearchIcon size={18} />
               </button>
             )}
             <button onClick={toggleTheme}
-              className='p-2.5 text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5 rounded-xl transition-colors'
+              className={cn('p-2.5 rounded-xl transition-colors', scrolled ? 'text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5' : 'text-white/70 hover:text-white hover:bg-white/10')}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>

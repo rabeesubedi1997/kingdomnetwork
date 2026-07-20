@@ -127,7 +127,6 @@ export const Contact: React.FC = () => {
                     label='Full Name'
                     placeholder='Your name'
                     error={errors.name?.message}
-                    className='input-field'
                     {...register('name')}
                   />
                   <Input
@@ -135,7 +134,6 @@ export const Contact: React.FC = () => {
                     type='email'
                     placeholder='your@email.com'
                     error={errors.email?.message}
-                    className='input-field'
                     {...register('email')}
                   />
                 </div>
@@ -143,7 +141,6 @@ export const Contact: React.FC = () => {
                   label='Subject'
                   placeholder='What is this about?'
                   error={errors.subject?.message}
-                  className='input-field'
                   {...register('subject')}
                 />
                 <Textarea
@@ -151,7 +148,6 @@ export const Contact: React.FC = () => {
                   placeholder='Tell us about your project, idea, or just say hello...'
                   rows={5}
                   error={errors.message?.message}
-                  className='input-field'
                   {...register('message')}
                 />
                 <Button type='submit' className='btn-primary w-full' loading={isSubmitting}>

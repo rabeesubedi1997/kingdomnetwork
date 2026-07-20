@@ -21,7 +21,7 @@ export const TeamCard = ({ member, index = 0 }: TeamCardProps) => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: index * 0.05 }}
-        className='card group cursor-pointer border border-brand-surface/30 hover:border-brand-primary/30 transition-colors'
+        className='card card-hover group cursor-pointer'
       >
         <div className='relative aspect-square overflow-hidden'>
           <img src={member.photo_url || '/images/placeholder-person.jpg'} alt={member.name} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' loading='lazy' />
