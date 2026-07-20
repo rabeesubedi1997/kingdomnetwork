@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getMedia, uploadMedia, deleteMedia, bulkDeleteMedia } from '@/lib/admin-api'
 import { motion } from 'framer-motion'
@@ -30,7 +30,26 @@ export const MediaLibraryPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const previewUrls = useRef<Map<File, string>>(new Map())
   const queryClient = useQueryClient()
+
+  const getPreviewUrl = (f: File) => {
+    if (!previewUrls.current.has(f)) previewUrls.current.set(f, URL.createObjectURL(f))
+    return previewUrls.current.get(f)!
+  }
+
+  const removeFile = (i: number) => {
+    const file = files[i]
+    if (file && previewUrls.current.has(file)) {
+      URL.revokeObjectURL(previewUrls.current.get(file)!)
+      previewUrls.current.delete(file)
+    }
+    setFiles(prev => prev.filter((_, j) => j !== i))
+  }
+
+  useEffect(() => {
+    return () => previewUrls.current.forEach(url => URL.revokeObjectURL(url))
+  }, [])
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'media-library', search, page, type],
@@ -224,10 +243,14 @@ export const MediaLibraryPage: React.FC = () => {
               <div className="mt-4 space-y-2 max-h-40 overflow-y-auto">
                 {files.map((f, i) => (
                   <div key={i} className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg text-sm">
-                    {f.type.startsWith('image/') ? <Image size={14} className="text-gray-400" /> : <Film size={14} className="text-gray-400" />}
+                    {f.type.startsWith('image/') ? (
+                      <img src={getPreviewUrl(f)} alt="" className="w-10 h-10 rounded object-cover" />
+                    ) : (
+                      <Film size={14} className="text-gray-400" />
+                    )}
                     <span className="flex-1 truncate">{f.name}</span>
                     <span className="text-gray-400 text-xs">{(f.size / 1024 / 1024).toFixed(1)}MB</span>
-                    <button onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600"><X size={14} /></button>
+                    <button onClick={() => removeFile(i)} className="text-red-400 hover:text-red-600"><X size={14} /></button>
                   </div>
                 ))}
               </div>

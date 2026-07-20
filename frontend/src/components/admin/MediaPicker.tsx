@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMedia, uploadMedia } from '@/lib/admin-api'
 import { motion } from 'framer-motion'
@@ -26,6 +26,7 @@ export const MediaPicker: React.FC<MediaPickerProps> = ({ open, onClose, onSelec
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropRef = useRef<HTMLDivElement>(null)
+  const previewUrls = useRef<Map<File, string>>(new Map())
   const queryClient = useQueryClient()
 
   const { data, isLoading } = useQuery({
@@ -35,6 +36,24 @@ export const MediaPicker: React.FC<MediaPickerProps> = ({ open, onClose, onSelec
   })
 
   const items: MediaItem[] = data?.data || data || []
+
+  const getPreviewUrl = (f: File) => {
+    if (!previewUrls.current.has(f)) previewUrls.current.set(f, URL.createObjectURL(f))
+    return previewUrls.current.get(f)!
+  }
+
+  const removeFile = (i: number) => {
+    const file = files[i]
+    if (file && previewUrls.current.has(file)) {
+      URL.revokeObjectURL(previewUrls.current.get(file)!)
+      previewUrls.current.delete(file)
+    }
+    setFiles(prev => prev.filter((_, j) => j !== i))
+  }
+
+  useEffect(() => {
+    return () => previewUrls.current.forEach(url => URL.revokeObjectURL(url))
+  }, [])
 
   const handleUpload = async () => {
     if (!files.length) return
@@ -140,10 +159,14 @@ export const MediaPicker: React.FC<MediaPickerProps> = ({ open, onClose, onSelec
                 <div className="mt-4 space-y-2">
                   {files.map((f, i) => (
                     <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm" style={{ background: '#1c2a38' }}>
-                      {f.type.startsWith('image/') ? <Image size={16} className="text-gray-500" /> : <Film size={16} className="text-gray-500" />}
+                      {f.type.startsWith('image/') ? (
+                        <img src={getPreviewUrl(f)} alt="" className="w-10 h-10 rounded object-cover" />
+                      ) : (
+                        <Film size={16} className="text-gray-500" />
+                      )}
                       <span className="flex-1 truncate text-gray-300">{f.name}</span>
                       <span className="text-gray-500">{(f.size / 1024 / 1024).toFixed(1)} MB</span>
-                      <button onClick={() => setFiles(p => p.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-300"><X size={16} /></button>
+                      <button onClick={() => removeFile(i)} className="text-red-400 hover:text-red-300"><X size={16} /></button>
                     </div>
                   ))}
                   <Button onClick={handleUpload} loading={uploading} className="mt-2" style={{ background: '#09333f' }}>
