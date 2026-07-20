@@ -8,6 +8,7 @@ interface SafeImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'
   placeholderText?: string
   aspectRatio?: string
   wrapperClassName?: string
+  className?: string
 }
 
 export const SafeImage: React.FC<SafeImageProps> = ({
@@ -21,6 +22,7 @@ export const SafeImage: React.FC<SafeImageProps> = ({
   ...imgProps
 }) => {
   const [error, setError] = useState(false)
+  const hasWrapper = Boolean(aspectRatio || wrapperClassName)
 
   if (!src || error) {
     return (
@@ -33,15 +35,23 @@ export const SafeImage: React.FC<SafeImageProps> = ({
     )
   }
 
+  const imgClasses = cn('w-full h-full object-cover', className)
+
+  if (hasWrapper) {
+    return (
+      <div className={cn('overflow-hidden', wrapperClassName)} style={aspectRatio ? { aspectRatio } : undefined}>
+        <img src={src} alt={alt || ''} className={imgClasses} onError={() => setError(true)} {...imgProps} />
+      </div>
+    )
+  }
+
   return (
-    <div className={cn('overflow-hidden', wrapperClassName)} style={aspectRatio ? { aspectRatio } : undefined}>
-      <img
-        src={src}
-        alt={alt || ''}
-        className={cn('w-full h-full object-cover', className)}
-        onError={() => setError(true)}
-        {...imgProps}
-      />
-    </div>
+    <img
+      src={src}
+      alt={alt || ''}
+      className={imgClasses}
+      onError={() => setError(true)}
+      {...imgProps}
+    />
   )
 }
