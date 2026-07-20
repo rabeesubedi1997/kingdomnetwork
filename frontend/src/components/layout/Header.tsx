@@ -160,7 +160,7 @@ export const Header: React.FC = () => {
                         'flex items-center gap-1 px-3.5 py-2 text-sm font-medium transition-colors rounded-lg',
                         openDropdown === item.name || location.pathname.startsWith(item.href)
                           ? 'text-brand-primary'
-                          : scrolled
+                          : scrolled || theme === 'light'
                             ? 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
                             : 'text-white/80 hover:text-white hover:bg-white/10'
                         )}
@@ -207,7 +207,7 @@ export const Header: React.FC = () => {
                         'relative px-3.5 py-2 text-sm font-medium transition-colors rounded-lg',
                         isActive
                           ? 'text-brand-primary'
-                          : scrolled
+                          : scrolled || theme === 'light'
                             ? 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
                             : 'text-white/80 hover:text-white hover:bg-white/10'
                       )
@@ -235,13 +235,13 @@ export const Header: React.FC = () => {
           <div className='hidden lg:flex lg:items-center lg:gap-2'>
             {modules.search !== false && (
               <button onClick={() => setSearchOpen(true)}
-                className={cn('p-2.5 rounded-xl transition-colors', scrolled ? 'text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5' : 'text-white/70 hover:text-white hover:bg-white/10')}
+                className={cn('p-2.5 rounded-xl transition-colors', scrolled || theme === 'light' ? 'text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5' : 'text-white/70 hover:text-white hover:bg-white/10')}
                 aria-label='Search'>
                 <SearchIcon size={18} />
               </button>
             )}
             <button onClick={toggleTheme}
-              className={cn('p-2.5 rounded-xl transition-colors', scrolled ? 'text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5' : 'text-white/70 hover:text-white hover:bg-white/10')}
+              className={cn('p-2.5 rounded-xl transition-colors', scrolled || theme === 'light' ? 'text-brand-text/60 hover:text-brand-primary hover:bg-brand-primary/5' : 'text-white/70 hover:text-white hover:bg-white/10')}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
