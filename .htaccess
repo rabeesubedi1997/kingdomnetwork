@@ -14,15 +14,15 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Handle API Routes - Route to Laravel
-    RewriteRule ^api/(.*)$ index.php [L,QSA]
+    # API Routes - Proxy to Laravel artisan serve on port 8000
+    RewriteRule ^api/(.*)$ http://127.0.0.1:8000/api/$1 [P,L,QSA]
 
-    # Handle Storage Files - Route to Laravel
-    RewriteRule ^storage/(.*)$ index.php [L,QSA]
+    # Storage Routes - Proxy to Laravel
+    RewriteRule ^storage/(.*)$ http://127.0.0.1:8000/storage/$1 [P,L,QSA]
 
-    # Handle Sitemap & Robots - Route to Laravel
-    RewriteRule ^sitemap\.xml$ index.php [L,QSA]
-    RewriteRule ^robots\.txt$ index.php [L,QSA]
+    # Sitemap & Robots - Proxy to Laravel
+    RewriteRule ^sitemap\.xml$ http://127.0.0.1:8000/api/v1/sitemap.xml [P,L,QSA]
+    RewriteRule ^robots\.txt$ http://127.0.0.1:8000/api/v1/robots.txt [P,L,QSA]
 
     # Frontend Assets - Serve Directly
     RewriteCond %{REQUEST_FILENAME} -f
