@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   :root {
     --color-brand-primary: #09333f;
     --color-brand-secondary: #516f78;
@@ -30,6 +34,10 @@
   body {
     @apply bg-brand-surface text-brand-text font-sans antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  body {
+    @apply bg-brand-white dark:bg-brand-dark text-brand-text dark:text-brand-white transition-colors duration-200;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -22,11 +22,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            'w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-brand-dark',
-            'text-brand-text placeholder:text-brand-muted',
-            'focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent',
+            'w-full px-4 py-2.5 rounded-lg border',
+            'bg-brand-white dark:bg-brand-dark',
+            'border-brand-surface/60 dark:border-brand-surface/20',
+            'text-brand-text placeholder:text-brand-muted/60',
+            'focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary',
             'disabled:bg-brand-surface/50 disabled:cursor-not-allowed',
-            error ? 'border-red-500 focus:ring-red-500' : 'border-brand-surface/50'
+            error ? 'border-red-500 focus:ring-red-500' : ''
           )}
           aria-invalid={error ? 'true' : 'false'}
           aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}

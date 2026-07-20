@@ -129,9 +129,12 @@ export interface PressKit {
   film_id: number
   title: string
   slug: string
+  film_slug?: string
   logline?: string
   synopsis_short?: string
   synopsis_long?: string
+  poster_url?: string
+  thumbnail_url?: string
   key_cast: Person[]
   key_crew: Person[]
   technical_specs: Record<string, unknown>

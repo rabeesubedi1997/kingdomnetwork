@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Download, FileText, Image, Film, ExternalLink, Copy } from 'lucide-react'
+import { Download, FileText, Image, Film, ExternalLink, Copy, Play } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import type { PressKit } from '@/types'
+import { PlaceholderImage } from '@/components/shared/PlaceholderImage'
 
 interface PressKitCardProps {
   kit: PressKit
@@ -13,6 +14,8 @@ interface PressKitCardProps {
 export const PressKitCard = ({ kit, index = 0 }: PressKitCardProps) => {
   const [copied, setCopied] = useState<string | null>(null)
   const assets = (kit.assets ?? {}) as Record<string, Array<{ url?: string; name?: string; thumbnail_url?: string }>>
+
+  const kitLink = kit.film_slug ? `/press/${kit.film_slug}` : '/press'
 
   const handleDownload = (url: string, filename: string) => {
     const link = document.createElement('a')
@@ -36,10 +39,14 @@ export const PressKitCard = ({ kit, index = 0 }: PressKitCardProps) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.05 }}
-      className='card group overflow-hidden'
+      className='card group overflow-hidden border border-brand-surface/30 hover:border-brand-primary/30 transition-colors'
     >
-      <div className='relative h-48 overflow-hidden'>
-        <img src='/storage/films/poster.jpg' alt={kit.title} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' />
+      <Link to={kitLink} className='relative h-48 overflow-hidden block'>
+        {kit.thumbnail_url || kit.poster_url ? (
+          <img src={kit.thumbnail_url || kit.poster_url} alt={kit.title} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' />
+        ) : (
+          <PlaceholderImage type="film" text={kit.title} className="h-full" aspectRatio="" />
+        )}
         <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent' />
         <div className='absolute bottom-4 left-4 right-4'>
           <div className='flex items-center justify-between'>
@@ -47,13 +54,13 @@ export const PressKitCard = ({ kit, index = 0 }: PressKitCardProps) => {
               <h3 className='font-semibold text-white'>{kit.title}</h3>
               <p className='text-sm text-white/80'>{kit.logline || 'Press kit available'}</p>
             </div>
-            <Link to='/press' className='inline-flex items-center gap-2 px-4 py-2 bg-brand-white/90 text-brand-dark rounded-full text-sm font-medium hover:bg-brand-primary hover:text-white transition-colors'>
+            <span className='inline-flex items-center gap-2 px-4 py-2 bg-brand-white/90 text-brand-dark rounded-full text-sm font-medium hover:bg-brand-primary hover:text-white transition-colors'>
               <Download className='w-4 h-4' />
               View Kit
-            </Link>
+            </span>
           </div>
         </div>
-      </div>
+      </Link>
 
       <div className='p-6'>
         <div className='flex flex-wrap gap-2 mb-4'>
@@ -83,8 +90,8 @@ export const PressKitCard = ({ kit, index = 0 }: PressKitCardProps) => {
             <FileText className='w-4 h-4' />
             Press Assets
           </div>
-          <Link to='/press' className='block'>
-            <button className='btn-secondary text-sm'>Explore</button>
+          <Link to={kitLink} className='btn-secondary text-sm'>
+            Explore <ExternalLink className='w-3.5 h-3.5 ml-1' />
           </Link>
         </div>
       </div>
