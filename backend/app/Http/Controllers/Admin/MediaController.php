@@ -59,7 +59,7 @@ class MediaController extends Controller
         $originalName = $file->getClientOriginalName();
         $filename = time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
 
-        Log::info('media-upload:before-store', [
+        Log::error('media-upload:before-store', [
             'tmp_path' => $file->getRealPath(),
             'tmp_exists' => $file->getRealPath() ? file_exists($file->getRealPath()) : null,
             'tmp_size' => $file->getSize(),
@@ -70,7 +70,7 @@ class MediaController extends Controller
         $path = $file->storeAs('media', $filename, 'public');
 
         $existsAfterStore = Storage::disk('public')->exists($path);
-        Log::info('media-upload:after-store', [
+        Log::error('media-upload:after-store', [
             'path' => $path,
             'exists_after_store' => $existsAfterStore,
             'full_target_path' => Storage::disk('public')->path($path),
