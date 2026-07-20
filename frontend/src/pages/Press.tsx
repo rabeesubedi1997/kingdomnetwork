@@ -11,7 +11,7 @@ export const Press = () => {
 
   return (
     <>
-      <SEOHead title="Press" description="Press & Media Kit" />
+      <SEOHead title="Press" description="Press kits, media assets, and resources for journalists covering Kingdom Network films and productions." />
       <Section id='press-hero' background='dark' padding='2xl' className='relative overflow-hidden'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>

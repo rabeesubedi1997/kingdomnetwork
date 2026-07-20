@@ -2,11 +2,14 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Section, Container } from '@/components/layout/Section'
 import { Button } from '@/components/ui/Button'
+import { SEOHead } from '@/components/seo/SEOHead'
 import { Home, Search, Film, ArrowLeft } from 'lucide-react'
 
 export const NotFound: React.FC = () => {
   return (
-    <Section id='not-found' padding='xl' className='min-h-[calc(100vh-200px)] flex items-center justify-center px-4'>
+    <>
+      <SEOHead title="Page Not Found" description="The page you are looking for does not exist or has been moved." noTemplate />
+      <Section id='not-found' padding='xl' className='min-h-[calc(100vh-200px)] flex items-center justify-center px-4'>
       <Container>
         <div className='max-w-md mx-auto text-center'>
           <motion.div
@@ -100,6 +103,7 @@ export const NotFound: React.FC = () => {
         </div>
       </Container>
     </Section>
+    </>
   )
 }
 

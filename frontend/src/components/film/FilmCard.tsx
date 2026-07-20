@@ -2,8 +2,9 @@ import { Film } from '@/types'
 import { cn, formatDate, getEmbedUrl } from '@/lib/utils'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Play, Award, Calendar, Clock, Film as FilmIcon } from 'lucide-react'
+import { Play, Award, Calendar, Clock } from 'lucide-react'
 import { StatusBadge } from './StatusBadge'
+import { PlaceholderImage } from '@/components/shared/PlaceholderImage'
 
 interface FilmCardProps {
   film: Film
@@ -25,18 +26,18 @@ export const FilmCard: React.FC<FilmCardProps> = ({ film, index = 0, featured = 
         featured && 'md:col-span-2'
       )}
     >
-      <div className='relative aspect-video overflow-hidden'>
+      <div className='relative overflow-hidden'>
         {film.poster_url ? (
-          <img
-            src={film.poster_url}
-            alt={film.title}
-            className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
-            loading='lazy'
-          />
-        ) : (
-          <div className='w-full h-full bg-brand-primary/10 flex items-center justify-center'>
-            <FilmIcon className='w-10 h-10 text-brand-primary/50' />
+          <div className='aspect-[2/3]'>
+            <img
+              src={film.poster_url}
+              alt={film.title}
+              className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
+              loading='lazy'
+            />
           </div>
+        ) : (
+          <PlaceholderImage type="film" text={film.title} />
         )}
 
         <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />

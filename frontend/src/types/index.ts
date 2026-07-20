@@ -210,6 +210,7 @@ export interface Post {
   featured: boolean
   reading_time?: number
   published_at?: string
+  updated_at?: string
   seo_title?: string
   seo_description?: string
   schema_type: string

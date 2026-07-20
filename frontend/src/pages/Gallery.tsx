@@ -13,7 +13,7 @@ export const Gallery = () => {
 
   return (
     <>
-      <SEOHead title="Gallery" description="Photo & Video Gallery" />
+      <SEOHead title="Gallery" description="Explore behind-the-scenes moments, production stills, poster art, and exclusive content from Kingdom Network's film productions." />
       <Section id="gallery-hero" background="dark" padding="2xl" className="relative overflow-hidden">
         <Container>
           <div className='mx-auto max-w-3xl text-center'>

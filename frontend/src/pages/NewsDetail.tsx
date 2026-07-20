@@ -53,7 +53,18 @@ export const NewsDetail: React.FC = () => {
 
   return (
     <>
-      <SEOHead title={post.title} description={post.excerpt} ogImage={post.featured_image?.url} />
+      <SEOHead
+        title={post.title}
+        description={post.excerpt}
+        ogImage={post.featured_image?.url}
+        ogType="article"
+        schemaType="NewsArticle"
+        publishedTime={post.published_at}
+        modifiedTime={post.updated_at}
+        author={post.author?.name}
+        section={post.category?.name}
+        tags={post.tags?.map((t: any) => t.name)}
+      />
       <Section id='article-hero' padding='xl' background='surface'>
         <Container>
           <motion.article

@@ -7,7 +7,7 @@ import { Home, ArrowLeft } from 'lucide-react'
 
 export const Terms: React.FC = () => (
   <>
-    <SEOHead title="Terms of Service" />
+    <SEOHead title="Terms of Service" description="Terms and conditions for using Kingdom Network's website and services." />
     <Section id='terms-hero' background='dark' padding='xl' className='relative overflow-hidden'>
       <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
       <Container>
