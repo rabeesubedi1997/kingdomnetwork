@@ -5,6 +5,7 @@ import { Section, Container } from '@/components/layout/Section'
 import { SEOHead } from '@/components/seo/SEOHead'
 import { Loading } from '@/components/ui/Loading'
 import { ArrowLeft, ExternalLink, Mail, Phone, MapPin, Cake, Linkedin, Twitter, Instagram, Globe } from 'lucide-react'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 export const TeamProfile = () => {
   const { id } = useParams<{ id: string }>()
@@ -47,9 +48,14 @@ export const TeamProfile = () => {
           <div className="grid lg:grid-cols-3 gap-5">
             <div className="lg:col-span-1">
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="sticky top-24 space-y-5">
-                <div className="aspect-square rounded-2xl overflow-hidden bg-brand-surface/50 border border-brand-surface">
-                  <img src={member.photo_url || '/images/placeholder-person.jpg'} alt={member.name} className="w-full h-full object-cover" />
-                </div>
+                <SafeImage
+                  src={member.photo_url}
+                  alt={member.name}
+                  placeholderType='team'
+                  placeholderText={member.name}
+                  wrapperClassName='aspect-square rounded-2xl overflow-hidden bg-brand-surface/50 border border-brand-surface'
+                  className='w-full h-full object-cover'
+                />
                 <div className="space-y-4">
                   <div>
                     <h1 className="heading-2 text-brand-primary">{member.name}</h1>

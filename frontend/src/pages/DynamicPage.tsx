@@ -5,6 +5,7 @@ import { SEOHead } from '@/components/seo/SEOHead'
 import { Section, Container } from '@/components/layout/Section'
 import { Loading } from '@/components/ui/Loading'
 import { BannerSlider } from '@/components/banner/BannerSlider'
+import { SafeImage } from '@/components/shared/SafeImage'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
 
@@ -132,11 +133,7 @@ const SectionRenderer: React.FC<{ section: PageSection }> = ({ section }) => {
               {films.slice(0, config?.limit || 12).map((film: any) => (
                 <a key={film.id} href={`/films/${film.slug}`} className="group block rounded-xl overflow-hidden border border-brand-surface/50 hover:border-brand-primary/30 transition-all duration-300">
                   <div className="aspect-[2/3] bg-brand-dark/80 overflow-hidden">
-                    {film.poster_url ? (
-                      <img src={film.poster_url} alt={film.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-brand-muted text-sm">{film.title?.charAt(0)}</div>
-                    )}
+                    <SafeImage src={film.poster_url} alt={film.title} placeholderType='film' className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <div className="p-3">
                     <h3 className="text-sm font-medium text-white truncate">{film.title}</h3>
@@ -167,11 +164,7 @@ const SectionRenderer: React.FC<{ section: PageSection }> = ({ section }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {articles.slice(0, config?.limit || 6).map((article: any) => (
                 <a key={article.id} href={`/news/${article.slug}`} className="group block rounded-xl overflow-hidden border border-brand-surface/50 hover:border-brand-primary/30 transition-all duration-300 bg-white dark:bg-brand-dark">
-                  {article.featured_image_url && (
-                    <div className="aspect-video overflow-hidden">
-                      <img src={article.featured_image_url} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                  )}
+                  <SafeImage src={article.featured_image_url} alt={article.title} placeholderType='gallery' className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" wrapperClassName='aspect-video overflow-hidden' />
                   <div className="p-4">
                     <h3 className="font-medium text-white group-hover:text-brand-primary transition-colors">{article.title}</h3>
                     <p className="text-sm text-brand-muted mt-1 line-clamp-2">{article.excerpt || ''}</p>
@@ -195,11 +188,7 @@ const SectionRenderer: React.FC<{ section: PageSection }> = ({ section }) => {
               {albums.slice(0, config?.limit || 9).map((album: any) => (
                 <a key={album.id} href={`/gallery/${album.slug}`} className="group block rounded-xl overflow-hidden border border-brand-surface/50 hover:border-brand-primary/30 transition-all duration-300">
                   <div className="aspect-[4/3] bg-brand-dark/80 overflow-hidden">
-                    {album.cover_url ? (
-                      <img src={album.cover_url} alt={album.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-brand-muted">{album.title?.charAt(0)}</div>
-                    )}
+                    <SafeImage src={album.cover_url} alt={album.title} placeholderType='gallery' className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <div className="p-3">
                     <h3 className="text-sm font-medium text-white truncate">{album.title}</h3>
@@ -224,11 +213,7 @@ const SectionRenderer: React.FC<{ section: PageSection }> = ({ section }) => {
               {members.slice(0, 8).map((member: any) => (
                 <div key={member.id} className="text-center group">
                   <div className="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden bg-brand-dark/80 border-2 border-brand-surface/50 group-hover:border-brand-primary/50 transition-colors">
-                    {member.photo_url ? (
-                      <img src={member.photo_url} alt={member.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-brand-muted">{member.name?.charAt(0)}</div>
-                    )}
+                    <SafeImage src={member.photo_url} alt={member.name} placeholderType='team' className="w-full h-full object-cover" />
                   </div>
                   <h3 className="font-medium text-white text-sm">{member.name}</h3>
                   {member.position && <p className="text-xs text-brand-muted mt-0.5">{member.position}</p>}
@@ -251,11 +236,7 @@ const SectionRenderer: React.FC<{ section: PageSection }> = ({ section }) => {
               {people.slice(0, config?.limit || 12).map((person: any) => (
                 <a key={person.id} href={`/people/${person.slug}`} className="text-center group">
                   <div className="aspect-square rounded-xl overflow-hidden bg-brand-dark/80 border border-brand-surface/50 group-hover:border-brand-primary/30 transition-all mb-2">
-                    {person.photo_url ? (
-                      <img src={person.photo_url} alt={person.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-brand-muted">{person.name?.charAt(0)}</div>
-                    )}
+                    <SafeImage src={person.photo_url} alt={person.name} placeholderType='person' className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="text-xs font-medium text-white truncate">{person.name}</h3>
                 </a>
@@ -412,7 +393,7 @@ const SectionRenderer: React.FC<{ section: PageSection }> = ({ section }) => {
                 <div key={t.id} className="p-6 rounded-xl bg-white dark:bg-brand-dark border border-brand-surface/50">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-12 h-12 rounded-full bg-brand-primary/10 overflow-hidden flex items-center justify-center shrink-0">
-                      {t.photo_url ? <img src={t.photo_url} alt={t.name} className="w-full h-full object-cover" /> : <span className="text-brand-primary font-bold text-lg">{t.name?.charAt(0)}</span>}
+                      <SafeImage src={t.photo_url} alt={t.name} placeholderType='person' className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <div className="font-medium text-white text-sm">{t.name}</div>
@@ -442,11 +423,7 @@ const SectionRenderer: React.FC<{ section: PageSection }> = ({ section }) => {
                 <a key={p.id} href={p.website_url || '#'} target={p.website_url ? '_blank' : undefined} rel="noopener noreferrer"
                   className="group flex flex-col items-center gap-3 opacity-70 hover:opacity-100 transition-opacity">
                   <div className="w-24 h-24 rounded-xl bg-white/5 border border-brand-surface/30 flex items-center justify-center overflow-hidden p-3 group-hover:border-brand-primary/30 transition-colors">
-                    {p.logo_url ? (
-                      <img src={p.logo_url} alt={p.name} className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
-                    ) : (
-                      <span className="text-brand-muted text-xs font-medium">{p.name?.charAt(0) || 'P'}</span>
-                    )}
+                    <SafeImage src={p.logo_url} alt={p.name} placeholderType='partner' className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
                   </div>
                   <span className="text-xs text-brand-muted group-hover:text-white transition-colors">{p.name}</span>
                 </a>

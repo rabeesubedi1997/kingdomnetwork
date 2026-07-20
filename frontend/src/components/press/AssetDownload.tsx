@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Download, FileText, Image, Film, ExternalLink, Copy } from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface AssetDownloadProps {
   assets: Record<string, any>
@@ -43,7 +44,7 @@ export const AssetDownload = ({ assets }: AssetDownloadProps) => {
           <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3'>
             {posters.map((poster: any, i: number) => (
               <div key={i} className='card overflow-hidden'>
-                <img src={poster.url} alt='Poster' className='w-full h-48 object-cover' />
+                <SafeImage src={poster.url} alt='Poster' placeholderType='film' className='w-full h-48 object-cover' />
                 <div className='p-3 flex items-center justify-between'>
                   <span className='text-sm text-brand-muted'>{poster.name || 'Poster'}</span>
                   <div className='flex gap-2'>
@@ -70,7 +71,7 @@ export const AssetDownload = ({ assets }: AssetDownloadProps) => {
           <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3'>
             {stills.map((still: any, i: number) => (
               <div key={i} className='card overflow-hidden'>
-                <img src={still.url} alt='Still' className='w-full h-48 object-cover' />
+                <SafeImage src={still.url} alt='Still' placeholderType='gallery' className='w-full h-48 object-cover' />
                 <div className='p-3 flex items-center justify-between'>
                   <span className='text-sm text-brand-muted'>{still.name || 'Still'}</span>
                   <div className='flex gap-2'>
@@ -102,7 +103,7 @@ export const AssetDownload = ({ assets }: AssetDownloadProps) => {
                 </div>
                 <div className='flex-1 min-w-0'>
                   <p className='font-medium text-brand-primary truncate'>{clip.name || 'Clip'}</p>
-                  <p className='text-sm text-brand-muted'>{clip.duration || 'Video clip'} • {clip.format || 'MP4'}</p>
+                  <p className='text-sm text-brand-muted'>{clip.duration || 'Video clip'} ï¿½ {clip.format || 'MP4'}</p>
                 </div>
                 <div className='flex gap-2'>
                   <a href={clip.url} target='_blank' rel='noopener noreferrer' className='btn-secondary text-sm'>
@@ -131,7 +132,7 @@ export const AssetDownload = ({ assets }: AssetDownloadProps) => {
           <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3'>
             {logos.map((logo: any, i: number) => (
               <div key={i} className='card p-4 flex flex-col items-center justify-center aspect-square'>
-                <img src={logo.url} alt='Logo' className='max-h-20 max-w-full object-contain mb-2' />
+                <SafeImage src={logo.url} alt='Logo' placeholderType='partner' className='max-h-20 max-w-full object-contain mb-2' />
                 <p className='text-sm text-brand-muted text-center'>{logo.name || 'Logo'}</p>
                 <div className='flex gap-2 w-full mt-2'>
                   <button onClick={() => handleDownload(logo.url, logo.name)} className='btn-secondary text-xs flex-1'>
@@ -158,11 +159,11 @@ export const AssetDownload = ({ assets }: AssetDownloadProps) => {
             {oneSheets.map((sheet: any, i: number) => (
               <div key={i} className='card p-4 flex items-center gap-4'>
                 <div className='w-20 h-28 bg-brand-dark rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden'>
-                  <img src={sheet.thumbnail_url || sheet.url} alt='One Sheet' className='w-full h-full object-cover' />
+                  <SafeImage src={sheet.thumbnail_url || sheet.url} alt='One Sheet' placeholderType='film' className='w-full h-full object-cover' />
                 </div>
                 <div className='flex-1 min-w-0'>
                   <p className='font-medium text-brand-primary truncate'>{sheet.name || 'One Sheet'}</p>
-                  <p className='text-sm text-brand-muted'>{sheet.format || 'PDF'} • {sheet.size || 'High resolution'}</p>
+                  <p className='text-sm text-brand-muted'>{sheet.format || 'PDF'} ï¿½ {sheet.size || 'High resolution'}</p>
                 </div>
                 <div className='flex gap-2'>
                   <a href={sheet.url} target='_blank' rel='noopener noreferrer' className='btn-secondary text-sm'>

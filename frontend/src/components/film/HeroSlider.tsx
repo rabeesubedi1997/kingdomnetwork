@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Film } from '@/types'
 import { cn, getEmbedUrl } from '@/lib/utils'
 import { Play, ChevronLeft, ChevronRight, X, Film as FilmIcon } from 'lucide-react'
+import { SafeImage } from '@/components/shared/SafeImage'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -55,23 +56,14 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ films, loading }) => {
           transition={{ duration: 0.5 }}
           className='absolute inset-0'
         >
-          {currentFilm.banner_url ? (
-            <img
-              src={currentFilm.banner_url}
-              alt={currentFilm.title}
-              className='w-full h-full object-cover'
-            />
-          ) : currentFilm.poster_url ? (
-            <img
-              src={currentFilm.poster_url}
-              alt={currentFilm.title}
-              className='w-full h-full object-cover'
-            />
-          ) : (
-            <div className='w-full h-full bg-brand-dark flex items-center justify-center'>
-              <FilmIcon size={48} className='text-brand-primary/50' />
-            </div>
-          )}
+          <SafeImage
+            src={currentFilm.banner_url || currentFilm.poster_url}
+            alt={currentFilm.title}
+            placeholderType='banner'
+            placeholderText={currentFilm.title}
+            className='w-full h-full object-cover'
+            wrapperClassName='absolute inset-0'
+          />
 
           <div className='absolute inset-0 bg-gradient-to-t from-brand-dark/90 via-brand-dark/30 to-transparent' />
           <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />

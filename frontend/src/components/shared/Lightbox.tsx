@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface LightboxImage {
   url: string
@@ -91,16 +92,21 @@ export const Lightbox: React.FC<LightboxProps> = ({ images, initialIndex = 0, op
                 </button>
               </>
             )}
-            <motion.img
+            <motion.div
               key={currentIndex}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: zoomed ? 1.5 : 1 }}
               transition={{ duration: 0.2 }}
-              src={current.url}
-              alt={current.alt || ''}
-              className={cn('max-h-full max-w-full object-contain transition-transform duration-200 cursor-pointer', zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in')}
+              className={cn('flex items-center justify-center transition-transform duration-200 cursor-pointer', zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in')}
               onClick={() => setZoomed(!zoomed)}
-            />
+            >
+              <SafeImage
+                src={current.url}
+                alt={current.alt || ''}
+                placeholderType='gallery'
+                className='max-h-full max-w-full object-contain'
+              />
+            </motion.div>
           </div>
 
           {/* Thumbnails */}
@@ -113,7 +119,7 @@ export const Lightbox: React.FC<LightboxProps> = ({ images, initialIndex = 0, op
                     i === currentIndex ? 'border-brand-primary opacity-100 scale-110' : 'border-transparent opacity-50 hover:opacity-80'
                   )}
                 >
-                  <img src={img.url} alt={img.alt || ''} className="w-full h-full object-cover" />
+                  <SafeImage src={img.url} alt={img.alt || ''} placeholderType='gallery' wrapperClassName='w-full h-full' className='object-cover' />
                 </button>
               ))}
             </div>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Linkedin, Twitter, Instagram, Mail, Globe, ExternalLink } from 'lucide-react'
 import type { TeamMember } from '@/types'
 import type { MouseEvent } from 'react'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface TeamCardProps {
   member: TeamMember
@@ -24,7 +25,7 @@ export const TeamCard = ({ member, index = 0 }: TeamCardProps) => {
         className='card card-hover group cursor-pointer'
       >
         <div className='relative aspect-square overflow-hidden'>
-          <img src={member.photo_url || '/images/placeholder-person.jpg'} alt={member.name} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' loading='lazy' />
+          <SafeImage src={member.photo_url} alt={member.name} placeholderType='team' placeholderText={member.name} className='transition-transform duration-500 group-hover:scale-105' loading='lazy' />
           <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
           <div className='absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex justify-center gap-3' onClick={stopProp}>
             {member.linkedin_url && (

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Play, Award, Calendar, Clock } from 'lucide-react'
 import { StatusBadge } from './StatusBadge'
-import { PlaceholderImage } from '@/components/shared/PlaceholderImage'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface FilmCardProps {
   film: Film
@@ -28,18 +28,15 @@ export const FilmCard: React.FC<FilmCardProps> = ({ film, index = 0, featured = 
         )}
       >
         <div className='relative overflow-hidden'>
-          {film.poster_url ? (
-            <div className='aspect-[2/3]'>
-              <img
-                src={film.poster_url}
-                alt={film.title}
-                className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
-                loading='lazy'
-              />
-            </div>
-          ) : (
-            <PlaceholderImage type="film" text={film.title} />
-          )}
+          <SafeImage
+            src={film.poster_url}
+            alt={film.title}
+            placeholderType='film'
+            placeholderText={film.title}
+            wrapperClassName='aspect-[2/3]'
+            className='transition-transform duration-500 group-hover:scale-105'
+            loading='lazy'
+          />
 
           <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
 

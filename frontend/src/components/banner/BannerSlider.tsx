@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getBanners } from '@/lib/public-api'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface Banner {
   id: number
@@ -66,18 +67,13 @@ export const BannerSlider: React.FC = () => {
           transition={{ duration: 0.5 }}
           className='absolute inset-0'
         >
-          {current.image_url ? (
-            <img
-              src={current.image_url}
-              alt={current.title || ''}
-              className='w-full h-full object-cover'
-            />
-          ) : (
-            <div
-              className='w-full h-full'
-              style={{ backgroundColor: current.bg_color || '#0a141e' }}
-            />
-          )}
+          <SafeImage
+            src={current.image_url}
+            alt={current.title || ''}
+            placeholderType='banner'
+            className='w-full h-full object-cover'
+            wrapperClassName='absolute inset-0'
+          />
 
           <div className='absolute inset-0 bg-gradient-to-t from-[#0a141e]/90 via-[#0a141e]/30 to-transparent' />
 

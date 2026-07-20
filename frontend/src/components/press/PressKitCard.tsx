@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Download, FileText, Image, Film, ExternalLink, Copy, Play } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import type { PressKit } from '@/types'
-import { PlaceholderImage } from '@/components/shared/PlaceholderImage'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface PressKitCardProps {
   kit: PressKit
@@ -42,11 +42,14 @@ export const PressKitCard = ({ kit, index = 0 }: PressKitCardProps) => {
       className='card group overflow-hidden border border-brand-surface/30 hover:border-brand-primary/30 transition-colors'
     >
       <Link to={kitLink} className='relative h-48 overflow-hidden block'>
-        {kit.thumbnail_url || kit.poster_url ? (
-          <img src={kit.thumbnail_url || kit.poster_url} alt={kit.title} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' />
-        ) : (
-          <PlaceholderImage type="film" text={kit.title} className="h-full" aspectRatio="" />
-        )}
+        <SafeImage
+          src={kit.thumbnail_url || kit.poster_url}
+          alt={kit.title}
+          placeholderType='film'
+          placeholderText={kit.title}
+          className='transition-transform duration-500 group-hover:scale-105'
+          loading='lazy'
+        />
         <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent' />
         <div className='absolute bottom-4 left-4 right-4'>
           <div className='flex items-center justify-between'>

@@ -5,6 +5,7 @@ import { Search as SearchIcon, X, Film, Newspaper, UserCircle, Users, ExternalLi
 import { useQuery } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface SearchResult {
   type: 'film' | 'news' | 'person' | 'team'
@@ -163,18 +164,13 @@ export const SearchOverlay: React.FC<{ open: boolean; onClose: () => void }> = (
                                   : 'hover:bg-white/[0.03]'
                               )}
                             >
-                              {result.image ? (
-                                <div className="relative flex-shrink-0">
-                                  <img src={result.image} alt="" className="w-11 h-11 rounded-lg object-cover ring-1 ring-white/[0.06]" />
-                                </div>
-                              ) : (
-                                <div className={cn(
-                                  'w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br border shadow-sm',
-                                  typeColors[result.type]
-                                )}>
-                                  <Icon size={18} />
-                                </div>
-                              )}
+                              <SafeImage
+                                src={result.image}
+                                alt=""
+                                placeholderType={result.type === 'film' ? 'film' : result.type === 'person' ? 'person' : 'gallery'}
+                                wrapperClassName="w-11 h-11 rounded-lg overflow-hidden flex-shrink-0 ring-1 ring-white/[0.06]"
+                                className="w-full h-full object-cover"
+                              />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <p className={cn(

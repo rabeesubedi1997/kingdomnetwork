@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Image, Maximize2, ChevronLeft, ChevronRight, Film, Check, Expand } from 'lucide-react'
+import { SafeImage } from '@/components/shared/SafeImage'
 import { useState } from 'react'
 import { Section, Container } from '@/components/layout/Section'
 import { Lightbox } from '@/components/shared/Lightbox'
@@ -28,18 +29,14 @@ export const GalleryGrid: React.FC<GalleryGridProps> = ({ albums }) => {
             aria-label={'View ' + album.title + ' album'}
           >
             <div className='relative aspect-[4/3] overflow-hidden'>
-              {album.cover_url ? (
-                <img
-                  src={album.cover_url}
-                  alt={album.title}
-                  className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
-                  loading='lazy'
-                />
-              ) : (
-                <div className='w-full h-full bg-brand-primary/10 flex items-center justify-center'>
-                  <Image className='w-12 h-12 text-brand-primary/50' />
-                </div>
-              )}
+              <SafeImage
+                src={album.cover_url}
+                alt={album.title}
+                placeholderType='gallery'
+                className='transition-transform duration-500 group-hover:scale-105'
+                wrapperClassName='absolute inset-0'
+                loading='lazy'
+              />
               <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
               <div className='absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300'>
                 <span className='inline-flex items-center gap-2 px-3 py-1.5 bg-brand-white/90 text-brand-dark rounded-full text-sm font-medium'>
@@ -128,13 +125,13 @@ export const AlbumViewer: React.FC<AlbumViewerProps> = ({ album }) => {
         <Container>
           <div className='max-w-4xl mx-auto'>
             <div className='relative aspect-video rounded-xl overflow-hidden mb-6'>
-              {currentImage.media?.url && (
-                <img
-                  src={currentImage.media.url}
-                  alt={currentImage.caption || album.title + ' - Image ' + (currentIndex + 1)}
-                  className='w-full h-full object-cover'
-                />
-              )}
+              <SafeImage
+                src={currentImage.media?.url}
+                alt={currentImage.caption || album.title + ' - Image ' + (currentIndex + 1)}
+                placeholderType='gallery'
+                wrapperClassName='absolute inset-0'
+                className='w-full h-full object-cover'
+              />
               <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent' />
               <button
                 onClick={prevImage}
@@ -194,13 +191,13 @@ export const AlbumViewer: React.FC<AlbumViewerProps> = ({ album }) => {
                   aria-label={'View image ' + (index + 1)}
                   aria-current={index === currentIndex ? 'true' : 'false'}
                 >
-                  {img.media?.thumb && (
-                    <img
-                      src={img.media.thumb}
-                      alt={img.caption || 'Thumbnail ' + (index + 1)}
-                      className='w-full h-full object-cover'
-                    />
-                  )}
+                  <SafeImage
+                    src={img.media?.thumb}
+                    alt={img.caption || 'Thumbnail ' + (index + 1)}
+                    placeholderType='gallery'
+                    wrapperClassName='absolute inset-0'
+                    className='w-full h-full object-cover'
+                  />
                   {index === currentIndex && (
                     <div className='absolute inset-0 bg-brand-primary/20 flex items-center justify-center'>
                       <Check className='w-6 h-6 text-white' />
@@ -218,11 +215,13 @@ export const AlbumViewer: React.FC<AlbumViewerProps> = ({ album }) => {
           <Container>
             <div className='flex items-center gap-4 p-4 bg-brand-white dark:bg-brand-dark rounded-xl border border-brand-surface/50'>
               <div className='w-16 h-16 rounded-lg bg-brand-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden'>
-                {album.film.poster_url ? (
-                  <img src={album.film.poster_url} alt={album.film.title} className='w-full h-full object-cover rounded-lg' />
-                ) : (
-                  <Film className='w-8 h-8 text-brand-primary' />
-                )}
+                <SafeImage
+                  src={album.film.poster_url}
+                  alt={album.film.title}
+                  placeholderType='film'
+                  wrapperClassName='w-full h-full'
+                  className='object-cover rounded-lg'
+                />
               </div>
               <div className='flex-1'>
                 <h3 className='font-semibold text-brand-primary'>{album.film.title}</h3>

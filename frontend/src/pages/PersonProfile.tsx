@@ -6,6 +6,7 @@ import { SEOHead } from '@/components/seo/SEOHead'
 import { Loading } from '@/components/ui/Loading'
 import api from '@/lib/api'
 import { ArrowLeft, ExternalLink, Film, Calendar, MapPin, Award, Instagram, Twitter, Globe } from 'lucide-react'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface PersonFilm {
   film_id: number
@@ -81,9 +82,14 @@ export const PersonProfile = () => {
           <div className="grid lg:grid-cols-3 gap-5">
             <div className="lg:col-span-1">
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="sticky top-24 space-y-5">
-                <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-brand-surface/50 border border-brand-surface">
-                  <img src={person.photo_url || '/images/placeholder-person.jpg'} alt={person.name} className="w-full h-full object-cover" />
-                </div>
+                <SafeImage
+                  src={person.photo_url}
+                  alt={person.name}
+                  placeholderType='person'
+                  placeholderText={person.name}
+                  wrapperClassName='aspect-[3/4] rounded-2xl overflow-hidden bg-brand-surface/50 border border-brand-surface'
+                  className='w-full h-full object-cover'
+                />
                 <div>
                   <h1 className="heading-2 text-brand-primary">{person.name}</h1>
                   <p className="text-brand-gold font-medium text-lg">{person.role}</p>
@@ -124,13 +130,13 @@ export const PersonProfile = () => {
                     <div className="grid sm:grid-cols-2 gap-4">
                       {person.films.map((f) => (
                         <Link key={`${f.film_id}-${f.role}`} to={`/films/${f.slug}`} className="flex items-center gap-4 p-4 bg-brand-dark rounded-lg border border-brand-surface hover:border-brand-primary/50 transition-colors group">
-                          {f.poster_url ? (
-                            <img src={f.poster_url} alt={f.title} className="w-16 h-20 rounded-lg object-cover flex-shrink-0" />
-                          ) : (
-                            <div className="w-16 h-20 rounded-lg bg-brand-surface flex items-center justify-center flex-shrink-0">
-                              <Film size={24} className="text-brand-muted" />
-                            </div>
-                          )}
+                          <SafeImage
+                            src={f.poster_url}
+                            alt={f.title}
+                            placeholderType='film'
+                            wrapperClassName='w-16 h-20 rounded-lg overflow-hidden flex-shrink-0'
+                            className='w-full h-full object-cover'
+                          />
                           <div className="min-w-0">
                             <p className="text-brand-text font-medium truncate group-hover:text-brand-primary transition-colors">{f.title}</p>
                             <p className="text-brand-muted text-sm">{f.role}{f.character_name ? ` as ${f.character_name}` : ''}</p>

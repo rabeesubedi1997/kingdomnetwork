@@ -6,6 +6,7 @@ import { SEOHead } from '@/components/seo/SEOHead'
 import { Loading } from '@/components/ui/Loading'
 import api from '@/lib/api'
 import { UserCircle, Search, Filter, X } from 'lucide-react'
+import { SafeImage } from '@/components/shared/SafeImage'
 import { useState, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -100,13 +101,13 @@ export const People = () => {
                   <motion.div key={person.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.03 }}>
                     <Link to={`/people/${person.slug}`} className='block card group border border-brand-surface/30 hover:border-brand-primary/30 transition-colors'>
                       <div className='aspect-square overflow-hidden rounded-t-xl'>
-                        {person.photo_url ? (
-                          <img src={person.photo_url} alt={person.name} className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105' />
-                        ) : (
-                          <div className='w-full h-full bg-brand-surface flex items-center justify-center'>
-                            <UserCircle size={48} className='text-brand-muted/30' />
-                          </div>
-                        )}
+                        <SafeImage
+                          src={person.photo_url}
+                          alt={person.name}
+                          placeholderType='person'
+                          className='transition-transform duration-500 group-hover:scale-105'
+                          wrapperClassName='absolute inset-0'
+                        />
                       </div>
                       <div className='p-4 text-center'>
                         <h3 className='font-semibold text-brand-primary group-hover:text-brand-gold transition-colors'>{person.name}</h3>

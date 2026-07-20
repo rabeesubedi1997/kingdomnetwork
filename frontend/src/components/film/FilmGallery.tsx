@@ -1,6 +1,7 @@
 import { Film } from '@/types'
 import { motion } from 'framer-motion'
 import { Image, Maximize2 } from 'lucide-react'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface FilmGalleryProps {
   film: Film
@@ -33,18 +34,14 @@ export const FilmGallery: React.FC<FilmGalleryProps> = ({ film }) => {
               className='card group overflow-hidden'
             >
               <div className='relative aspect-[4/3] overflow-hidden'>
-                {img.url ? (
-                  <img
-                    src={img.url}
-                    alt={img.caption || film.title + ' image ' + (index + 1)}
-                    className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
-                    loading='lazy'
-                  />
-                ) : (
-                  <div className='w-full h-full bg-brand-primary/10 flex items-center justify-center'>
-                    <Image className='w-12 h-12 text-brand-primary/50' />
-                  </div>
-                )}
+                <SafeImage
+                  src={img.url}
+                  alt={img.caption || film.title + ' image ' + (index + 1)}
+                  placeholderType='gallery'
+                  className='transition-transform duration-500 group-hover:scale-105'
+                  wrapperClassName='absolute inset-0'
+                  loading='lazy'
+                />
                 <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
                 <div className='absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300'>
                   <span className='inline-flex items-center gap-2 px-3 py-1.5 bg-brand-white/90 text-brand-dark rounded-full text-sm font-medium'>

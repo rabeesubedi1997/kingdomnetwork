@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { getAdvertisementsByPosition } from '@/lib/public-api'
 import { cn } from '@/lib/utils'
+import { SafeImage } from '@/components/shared/SafeImage'
 
 interface AdvertisementDisplayProps {
   position: string
@@ -24,7 +25,7 @@ export const AdvertisementDisplay: React.FC<AdvertisementDisplayProps> = ({ posi
             <div dangerouslySetInnerHTML={{ __html: ad.code }} />
           ) : ad.image_url ? (
             <a href={ad.link_url || '#'} target="_blank" rel="noopener noreferrer">
-              <img src={ad.image_url} alt={ad.title || 'Advertisement'} className="w-full h-auto object-cover" />
+              <SafeImage src={ad.image_url} alt={ad.title || 'Advertisement'} placeholderType='gallery' className="w-full h-auto object-cover" />
             </a>
           ) : null}
         </div>
