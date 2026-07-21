@@ -65,7 +65,7 @@ export const ModuleConfigProvider = ({ children }: { children: ReactNode }) => {
             brand: { ...data.brand },
 logo_url: data.logo_url || null,
           favicon_url: data.favicon_url || null,
-          dark_logo_url: data.dark_logo_url || null,
+          dark_logo_url: data.logo_dark_url || null,
             seo: data.seo || {
               default_title: 'Kingdom Network - Redefining Nepali Cinema',
               title_template: '%s | Kingdom Network',

@@ -100,7 +100,7 @@ export const SiteSettingsPage: React.FC = () => {
 
   const logoUrl = form['logo_url']
   const faviconUrl = form['favicon_url']
-  const darkLogoUrl = form['dark_logo_url']
+  const darkLogoUrl = form['logo_dark_url']
 
   return (
     <div className="space-y-5">

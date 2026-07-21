@@ -60,7 +60,10 @@ class SiteSettingController extends Controller
         $data = $request->all();
 
         foreach ($data as $key => $value) {
-            SiteSetting::where('key', $key)->update(['value' => $value]);
+            SiteSetting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value]
+            );
         }
 
         return response()->json(['message' => 'Settings updated']);
@@ -70,14 +73,18 @@ class SiteSettingController extends Controller
     {
         $request->validate([
             'file' => 'required|image|mimes:jpg,jpeg,png,gif,webp,svg|max:5120',
-            'type' => 'required|in:logo,favicon',
+            'type' => 'required|in:logo,favicon,dark_logo',
         ]);
 
         $file = $request->file('file');
         $filename = time() . '_' . $request->type . '.' . $file->getClientOriginalExtension();
         $path = $file->storeAs('brand', $filename, 'public');
 
-        $key = $request->type === 'logo' ? 'logo_url' : 'favicon_url';
+        $key = match($request->type) {
+            'logo' => 'logo_url',
+            'favicon' => 'favicon_url',
+            'dark_logo' => 'logo_dark_url',
+        };
         $value = '/storage/' . $path;
 
         SiteSetting::updateOrCreate(
@@ -86,7 +93,7 @@ class SiteSettingController extends Controller
         );
 
         return response()->json([
-            'message' => ucfirst($request->type) . ' uploaded successfully',
+            'message' => ucfirst(str_replace('_', ' ', $request->type)) . ' uploaded successfully',
             'url' => $value,
         ]);
     }
