@@ -89,7 +89,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       {section && <meta property="article:section" content={section} />}
       {tags?.map(tag => <meta key={tag} property="article:tag" content={tag} />)}
 
-      {favicon_url && <link rel="icon" type="image/svg+xml" href={favicon_url} />}
+      <link rel="icon" href={favicon_url || '/favicon.svg'} />
 
       {defaultSchema && (
         <script type="application/ld+json">{JSON.stringify(defaultSchema)}</script>
