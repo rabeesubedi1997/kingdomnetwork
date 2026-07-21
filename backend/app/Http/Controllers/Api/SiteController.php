@@ -34,16 +34,6 @@ class SiteController extends Controller
         $faviconUrl = $allSettings['favicon_url'] ?? null;
         $logoDarkUrl = $allSettings['logo_dark_url'] ?? null;
 
-        if ($logoUrl && !str_starts_with($logoUrl, 'http')) {
-            $logoUrl = url($logoUrl);
-        }
-        if ($faviconUrl && !str_starts_with($faviconUrl, 'http')) {
-            $faviconUrl = url($faviconUrl);
-        }
-        if ($logoDarkUrl && !str_starts_with($logoDarkUrl, 'http')) {
-            $logoDarkUrl = url($logoDarkUrl);
-        }
-
         return response()->json([
             'brand' => $brand,
             'settings' => $settings,
