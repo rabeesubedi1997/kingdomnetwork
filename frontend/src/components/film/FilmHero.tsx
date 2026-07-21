@@ -38,7 +38,7 @@ export const FilmHero: React.FC<FilmHeroProps> = ({ film }) => {
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="max-w-xs mx-auto lg:mx-0 relative z-20 -mb-20 md:-mb-28"
+                    className="max-w-xs mx-auto lg:mx-0 relative z-20 md:-mb-28"
                   >
                     <img
                       src={film.poster_url}

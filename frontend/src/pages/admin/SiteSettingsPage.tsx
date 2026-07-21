@@ -139,7 +139,7 @@ export const SiteSettingsPage: React.FC = () => {
                       </div>
                     )}
                     <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleLogoUpload(e, 'logo')} />
-                    <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()} loading={logoMut.isPending && logoMut.variables?.type === 'logo'}>
+                    <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()} loading={logoMut.isPending && logoMut.variables?.type === 'logo'} className="text-white border-white/30 hover:bg-white/10">
                       <Upload size={14} className="mr-1.5" /> {logoUrl ? 'Replace' : 'Upload'} Light Logo
                     </Button>
                   </div>
@@ -154,7 +154,7 @@ export const SiteSettingsPage: React.FC = () => {
                       </div>
                     )}
                     <input ref={darkLogoInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleLogoUpload(e, 'dark_logo')} />
-                    <Button variant="outline" size="sm" onClick={() => darkLogoInputRef.current?.click()} loading={logoMut.isPending && logoMut.variables?.type === 'dark_logo'}>
+                    <Button variant="outline" size="sm" onClick={() => darkLogoInputRef.current?.click()} loading={logoMut.isPending && logoMut.variables?.type === 'dark_logo'} className="text-white border-white/30 hover:bg-white/10">
                       <Upload size={14} className="mr-1.5" /> {darkLogoUrl ? 'Replace' : 'Upload'} Dark Logo
                     </Button>
                     <p className="text-xs text-brand-muted mt-2">Optional: Upload a light-colored logo for dark mode. If not provided, the light logo will be used with CSS filter.</p>
@@ -169,7 +169,7 @@ export const SiteSettingsPage: React.FC = () => {
                       </div>
                     )}
                     <input ref={faviconInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleLogoUpload(e, 'favicon')} />
-                    <Button variant="outline" size="sm" onClick={() => faviconInputRef.current?.click()} loading={logoMut.isPending && logoMut.variables?.type === 'favicon'}>
+                    <Button variant="outline" size="sm" onClick={() => faviconInputRef.current?.click()} loading={logoMut.isPending && logoMut.variables?.type === 'favicon'} className="text-white border-white/30 hover:bg-white/10">
                       <Upload size={14} className="mr-1.5" /> {faviconUrl ? 'Replace' : 'Upload'} Favicon
                     </Button>
                   </div>
