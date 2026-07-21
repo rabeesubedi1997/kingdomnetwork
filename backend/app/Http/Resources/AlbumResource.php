@@ -32,7 +32,11 @@ class AlbumResource extends JsonResource
                 'media_id' => $image->media_id,
                 'caption' => $image->caption,
                 'sort_order' => $image->sort_order,
-                'media' => $image->media,
+                'media' => $image->media ? [
+                    'id' => $image->media->id,
+                    'url' => $image->media->original_url,
+                    'thumb' => $image->media->preview_url ?: $image->media->original_url,
+                ] : null,
             ])),
             'cover' => $this->cover,
         ];

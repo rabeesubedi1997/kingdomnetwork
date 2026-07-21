@@ -57,7 +57,6 @@ class MediaController extends Controller
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
         $filename = time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('media', $filename, 'public');
 
         $media = Media::create([
             'name' => pathinfo($originalName, PATHINFO_FILENAME),
@@ -74,6 +73,8 @@ class MediaController extends Controller
             'generated_conversions' => [],
             'responsive_images' => [],
         ]);
+
+        $path = $file->storeAs((string)$media->id, $filename, 'public');
 
         return response()->json([
             'id' => $media->id,
@@ -100,7 +101,6 @@ class MediaController extends Controller
         foreach ($request->file('files') as $file) {
             $originalName = $file->getClientOriginalName();
             $filename = time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('media', $filename, 'public');
 
             $media = Media::create([
                 'name' => pathinfo($originalName, PATHINFO_FILENAME),
@@ -117,6 +117,8 @@ class MediaController extends Controller
                 'generated_conversions' => [],
                 'responsive_images' => [],
             ]);
+
+            $path = $file->storeAs((string)$media->id, $filename, 'public');
 
             $uploaded[] = [
                 'id' => $media->id,
@@ -137,7 +139,7 @@ class MediaController extends Controller
     public function destroy($id)
     {
         $media = Media::findOrFail($id);
-        Storage::disk('public')->delete('media/' . $media->file_name);
+        Storage::disk('public')->delete($media->id . '/' . $media->file_name);
         $media->delete();
 
         return response()->json(['message' => 'Media deleted']);
@@ -148,7 +150,7 @@ class MediaController extends Controller
         $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:media,id']);
         $items = Media::whereIn('id', $request->ids)->get();
         foreach ($items as $media) {
-            Storage::disk('public')->delete('media/' . $media->file_name);
+            Storage::disk('public')->delete($media->id . '/' . $media->file_name);
         }
         Media::whereIn('id', $request->ids)->delete();
         return response()->json(['message' => 'Media deleted']);

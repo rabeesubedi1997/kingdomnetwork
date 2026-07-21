@@ -39,11 +39,11 @@ class Media extends Model implements HasMedia
 
     public function getUrlAttribute(): string
     {
-        return '/storage/media/' . $this->file_name;
+        return '/storage/' . $this->id . '/' . $this->file_name;
     }
 
     public function getThumbAttribute(): string
     {
-        return '/storage/media/' . $this->file_name;
+        return '/storage/' . $this->id . '/' . $this->file_name;
     }
 }
