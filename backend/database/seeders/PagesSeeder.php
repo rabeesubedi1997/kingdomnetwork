@@ -30,5 +30,16 @@ class PagesSeeder extends Seeder
             'is_active' => true,
             'published_at' => now(),
         ]);
+
+        Page::updateOrCreate(['slug' => 'about'], [
+            'title' => 'About Us',
+            'slug' => 'about',
+            'content' => '<h1>About Kingdom Network</h1><p>Kingdom Network is a leading film and media production company in Nepal, dedicated to creating world-class movies, television shows, music videos, commercials, and digital content. With a team of visionary creators and state-of-the-art production facilities, we bring stories to life that inspire, entertain, and connect with audiences worldwide.</p><h2>Our Mission</h2><p>To revolutionize the Nepali and global entertainment industry by producing high-quality films, series, and creative media content that blend storytelling, technology, and cultural essence. We aim to empower creators and deliver impactful stories that resonate across borders.</p><h2>Our Vision</h2><p>To be recognized as a global leader in film production, pushing creative boundaries and setting new standards in entertainment. We envision Nepal as a hub for innovative filmmaking, where creativity meets technology to inspire generations.</p><h2>Our Values</h2><ul><li><strong>Creativity</strong> - Bringing imagination to reality</li><li><strong>Collaboration</strong> - Working together with artists, talents and brands</li><li><strong>Innovation</strong> - Adapting new trends and technology</li><li><strong>Excellence</strong> - Maintaining world-class production standards</li><li><strong>Passion</strong> - Storytelling that touches hearts</li></ul>',
+            'meta_title' => 'About Us | Kingdom Network',
+            'meta_description' => 'Kingdom Network is a leading film and media production company in Nepal, dedicated to creating world-class stories that inspire and connect audiences worldwide.',
+            'schema_type' => 'AboutPage',
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
     }
 }

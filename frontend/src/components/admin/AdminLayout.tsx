@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
 import { useAdminStore } from '@/lib/admin-store'
 import { AdminSidebar } from './AdminSidebar'
+import { useModuleConfig } from '@/providers/ModuleConfigProvider'
+import { SearchOverlay } from '@/components/search/SearchOverlay'
 import { Menu, Search, Bell, Maximize2 } from 'lucide-react'
 
 const pageTitles: Record<string, string> = {
@@ -19,9 +22,19 @@ const pageTitles: Record<string, string> = {
 
 export const AdminLayout: React.FC = () => {
   const { isAuthenticated, isLoading, checkAuth } = useAdminStore()
+  const { favicon_url } = useModuleConfig()
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setSearchOpen(true) }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
 
   useEffect(() => { checkAuth() }, [])
   useEffect(() => {
@@ -41,6 +54,11 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div className="admin-dark h-screen flex overflow-hidden" style={{ background: '#0a0f14', color: '#f1f5f9' }}>
+      <Helmet>
+        {favicon_url && <link rel="icon" href={favicon_url} />}
+        <title>{currentTitle} | Kingdom Admin</title>
+      </Helmet>
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0 h-screen">
         <header
@@ -60,16 +78,19 @@ export const AdminLayout: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-text" style={{ background: '#1c2a38' }}>
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer transition-colors hover:bg-white/10"
+              style={{ background: '#1c2a38' }}
+            >
               <Search size={14} className="text-[#64748b]" />
               <span className="text-xs text-[#64748b]">Search...</span>
               <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ background: '#0a0f14', color: '#64748b' }}>⌘K</kbd>
-            </div>
-            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors relative">
-              <Bell size={18} className="text-[#94a3b8]" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: '#ffcd57' }} />
             </button>
-            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors hidden sm:block">
+            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="Notifications (coming soon)">
+              <Bell size={18} className="text-[#94a3b8]" />
+            </button>
+            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors hidden sm:block" title="Toggle fullscreen" onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen() }}>
               <Maximize2 size={16} className="text-[#64748b]" />
             </button>
           </div>
