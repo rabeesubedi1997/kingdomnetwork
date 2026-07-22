@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSiteSettings, updateSiteSettings, uploadSiteLogo } from '@/lib/admin-api'
 import { motion } from 'framer-motion'
@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils'
 export const SiteSettingsPage: React.FC = () => {
   const qc = useQueryClient()
   const [form, setForm] = useState<Record<string, string>>({})
-  const [loaded, setLoaded] = useState(false)
   const [activeTab, setActiveTab] = useState('general')
 
   const logoInputRef = useRef<HTMLInputElement>(null)
@@ -23,13 +22,17 @@ export const SiteSettingsPage: React.FC = () => {
     queryKey: ['admin', 'site-settings'],
     queryFn: async () => {
       const res = await getSiteSettings()
-      const settings = res.data || res
-      const kv: Record<string, string> = {}
-      settings.forEach((s: any) => { kv[s.key] = s.value || '' })
-      if (!loaded) { setForm(kv); setLoaded(true) }
-      return settings
+      return res.data || res
     },
   })
+
+  useEffect(() => {
+    if (data) {
+      const kv: Record<string, string> = {}
+      data.forEach((s: any) => { kv[s.key] = s.value || '' })
+      setForm(kv)
+    }
+  }, [data])
 
   const updateMut = useMutation({
     mutationFn: updateSiteSettings,
@@ -37,9 +40,15 @@ export const SiteSettingsPage: React.FC = () => {
     onError: () => toast.error('Failed to save'),
   })
 
+  const keyMap = { logo: 'logo_url', favicon: 'favicon_url', dark_logo: 'logo_dark_url' } as const
+
   const logoMut = useMutation({
-    mutationFn: ({ file, type }: { file: File; type: 'logo' | 'favicon' | 'dark_logo' }) => uploadSiteLogo(file, type),
-    onSuccess: (data: any) => { toast.success(data.message || 'Uploaded'); qc.invalidateQueries({ queryKey: ['admin', 'site-settings'] }) },
+    mutationFn: ({ file, type }: { file: File; type: keyof typeof keyMap }) => uploadSiteLogo(file, type),
+    onSuccess: (data: any, { type }) => {
+      toast.success(data.message || 'Uploaded')
+      setForm(prev => ({ ...prev, [keyMap[type]]: data.url }))
+      qc.invalidateQueries({ queryKey: ['admin', 'site-settings'] })
+    },
     onError: () => toast.error('Upload failed'),
   })
 
