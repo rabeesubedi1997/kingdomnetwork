@@ -31,7 +31,7 @@ class SiteController extends Controller
         }
 
         $logoUrl = $allSettings['logo_url'] ?? null;
-        $faviconUrl = $allSettings['favicon_url'] ?? null;
+        $faviconUrl = $allSettings['favicon_url'] ?? config('kingdom.brand.logo.favicon');
         $logoDarkUrl = $allSettings['logo_dark_url'] ?? null;
 
         return response()->json([

@@ -48,7 +48,7 @@ return [
         'logo' => [
             'light' => '/storage/logos/logo-light.png',
             'dark'  => '/storage/logos/logo-dark.png',
-            'favicon' => '/favicon.ico',
+            'favicon' => '/favicon.svg',
         ],
         'colors' => [
             'primary'   => '#09333f',  // Logo dark teal
