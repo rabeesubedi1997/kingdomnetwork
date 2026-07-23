@@ -6,6 +6,7 @@ interface ModuleConfig {
   logo_url: string | null
   favicon_url: string | null
   dark_logo_url: string | null
+  footer_logo_url: string | null
   seo: {
     default_title: string
     title_template: string
@@ -24,6 +25,7 @@ const ModuleConfigContext = createContext<ModuleConfig>({
   logo_url: null,
   favicon_url: null,
   dark_logo_url: null,
+  footer_logo_url: null,
   seo: {
     default_title: 'Kingdom Network - Redefining Nepali Cinema',
     title_template: '%s | Kingdom Network',
@@ -43,6 +45,7 @@ export const ModuleConfigProvider = ({ children }: { children: ReactNode }) => {
     logo_url: null,
     favicon_url: null,
     dark_logo_url: null,
+    footer_logo_url: null,
     seo: {
       default_title: 'Kingdom Network - Redefining Nepali Cinema',
       title_template: '%s | Kingdom Network',
@@ -66,6 +69,7 @@ export const ModuleConfigProvider = ({ children }: { children: ReactNode }) => {
 logo_url: data.logo_url || null,
           favicon_url: data.favicon_url || null,
           dark_logo_url: data.logo_dark_url || null,
+          footer_logo_url: data.footer_logo_url || null,
             seo: data.seo || {
               default_title: 'Kingdom Network - Redefining Nepali Cinema',
               title_template: '%s | Kingdom Network',
@@ -121,6 +125,7 @@ logo_url: data.logo_url || null,
           logo_url: null,
           favicon_url: null,
           dark_logo_url: null,
+          footer_logo_url: null,
           seo: {
             default_title: 'Kingdom Network - Redefining Nepali Cinema',
             title_template: '%s | Kingdom Network',

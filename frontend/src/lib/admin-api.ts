@@ -557,7 +557,12 @@ export async function getRoles() {
   return response.data
 }
 
-export async function uploadSiteLogo(file: File, type: 'logo' | 'favicon' | 'dark_logo') {
+export async function getNotifications() {
+  const response = await adminApi.get('dashboard/notifications')
+  return response.data
+}
+
+export async function uploadSiteLogo(file: File, type: 'logo' | 'favicon' | 'dark_logo' | 'footer_logo') {
   const formData = new FormData()
   formData.append('file', file)
   formData.append('type', type)

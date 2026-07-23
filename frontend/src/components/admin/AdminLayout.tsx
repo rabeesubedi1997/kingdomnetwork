@@ -6,7 +6,8 @@ import { useAdminStore } from '@/lib/admin-store'
 import { AdminSidebar } from './AdminSidebar'
 import { useModuleConfig } from '@/providers/ModuleConfigProvider'
 import { SearchOverlay } from '@/components/search/SearchOverlay'
-import { Menu, Search, Bell, Maximize2 } from 'lucide-react'
+import { NotificationDropdown } from '@/components/admin/NotificationDropdown'
+import { Menu, Search, Maximize2 } from 'lucide-react'
 
 const pageTitles: Record<string, string> = {
   '/admin': 'Dashboard', '/admin/media-library': 'Media Library',
@@ -68,9 +69,9 @@ export const AdminLayout: React.FC = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
             >
-              <Menu size={20} className="text-[#94a3b8]" />
+              <Menu size={20} className="text-[#c8d6e5]" />
             </button>
             <div>
               <h1 className="text-lg font-bold text-white tracking-tight">{currentTitle}</h1>
@@ -83,15 +84,13 @@ export const AdminLayout: React.FC = () => {
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer transition-colors hover:bg-white/10"
               style={{ background: '#1c2a38' }}
             >
-              <Search size={14} className="text-[#64748b]" />
-              <span className="text-xs text-[#64748b]">Search...</span>
-              <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ background: '#0a0f14', color: '#64748b' }}>⌘K</kbd>
+              <Search size={14} className="text-[#94a3b8]" />
+              <span className="text-xs text-[#94a3b8]">Search...</span>
+              <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ background: '#0a0f14', color: '#94a3b8' }}>⌘K</kbd>
             </button>
-            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="Notifications (coming soon)">
-              <Bell size={18} className="text-[#94a3b8]" />
-            </button>
-            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors hidden sm:block" title="Toggle fullscreen" onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen() }}>
-              <Maximize2 size={16} className="text-[#64748b]" />
+            <NotificationDropdown />
+            <button className="p-2 rounded-lg hover:bg-white/10 transition-colors hidden sm:block" title="Toggle fullscreen" onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen() }}>
+              <Maximize2 size={16} className="text-[#94a3b8]" />
             </button>
           </div>
         </header>

@@ -73,7 +73,7 @@ class SiteSettingController extends Controller
     {
         $request->validate([
             'file' => 'required|image|mimes:jpg,jpeg,png,gif,webp,svg|max:5120',
-            'type' => 'required|in:logo,favicon,dark_logo',
+            'type' => 'required|in:logo,favicon,dark_logo,footer_logo',
         ]);
 
         $file = $request->file('file');
@@ -84,6 +84,7 @@ class SiteSettingController extends Controller
             'logo' => 'logo_url',
             'favicon' => 'favicon_url',
             'dark_logo' => 'logo_dark_url',
+            'footer_logo' => 'footer_logo_url',
         };
         $value = '/storage/' . $path;
 

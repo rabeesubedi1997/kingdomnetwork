@@ -149,6 +149,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
         Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/dashboard/notifications', [DashboardController::class, 'notifications']);
 
         Route::post('/site-settings/bulk-update', [SiteSettingController::class, 'bulkUpdate']);
         Route::post('/site-settings/upload-logo', [SiteSettingController::class, 'uploadLogo']);

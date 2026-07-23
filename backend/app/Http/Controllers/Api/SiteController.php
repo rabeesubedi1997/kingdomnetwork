@@ -33,6 +33,7 @@ class SiteController extends Controller
         $logoUrl = $allSettings['logo_url'] ?? null;
         $faviconUrl = $allSettings['favicon_url'] ?? config('kingdom.brand.logo.favicon');
         $logoDarkUrl = $allSettings['logo_dark_url'] ?? null;
+        $footerLogoUrl = $allSettings['footer_logo_url'] ?? null;
 
         return response()->json([
             'brand' => $brand,
@@ -42,6 +43,7 @@ class SiteController extends Controller
             'logo_url' => $logoUrl,
             'favicon_url' => $faviconUrl,
             'logo_dark_url' => $logoDarkUrl,
+            'footer_logo_url' => $footerLogoUrl,
             'seo' => [
                 'default_title' => $allSettings['seo_default_title'] ?? 'Kingdom Network - Redefining Nepali Cinema',
                 'title_template' => $allSettings['seo_title_template'] ?? '%s | Kingdom Network',

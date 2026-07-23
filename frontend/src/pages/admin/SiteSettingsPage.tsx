@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSiteSettings, updateSiteSettings, uploadSiteLogo } from '@/lib/admin-api'
 import { motion } from 'framer-motion'
-import { Save, Settings, Palette, Globe, Share2, Search, Upload, Image, X, Eye, EyeOff, Monitor, Sun } from 'lucide-react'
+import { Save, Settings, Palette, Globe, Share2, Search, Upload, Image, X, Eye, EyeOff, Monitor, Sun, Layout } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
@@ -17,6 +17,7 @@ export const SiteSettingsPage: React.FC = () => {
   const logoInputRef = useRef<HTMLInputElement>(null)
   const faviconInputRef = useRef<HTMLInputElement>(null)
   const darkLogoInputRef = useRef<HTMLInputElement>(null)
+  const footerLogoInputRef = useRef<HTMLInputElement>(null)
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'site-settings'],
@@ -40,7 +41,7 @@ export const SiteSettingsPage: React.FC = () => {
     onError: () => toast.error('Failed to save'),
   })
 
-  const keyMap = { logo: 'logo_url', favicon: 'favicon_url', dark_logo: 'logo_dark_url' } as const
+  const keyMap = { logo: 'logo_url', favicon: 'favicon_url', dark_logo: 'logo_dark_url', footer_logo: 'footer_logo_url' } as const
 
   const logoMut = useMutation({
     mutationFn: ({ file, type }: { file: File; type: keyof typeof keyMap }) => uploadSiteLogo(file, type),
@@ -88,11 +89,17 @@ export const SiteSettingsPage: React.FC = () => {
       { key: 'social_youtube', label: 'YouTube URL' },
       { key: 'social_linkedin', label: 'LinkedIn URL' },
     ],
+    footer: [
+      { key: 'footer_tagline', label: 'Footer Tagline', type: 'textarea' },
+      { key: 'footer_description', label: 'Footer Description', type: 'textarea' },
+      { key: 'footer_copyright', label: 'Copyright Text' },
+    ],
   }
 
   const tabs = [
     { id: 'general', label: 'General', icon: Settings },
     { id: 'brand', label: 'Brand & Logo', icon: Palette },
+    { id: 'footer', label: 'Footer', icon: Layout },
     { id: 'seo', label: 'SEO', icon: Search },
     { id: 'analytics', label: 'Analytics', icon: Share2 },
     { id: 'contact', label: 'Contact', icon: Globe },
@@ -102,7 +109,7 @@ export const SiteSettingsPage: React.FC = () => {
   const handleSave = () => updateMut.mutate(form)
   const update = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }))
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'favicon' | 'dark_logo') => {
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'favicon' | 'dark_logo' | 'footer_logo') => {
     const file = e.target.files?.[0]
     if (file) logoMut.mutate({ file, type })
   }
@@ -110,6 +117,7 @@ export const SiteSettingsPage: React.FC = () => {
   const logoUrl = form['logo_url']
   const faviconUrl = form['favicon_url']
   const darkLogoUrl = form['logo_dark_url']
+  const footerLogoUrl = form['footer_logo_url']
 
   return (
     <div className="space-y-5">
@@ -133,6 +141,42 @@ export const SiteSettingsPage: React.FC = () => {
         <div className="p-5 space-y-4">
           {isLoading ? (
             <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: '#1c2a38' }} />)}</div>
+          ) : activeTab === 'footer' ? (
+            <>
+              <div className="space-y-6">
+                <div className="rounded-xl border p-5" style={{ background: '#1c2a38', borderColor: '#1e3040' }}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-white flex items-center gap-2"><Image size={16} /> Footer Logo</h3>
+                  </div>
+                  {footerLogoUrl && (
+                    <div className="mb-3 relative inline-block">
+                      <img src={footerLogoUrl} alt="Footer Logo" className="h-20 rounded-lg border" style={{ borderColor: '#1e3040' }} />
+                      <span className="absolute -top-2 -right-2 text-xs bg-brand-primary/80 text-white px-1.5 py-0.5 rounded">Active</span>
+                    </div>
+                  )}
+                  <input ref={footerLogoInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleLogoUpload(e, 'footer_logo')} />
+                  <Button variant="outline" size="sm" onClick={() => footerLogoInputRef.current?.click()} loading={logoMut.isPending && logoMut.variables?.type === 'footer_logo'} className="text-white border-white/30 hover:bg-white/10">
+                    <Upload size={14} className="mr-1.5" /> {footerLogoUrl ? 'Replace' : 'Upload'} Footer Logo
+                  </Button>
+                  <p className="text-xs text-brand-muted mt-2">Upload a white/bright logo variant for the footer dark background. If not provided, the main logo will be used with brightness filter.</p>
+                </div>
+                <div className="rounded-xl border p-5" style={{ background: '#1c2a38', borderColor: '#1e3040' }}>
+                  <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">Footer Content</h3>
+                  <div className="space-y-4">
+                    {(groups['footer'] || []).map(field => (
+                      <div key={field.key}>
+                        <label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>{field.label}</label>
+                        {field.type === 'textarea' ? (
+                          <Textarea value={form[field.key] || ''} onChange={e => update(field.key, e.target.value)} rows={3} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} />
+                        ) : (
+                          <Input value={form[field.key] || ''} onChange={e => update(field.key, e.target.value)} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
           ) : activeTab === 'brand' ? (
             <>
               <div className="space-y-6">
@@ -209,7 +253,7 @@ export const SiteSettingsPage: React.FC = () => {
               </div>
             ))
           )}
-          {!isLoading && activeTab !== 'brand' && (groups[activeTab] || []).length === 0 && (
+          {!isLoading && activeTab !== 'brand' && activeTab !== 'footer' && (groups[activeTab] || []).length === 0 && (
             <p className="text-center py-8" style={{ color: '#64748b' }}>No settings in this group</p>
           )}
         </div>

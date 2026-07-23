@@ -19,7 +19,7 @@ const fadeUp = {
 export const Footer: React.FC = () => {
   const [email, setEmail] = useState('')
   const { toast } = useToast()
-  const { dark_logo_url } = useModuleConfig()
+  const { footer_logo_url } = useModuleConfig()
   const { data: settings } = useQuery({
     queryKey: ['site'],
     queryFn: async () => (await api.get('/site')).data,
@@ -41,9 +41,13 @@ export const Footer: React.FC = () => {
   }
 
   const siteSettings = settings?.settings || {}
+  const allSettings = settings?.all_settings || {}
   const siteName = siteSettings.site_name || 'Kingdom Network'
   const logoUrl = settings?.logo_url
-  const darkLogo = dark_logo_url
+  const footerLogo = footer_logo_url || settings?.logo_url
+  const footerTagline = allSettings.footer_tagline || ''
+  const footerDescription = allSettings.footer_description || 'Redefining Nepali Cinema through compelling storytelling and world-class production.'
+  const footerCopyright = allSettings.footer_copyright || ''
 
   const brand = settings?.brand || {
     name: 'Kingdom Network',
@@ -98,11 +102,11 @@ export const Footer: React.FC = () => {
               <motion.div key={item.label} {...fadeUp} transition={{ delay: index * 0.1, duration: 0.4 }}
                 className="text-center p-6 md:p-8 bg-white dark:bg-brand-dark rounded-2xl border border-brand-surface/80 hover:shadow-lg hover:shadow-brand-primary/5 hover:border-brand-primary/20 transition-all duration-300 group"
               >
-                <div className="w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-brand-primary group-hover:scale-110 transition-all duration-300">
-                  <item.icon className="w-7 h-7 text-brand-primary group-hover:text-white transition-colors duration-300" />
+                <div className="w-14 h-14 mx-auto mb-4 bg-brand-primary/10 dark:bg-brand-primary/20 rounded-2xl flex items-center justify-center group-hover:bg-brand-primary group-hover:scale-110 transition-all duration-300">
+                  <item.icon className="w-7 h-7 text-brand-primary dark:text-brand-white group-hover:text-white transition-colors duration-300" />
                 </div>
-                <h3 className="font-semibold text-brand-primary mb-2">{item.label}</h3>
-                <a href={item.href} className="text-brand-text/70 hover:text-brand-primary transition-colors text-sm">
+                <h3 className="font-semibold text-brand-primary dark:text-brand-white mb-2">{item.label}</h3>
+                <a href={item.href} className="text-brand-text/70 dark:text-brand-white/60 hover:text-brand-primary dark:hover:text-brand-white transition-colors text-sm">
                   {item.value}
                 </a>
               </motion.div>
@@ -136,10 +140,10 @@ export const Footer: React.FC = () => {
             {/* Brand */}
             <div className="text-center lg:text-left">
               <Link to="/" className="inline-flex items-center gap-2.5 mb-3">
-                {darkLogo ? (
-                  <img src={darkLogo} alt={siteName} className="h-9 w-auto" />
+                {footerLogo ? (
+                  <img src={footerLogo} alt={siteName} className="h-9 w-auto brightness-0 invert" />
                 ) : logoUrl ? (
-                  <img src={logoUrl} alt={siteName} className="h-9 w-auto" />
+                  <img src={logoUrl} alt={siteName} className="h-9 w-auto brightness-[3]" />
                 ) : (
                   <>
                     <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
@@ -149,8 +153,9 @@ export const Footer: React.FC = () => {
                   </>
                 )}
               </Link>
-              <p className="text-white/50 text-sm max-w-xs">
-                Redefining Nepali Cinema through compelling storytelling and world-class production.
+              {footerTagline && <p className="text-brand-gold/80 text-xs font-medium uppercase tracking-widest mb-1">{footerTagline}</p>}
+              <p className="text-white/60 text-sm max-w-xs">
+                {footerDescription}
               </p>
             </div>
 
@@ -158,7 +163,7 @@ export const Footer: React.FC = () => {
             <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
               {footerLinks.map(link => (
                 <Link key={link.href} to={link.href}
-                  className="text-white/60 hover:text-white text-sm transition-colors flex items-center gap-1 group">
+                  className="text-white/70 hover:text-white text-sm transition-colors flex items-center gap-1 group">
                   {link.label}
                   <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200" />
                 </Link>
@@ -169,7 +174,7 @@ export const Footer: React.FC = () => {
             <div className="flex gap-3">
               {socialLinks.map(({ icon: Icon, url, label }) => (
                 <a key={label} href={url} target="_blank" rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 hover:bg-brand-primary hover:text-white hover:scale-110 transition-all duration-200"
+                  className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/80 hover:bg-brand-primary hover:text-white hover:scale-110 transition-all duration-200"
                   aria-label={'Follow us on ' + label}>
                   <Icon className="w-5 h-5" />
                 </a>
@@ -179,7 +184,7 @@ export const Footer: React.FC = () => {
 
           {/* Copyright */}
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} {siteName}. All rights reserved.</p>
+            <p className="text-white/40 text-sm">&copy; {new Date().getFullYear()} {footerCopyright || siteName}. {!footerCopyright && 'All rights reserved.'}</p>
             <div className="flex gap-6">
               {legalLinks.map(link => (
                 <Link key={link.href} to={link.href}

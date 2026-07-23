@@ -83,15 +83,15 @@ export const DashboardPage: React.FC = () => {
               { label: 'Manage Modules', href: '/admin/modules', icon: Activity, desc: 'Feature toggles' },
             ].map(action => (
               <a key={action.label} href={action.href}
-                className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border transition-all group hover:-translate-y-0.5"
+                className="flex flex-col items-center gap-2 px-4 py-5 rounded-xl border transition-all group hover:-translate-y-0.5 hover:border-[#2a4a5a]"
                 style={{ borderColor: '#1e3040' }}
                 onClick={e => { e.preventDefault(); window.location.href = action.href }}
               >
-                <div className="w-10 h-10 rounded-xl bg-[#09333f] flex items-center justify-center group-hover:shadow-lg group-hover:shadow-[#09333f]/30 transition-all">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#09333f] to-[#0d4555] flex items-center justify-center group-hover:shadow-lg group-hover:shadow-[#09333f]/40 transition-all">
                   <action.icon size={18} className="text-white" />
                 </div>
                 <span className="text-sm font-medium text-white">{action.label}</span>
-                <span className="text-[11px]" style={{ color: '#64748b' }}>{action.desc}</span>
+                <span className="text-[11px]" style={{ color: '#94a3b8' }}>{action.desc}</span>
               </a>
             ))}
           </div>
@@ -112,7 +112,7 @@ export const DashboardPage: React.FC = () => {
                     <img src={m.url} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center" style={{ background: '#1c2a38' }}>
-                      <FilmIcon size={14} className="text-gray-500" />
+                      <FilmIcon size={14} className="text-[#94a3b8]" />
                     </div>
                   )}
                 </div>

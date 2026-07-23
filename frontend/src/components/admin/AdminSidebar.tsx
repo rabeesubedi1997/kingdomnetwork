@@ -150,7 +150,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ open, onClose }) => 
               <span className="text-[#ffcd57] text-[10px] ml-1.5 uppercase tracking-widest font-medium">Admin</span>
             </div>
           </div>
-          <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-white/5 text-gray-500">
+          <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-white/5 text-[#94a3b8]">
             <X size={18} />
           </button>
         </div>
@@ -175,8 +175,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ open, onClose }) => 
                   dragIdx === idx && 'opacity-50'
                 )}
               >
-                <div className="flex items-center justify-center w-5 flex-shrink-0 opacity-0 group-hover:opacity-40 cursor-grab active:cursor-grabbing transition-opacity">
-                  <GripVertical size={14} className="text-gray-500" />
+                <div className="flex items-center justify-center w-5 flex-shrink-0 opacity-0 group-hover:opacity-60 cursor-grab active:cursor-grabbing transition-opacity">
+                  <GripVertical size={14} className="text-[#c8d6e5]" />
                 </div>
                 <NavLink
                   to={item.path}
@@ -186,7 +186,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ open, onClose }) => 
                     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 w-full ml-1',
                     isActive
                       ? 'bg-gradient-to-r from-[#09333f] to-[#0d4555] text-white shadow-md shadow-[#09333f]/20'
-                      : 'text-[#94a3b8] hover:text-white hover:bg-[#1c2a38]'
+                      : 'text-[#c8d6e5] hover:text-white hover:bg-[#1c2a38]'
                   )}
                 >
                   <Icon size={18} className="flex-shrink-0" />
@@ -209,7 +209,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ open, onClose }) => 
           </div>
           <button
             onClick={() => { logout(); window.location.href = '/admin/login' }}
-            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-[#64748b] hover:text-red-400 hover:bg-red-500/5 transition-colors"
+            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-[#94a3b8] hover:text-red-400 hover:bg-red-500/5 transition-colors"
           >
             <LogOut size={16} />
             <span>Sign Out</span>
