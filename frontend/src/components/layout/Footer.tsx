@@ -141,9 +141,9 @@ export const Footer: React.FC = () => {
             <div className="text-center lg:text-left">
               <Link to="/" className="inline-flex items-center gap-2.5 mb-3">
                 {footerLogo ? (
-                  <img src={footerLogo} alt={siteName} className="h-9 w-auto brightness-0 invert" />
+                  <img src={footerLogo} alt={siteName} className="h-9 w-auto" />
                 ) : logoUrl ? (
-                  <img src={logoUrl} alt={siteName} className="h-9 w-auto brightness-[3]" />
+                  <img src={logoUrl} alt={siteName} className="h-9 w-auto brightness-0 invert" />
                 ) : (
                   <>
                     <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
