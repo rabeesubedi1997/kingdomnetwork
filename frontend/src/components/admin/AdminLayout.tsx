@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet-async'
 import { useAdminStore } from '@/lib/admin-store'
 import { AdminSidebar } from './AdminSidebar'
 import { useModuleConfig } from '@/providers/ModuleConfigProvider'
-import { SearchOverlay } from '@/components/search/SearchOverlay'
+import { AdminSearchOverlay } from '@/components/admin/AdminSearchOverlay'
 import { NotificationDropdown } from '@/components/admin/NotificationDropdown'
 import { Menu, Search, Maximize2 } from 'lucide-react'
 
@@ -59,7 +59,7 @@ export const AdminLayout: React.FC = () => {
         {favicon_url && <link rel="icon" href={favicon_url} />}
         <title>{currentTitle} | Kingdom Admin</title>
       </Helmet>
-      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <AdminSearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0 h-screen">
         <header
@@ -85,7 +85,7 @@ export const AdminLayout: React.FC = () => {
               style={{ background: '#1c2a38' }}
             >
               <Search size={14} className="text-[#94a3b8]" />
-              <span className="text-xs text-[#94a3b8]">Search...</span>
+              <span className="text-xs text-[#94a3b8]">Search admin...</span>
               <kbd className="px-1.5 py-0.5 rounded text-[10px]" style={{ background: '#0a0f14', color: '#94a3b8' }}>⌘K</kbd>
             </button>
             <NotificationDropdown />

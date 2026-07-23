@@ -42,6 +42,7 @@ use App\Http\Controllers\Admin\ContactSubmissionController;
 use App\Http\Controllers\Admin\JobApplicationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\SearchController as AdminSearchController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Api\PageController as ApiPageController;
 use Illuminate\Support\Facades\Route;
@@ -150,6 +151,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::get('/dashboard', [DashboardController::class, 'index']);
         Route::get('/dashboard/notifications', [DashboardController::class, 'notifications']);
+        Route::get('/search', [AdminSearchController::class, 'search']);
 
         Route::post('/site-settings/bulk-update', [SiteSettingController::class, 'bulkUpdate']);
         Route::post('/site-settings/upload-logo', [SiteSettingController::class, 'uploadLogo']);

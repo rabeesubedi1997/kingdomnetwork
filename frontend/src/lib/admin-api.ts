@@ -557,6 +557,11 @@ export async function getRoles() {
   return response.data
 }
 
+export async function adminSearch(query: string) {
+  const response = await adminApi.get('search', { params: { q: query } })
+  return response.data
+}
+
 export async function getNotifications() {
   const response = await adminApi.get('dashboard/notifications')
   return response.data
