@@ -1,6 +1,7 @@
 import { Post } from '@/types'
 import { Link } from 'react-router-dom'
 import { formatDate } from '@/lib/utils'
+import { sanitizeHtml } from '@/lib/sanitize'
 import { Calendar, Clock, User, ArrowLeft, Share2 } from 'lucide-react'
 
 interface ArticleProps {
@@ -73,7 +74,7 @@ export const Article: React.FC<ArticleProps> = ({ post }) => {
         </div>
       )}
 
-      <div className='prose prose-brand dark:prose-invert max-w-none' dangerouslySetInnerHTML={{ __html: post.content || '' }} />
+      <div className='prose prose-brand dark:prose-invert max-w-none' dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content || '') }} />
 
       {post.tags?.length > 0 && (
         <div className='mt-12 pt-8 border-t border-brand-surface/50'>

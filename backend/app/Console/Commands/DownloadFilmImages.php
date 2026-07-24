@@ -39,7 +39,6 @@ class DownloadFilmImages extends Command
                 try {
                     $imageData = @file_get_contents($url, false, stream_context_create([
                         'http' => ['timeout' => 30, 'user_agent' => 'Mozilla/5.0'],
-                        'ssl' => ['verify_peer' => false, 'verify_peer_name' => false],
                     ]));
 
                     if ($imageData === false) {

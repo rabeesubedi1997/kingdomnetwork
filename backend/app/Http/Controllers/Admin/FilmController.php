@@ -132,7 +132,18 @@ class FilmController extends Controller
             }
 
             $relativePath = str_replace('/storage/', '', $url);
+            $relativePath = ltrim($relativePath, '/');
+
+            if (str_contains($relativePath, '..')) {
+                continue;
+            }
+
             $fullPath = Storage::disk('public')->path($relativePath);
+            $diskRoot = Storage::disk('public')->path('');
+
+            if (!str_starts_with(realpath($fullPath) ?: $fullPath, realpath($diskRoot) ?: $diskRoot)) {
+                continue;
+            }
 
             if (file_exists($fullPath)) {
                 $film->clearMediaCollection($collection);

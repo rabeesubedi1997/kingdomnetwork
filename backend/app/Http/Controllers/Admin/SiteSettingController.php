@@ -57,13 +57,15 @@ class SiteSettingController extends Controller
 
     public function bulkUpdate(Request $request): JsonResponse
     {
-        $data = $request->all();
+        $validated = $request->validate([
+            '*' => 'nullable|string',
+        ]);
 
-        foreach ($data as $key => $value) {
-            SiteSetting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value]
-            );
+        foreach ($validated as $key => $value) {
+            if (!SiteSetting::where('key', $key)->exists()) {
+                continue;
+            }
+            SiteSetting::where('key', $key)->update(['value' => $value]);
         }
 
         return response()->json(['message' => 'Settings updated']);

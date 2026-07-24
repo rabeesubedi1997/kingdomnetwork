@@ -6,6 +6,7 @@ import { Section, Container } from '@/components/layout/Section'
 import { Loading } from '@/components/ui/Loading'
 import { BannerSlider } from '@/components/banner/BannerSlider'
 import { SafeImage } from '@/components/shared/SafeImage'
+import { sanitizeHtml } from '@/lib/sanitize'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
 
@@ -333,7 +334,7 @@ const SectionRenderer: React.FC<{ section: PageSection }> = ({ section }) => {
       return (
         <Section padding="lg">
           <Container>
-            <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: config.html }} />
+            <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.html) }} />
           </Container>
         </Section>
       )
@@ -487,7 +488,7 @@ export const DynamicPage: React.FC = () => {
               {page.content ? (
                 <div
                   className="text-brand-white/90 leading-relaxed space-y-5 text-lg [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-white [&_h1]:mt-10 [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:mt-8 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-white [&_h3]:mt-6 [&_h3]:mb-2 [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:text-brand-primary [&_a]:underline [&_a:hover]:text-brand-accent [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4 [&_li]:mb-1 [&_img]:rounded-xl [&_img]:my-6 [&_img]:max-w-full [&_blockquote]:border-l-4 [&_blockquote]:border-brand-primary [&_blockquote]:pl-5 [&_blockquote]:py-2 [&_blockquote]:my-6 [&_blockquote]:text-brand-muted [&_blockquote]:italic [&_pre]:bg-brand-dark/80 [&_pre]:rounded-xl [&_pre]:p-4 [&_pre]:overflow-x-auto [&_pre]:my-6 [&_code]:text-sm [&_code]:bg-brand-dark/60 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_hr]:border-brand-surface [&_hr]:my-8"
-                  dangerouslySetInnerHTML={{ __html: page.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content) }}
                 />
               ) : (
                 <p className="text-brand-muted text-lg">This page has no content yet.</p>

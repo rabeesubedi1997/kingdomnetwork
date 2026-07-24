@@ -70,7 +70,7 @@ export const PartnersPage: React.FC = () => {
                   <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(9,51,63,0.3)', color: '#4a9ea0' }}>{p.category}</span>
                   <span className={cn('text-[10px] px-1.5 py-0.5 rounded', p.is_active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400')}>{p.is_active ? 'Active' : 'Inactive'}</span>
                 </div>
-                {p.website_url && <a href={p.website_url} target="_blank" className="text-xs text-brand-muted hover:text-brand-primary flex items-center gap-1 mt-0.5">{p.website_url} <ExternalLink size={10} /></a>}
+                {p.website_url && <a href={p.website_url} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-muted hover:text-brand-primary flex items-center gap-1 mt-0.5">{p.website_url} <ExternalLink size={10} /></a>}
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => openEdit(p)} className="p-1.5 text-brand-muted hover:text-white rounded-lg"><Edit3 size={14} /></button>

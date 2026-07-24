@@ -245,7 +245,7 @@ export const SeoManagementPage: React.FC = () => {
                       <p className="text-xs truncate mt-0.5" style={{ color: '#64748b' }}>{page.route}{edit?.title ? ` — ${edit.title}` : ''}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <a href={page.route} target="_blank" onClick={e => e.stopPropagation()}
+                      <a href={page.route} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                         className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-white transition-colors" title="View page">
                         <ExternalLink size={14} />
                       </a>
