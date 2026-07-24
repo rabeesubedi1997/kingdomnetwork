@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewsletterConfirmation;
 use App\Models\NewsletterSubscriber;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class NewsletterController extends Controller
@@ -32,7 +34,9 @@ class NewsletterController extends Controller
             ]
         );
 
-        // TODO: Send confirmation email
+        $confirmationUrl = url('/newsletter/confirm?token=' . $token);
+
+        Mail::to($subscriber->email)->send(new NewsletterConfirmation($subscriber, $confirmationUrl));
 
         return response()->json($subscriber, 201);
     }
@@ -43,12 +47,46 @@ class NewsletterController extends Controller
             'token' => 'required|string',
         ]);
 
-        $subscriber = NewsletterSubscriber::all()->first(fn($s) => ($s->metadata['confirmation_token'] ?? null) === $validated['token']);
+        $subscriber = $this->findByConfirmationToken($validated['token']);
 
         if (!$subscriber) {
             return response()->json(['message' => 'Invalid confirmation token.'], 404);
         }
 
+        $this->markConfirmed($subscriber);
+
+        return response()->json(['message' => 'Email confirmed successfully.']);
+    }
+
+    public function confirmFromLink(Request $request)
+    {
+        $token = $request->query('token');
+
+        if (!$token) {
+            $frontendUrl = env('APP_FRONTEND_URL', 'http://localhost:3000');
+            return redirect($frontendUrl . '/?newsletter=invalid');
+        }
+
+        $subscriber = $this->findByConfirmationToken($token);
+
+        if (!$subscriber) {
+            $frontendUrl = env('APP_FRONTEND_URL', 'http://localhost:3000');
+            return redirect($frontendUrl . '/?newsletter=invalid');
+        }
+
+        $this->markConfirmed($subscriber);
+
+        $frontendUrl = env('APP_FRONTEND_URL', 'http://localhost:3000');
+        return redirect($frontendUrl . '/?newsletter=confirmed');
+    }
+
+    private function findByConfirmationToken(string $token): ?NewsletterSubscriber
+    {
+        return NewsletterSubscriber::all()->first(fn($s) => ($s->metadata['confirmation_token'] ?? null) === $token);
+    }
+
+    private function markConfirmed(NewsletterSubscriber $subscriber): void
+    {
         $metadata = $subscriber->metadata;
         unset($metadata['confirmation_token']);
 
@@ -57,8 +95,6 @@ class NewsletterController extends Controller
             'confirmed_at' => now(),
             'metadata' => $metadata,
         ]);
-
-        return response()->json(['message' => 'Email confirmed successfully.']);
     }
 
     public function unsubscribe(Request $request)

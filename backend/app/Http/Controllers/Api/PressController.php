@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PressAccessRequestNotification;
+use App\Models\PressAccessRequest;
 use App\Models\PressKit;
 use App\Models\Film;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class PressController extends Controller
 {
@@ -47,8 +50,14 @@ class PressController extends Controller
             'reason' => 'required|string|max:1000',
         ]);
 
-        // Log access request
-        // TODO: Send notification email
+        $requestRecord = PressAccessRequest::create($validated);
+
+        Mail::to(config('mail.from.address'))->send(new PressAccessRequestNotification(
+            name: $requestRecord->name,
+            email: $requestRecord->email,
+            organization: $requestRecord->organization,
+            reason: $requestRecord->reason,
+        ));
 
         return response()->json(['message' => 'Access request submitted successfully.'], 201);
     }
