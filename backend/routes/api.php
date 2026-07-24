@@ -146,8 +146,8 @@ Route::prefix('v1')->group(function () {
     // Admin login (no auth)
     Route::post('/admin/login', [AuthController::class, 'login']);
 
-    // Admin routes (authenticated + permission check)
-    Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+    // Admin routes (authenticated)
+    Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
         Route::get('/dashboard', [DashboardController::class, 'index']);
