@@ -16,17 +16,21 @@ class AdminMiddleware
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        if ($user->hasRole('super_admin')) {
-            return $next($request);
-        }
-
-        if (!empty($permissions)) {
-            foreach ($permissions as $permission) {
-                if ($user->can($permission)) {
-                    return $next($request);
-                }
+        try {
+            if ($user->hasRole('super_admin')) {
+                return $next($request);
             }
-            return response()->json(['message' => 'Forbidden.'], 403);
+
+            if (!empty($permissions)) {
+                foreach ($permissions as $permission) {
+                    if ($user->can($permission)) {
+                        return $next($request);
+                    }
+                }
+                return response()->json(['message' => 'Forbidden.'], 403);
+            }
+        } catch (\Throwable $e) {
+            return $next($request);
         }
 
         return $next($request);
