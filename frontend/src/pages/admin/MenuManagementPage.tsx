@@ -309,7 +309,7 @@ export const MenuManagementPage: React.FC = () => {
                           <div className="flex-1 min-w-0 flex items-center gap-2">
                             <span className={cn('font-medium text-sm', item.is_active ? 'text-white' : 'text-brand-muted line-through')}>{item.label}</span>
                             {item.url && <span className="text-xs text-brand-muted truncate">{item.url}</span>}
-                            {item.module && <span className="text-xs px-1.5 py-0.5 rounded bg-brand-primary/20 text-brand-primary">{item.module}</span>}
+                            {item.module && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(9,51,63,0.3)', color: '#4a9ea0' }}>{item.module}</span>}
                             <span className={cn('w-1.5 h-1.5 rounded-full', item.is_active ? 'bg-green-500' : 'bg-red-500')} />
                           </div>
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

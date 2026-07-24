@@ -20,11 +20,11 @@
   }
 
   .dark {
-    --color-brand-primary: #7fa0a1;
+    --color-brand-primary: #4a9ea0;
     --color-brand-secondary: #516f78;
-    --color-brand-surface: #08313c;
+    --color-brand-surface: #1a2a38;
     --color-brand-text: #f9f6fe;
-    --color-brand-muted: #a0b8c0;
+    --color-brand-muted: #94a3b8;
   }
 
   html {
@@ -91,8 +91,16 @@
     @apply inline-flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-medium rounded-xl transition-all duration-200 hover:bg-brand-secondary hover:shadow-lg hover:shadow-brand-primary/25 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97];
   }
 
+  .dark .btn-primary {
+    @apply bg-[#0d4555] hover:bg-[#0f5670];
+  }
+
   .btn-secondary {
     @apply inline-flex items-center justify-center px-6 py-3 border-2 border-brand-primary text-brand-primary font-medium rounded-xl transition-all duration-200 hover:bg-brand-primary hover:text-white hover:shadow-lg hover:shadow-brand-primary/20 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97];
+  }
+
+  .dark .btn-secondary {
+    @apply border-[#4a9ea0] text-[#4a9ea0] hover:bg-[#4a9ea0] hover:text-white;
   }
 
   .btn-ghost {
@@ -137,6 +145,10 @@
 
   .gradient-brand {
     @apply bg-gradient-to-br from-brand-primary via-brand-dark to-brand-primary;
+  }
+
+  .dark .gradient-brand {
+    @apply from-[#0d4555] via-brand-dark to-[#0d4555];
   }
 
   .prose-brand {
@@ -214,6 +226,21 @@
   --gold: #ffcd57;
   --gold-light: rgba(255, 205, 87, 0.15);
   --sidebar-width: 260px;
+
+  --color-brand-primary: #09333f;
+  --color-brand-secondary: #516f78;
+  --color-brand-surface: #1a2a38;
+  --color-brand-muted: #94a3b8;
+  --color-brand-text: #f1f5f9;
+  --color-brand-dark: #0a0f14;
+}
+
+.admin-dark .btn-primary {
+  @apply bg-[#09333f] hover:bg-[#0d4555];
+}
+
+.admin-dark .btn-secondary {
+  @apply border-[#516f78] text-[#94a3b8] hover:bg-[#09333f] hover:text-white hover:border-[#09333f];
 }
 
 @layer utilities {

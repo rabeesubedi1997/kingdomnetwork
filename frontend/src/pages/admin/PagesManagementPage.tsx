@@ -212,7 +212,7 @@ export const PagesManagementPage: React.FC = () => {
             <button onClick={() => setActiveTab('details')} className={cn('px-5 py-3 text-sm font-medium border-b-2 transition-colors', activeTab === 'details' ? 'border-brand-primary text-white' : 'border-transparent text-brand-muted hover:text-white')}>Page Details</button>
             {editingPage && (
               <button onClick={() => setActiveTab('sections')} className={cn('px-5 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-1.5', activeTab === 'sections' ? 'border-brand-primary text-white' : 'border-transparent text-brand-muted hover:text-white')}>
-                <Layers size={14} /> Sections {sections.length > 0 && <span className="text-xs bg-brand-primary/20 text-brand-primary px-1.5 py-0.5 rounded">{sections.length}</span>}
+                <Layers size={14} /> Sections {sections.length > 0 && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(9,51,63,0.3)', color: '#4a9ea0' }}>{sections.length}</span>}
               </button>
             )}
           </div>

@@ -65,14 +65,14 @@ export const UsersPage: React.FC = () => {
         <div className="divide-y divide-brand-surface">
           {users.map((u: any) => (
             <div key={u.id} className="flex items-center gap-4 px-5 py-4 hover:bg-brand-surface/30 transition-colors group">
-              <div className="w-9 h-9 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: 'rgba(9,51,63,0.3)', color: '#4a9ea0' }}>
                 {u.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-white font-medium text-sm truncate">{u.name}</span>
                   <span className="text-xs text-brand-muted">{u.email}</span>
-                  {u.roles?.map((r: any) => <span key={r.id} className="px-1.5 py-0.5 rounded text-[10px] bg-brand-primary/20 text-brand-primary">{r.name}</span>)}
+                  {u.roles?.map((r: any) => <span key={r.id} className="px-1.5 py-0.5 rounded text-[10px]" style={{ background: 'rgba(9,51,63,0.3)', color: '#4a9ea0' }}>{r.name}</span>)}
                 </div>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
