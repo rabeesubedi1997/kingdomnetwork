@@ -70,6 +70,12 @@ class SeoController extends Controller
         return response()->json(['data' => $pageSeo]);
     }
 
+    public function destroy(string $route): JsonResponse
+    {
+        PageSeo::where('route', $route)->delete();
+        return response()->json(['message' => 'Deleted.']);
+    }
+
     public function bulkUpdate(Request $request): JsonResponse
     {
         $entries = $request->validate([
@@ -97,78 +103,87 @@ class SeoController extends Controller
 
     private function getKnownPages(): array
     {
-        $pages = [
-            ['route' => '/', 'label' => 'Home', 'group' => 'Static Pages', 'default_title' => 'Home', 'default_description' => 'Kingdom Network is a leading film and media production company in Nepal.'],
-            ['route' => '/about', 'label' => 'About Us', 'group' => 'Static Pages', 'default_title' => 'About Us', 'default_description' => 'Learn about Kingdom Network\'s mission, team, and journey in Nepali cinema.'],
-            ['route' => '/films', 'label' => 'Films', 'group' => 'Static Pages', 'default_title' => 'Films', 'default_description' => 'Explore our complete filmography and upcoming productions.'],
-            ['route' => '/news', 'label' => 'News', 'group' => 'Static Pages', 'default_title' => 'News', 'default_description' => 'Latest news, announcements, and behind-the-scenes stories from Kingdom Network.'],
-            ['route' => '/contact', 'label' => 'Contact', 'group' => 'Static Pages', 'default_title' => 'Contact', 'default_description' => 'Get in touch with Kingdom Network.'],
-            ['route' => '/careers', 'label' => 'Careers', 'group' => 'Static Pages', 'default_title' => 'Careers', 'default_description' => 'Join our team and be part of Nepal\'s leading film production company.'],
-            ['route' => '/gallery', 'label' => 'Gallery', 'group' => 'Static Pages', 'default_title' => 'Gallery', 'default_description' => 'Behind-the-scenes moments, production stills, and exclusive content.'],
-            ['route' => '/press', 'label' => 'Press', 'group' => 'Static Pages', 'default_title' => 'Press', 'default_description' => 'Press kits and media resources for journalists.'],
-            ['route' => '/awards', 'label' => 'Awards', 'group' => 'Static Pages', 'default_title' => 'Awards', 'default_description' => 'Awards and accolades received by Kingdom Network.'],
-            ['route' => '/people', 'label' => 'People', 'group' => 'Static Pages', 'default_title' => 'People', 'default_description' => 'Cast and crew of Kingdom Network productions.'],
-            ['route' => '/team', 'label' => 'Team', 'group' => 'Static Pages', 'default_title' => 'Team', 'default_description' => 'Meet the Kingdom Network team.'],
-            ['route' => '/privacy', 'label' => 'Privacy Policy', 'group' => 'Legal', 'default_title' => 'Privacy Policy', 'default_description' => 'Privacy policy for Kingdom Network.'],
-            ['route' => '/terms', 'label' => 'Terms of Service', 'group' => 'Legal', 'default_title' => 'Terms of Service', 'default_description' => 'Terms and conditions for using Kingdom Network.'],
-        ];
+        $entries = PageSeo::all()->keyBy('route');
+        $pages = [];
 
-        $dynamicPages = [];
-        foreach (Film::whereNotNull('published_at')->get() as $film) {
-            $dynamicPages[] = [
-                'route' => '/films/' . $film->slug,
-                'label' => $film->title,
-                'group' => 'Films',
-                'default_title' => $film->title,
-                'default_description' => $film->short_description ?? $film->tagline ?? '',
-            ];
-        }
-        foreach (Post::where('status', 'published')->get() as $post) {
-            $dynamicPages[] = [
-                'route' => '/news/' . $post->slug,
-                'label' => $post->title,
-                'group' => 'News',
-                'default_title' => $post->title,
-                'default_description' => $post->excerpt ?? '',
-            ];
-        }
-        foreach (Person::all() as $person) {
-            $dynamicPages[] = [
-                'route' => '/people/' . $person->slug,
-                'label' => $person->name,
-                'group' => 'People',
-                'default_title' => $person->name,
-                'default_description' => $person->bio ?? '',
-            ];
-        }
-        foreach (Page::where('is_active', true)->get() as $page) {
-            $dynamicPages[] = [
-                'route' => '/page/' . $page->slug,
-                'label' => $page->title,
-                'group' => 'Custom Pages',
-                'default_title' => $page->title,
+        foreach ($entries as $route => $seo) {
+            $pages[$route] = [
+                'route' => $route,
+                'label' => $this->labelFromRoute($route),
+                'group' => 'Static Pages',
+                'default_title' => $this->labelFromRoute($route),
                 'default_description' => '',
             ];
         }
-        foreach (Album::all() as $album) {
-            $dynamicPages[] = [
-                'route' => '/gallery/' . $album->slug,
-                'label' => $album->title,
-                'group' => 'Gallery',
-                'default_title' => $album->title,
-                'default_description' => $album->description ?? '',
+
+        foreach (Film::whereNotNull('published_at')->get() as $model) {
+            $route = '/films/' . $model->slug;
+            $pages[$route] = [
+                'route' => $route,
+                'label' => $model->title,
+                'group' => 'Films',
+                'default_title' => $model->title,
+                'default_description' => $model->short_description ?? $model->tagline ?? '',
             ];
         }
-        foreach (TeamMember::all() as $member) {
-            $dynamicPages[] = [
-                'route' => '/team/' . $member->id,
-                'label' => $member->name,
+        foreach (Post::where('status', 'published')->get() as $model) {
+            $route = '/news/' . $model->slug;
+            $pages[$route] = [
+                'route' => $route,
+                'label' => $model->title,
+                'group' => 'News',
+                'default_title' => $model->title,
+                'default_description' => $model->excerpt ?? '',
+            ];
+        }
+        foreach (Person::all() as $model) {
+            $route = '/people/' . $model->slug;
+            $pages[$route] = [
+                'route' => $route,
+                'label' => $model->name,
+                'group' => 'People',
+                'default_title' => $model->name,
+                'default_description' => $model->bio ?? '',
+            ];
+        }
+        foreach (Page::where('is_active', true)->get() as $model) {
+            $route = '/page/' . $model->slug;
+            $pages[$route] = [
+                'route' => $route,
+                'label' => $model->title,
+                'group' => 'Custom Pages',
+                'default_title' => $model->title,
+                'default_description' => '',
+            ];
+        }
+        foreach (Album::all() as $model) {
+            $route = '/gallery/' . $model->slug;
+            $pages[$route] = [
+                'route' => $route,
+                'label' => $model->title,
+                'group' => 'Gallery',
+                'default_title' => $model->title,
+                'default_description' => $model->description ?? '',
+            ];
+        }
+        foreach (TeamMember::all() as $model) {
+            $route = '/team/' . $model->id;
+            $pages[$route] = [
+                'route' => $route,
+                'label' => $model->name,
                 'group' => 'Team',
-                'default_title' => $member->name,
-                'default_description' => $member->role ?? '',
+                'default_title' => $model->name,
+                'default_description' => $model->role ?? '',
             ];
         }
 
-        return array_merge($pages, $dynamicPages);
+        return array_values($pages);
+    }
+
+    private function labelFromRoute(string $route): string
+    {
+        $segment = trim($route, '/');
+        if ($segment === '') return 'Home';
+        return str_replace(['-', '_'], ' ', ucwords($segment, '/'));
     }
 }

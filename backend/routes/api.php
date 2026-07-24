@@ -155,6 +155,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/search', [AdminSearchController::class, 'search']);
         Route::get('/seo/pages', [SeoController::class, 'index']);
         Route::post('/seo/pages/bulk-update', [SeoController::class, 'bulkUpdate']);
+        Route::delete('/seo/pages/{route}', [SeoController::class, 'destroy']);
 
         Route::post('/site-settings/bulk-update', [SiteSettingController::class, 'bulkUpdate']);
         Route::post('/site-settings/upload-logo', [SiteSettingController::class, 'uploadLogo']);

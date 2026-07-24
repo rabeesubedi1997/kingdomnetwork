@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSeoPages, bulkUpdateSeoPages } from '@/lib/admin-api'
 import { motion } from 'framer-motion'
-import { Search, Save, RefreshCw, Eye, EyeOff, ExternalLink, Globe, Check, X } from 'lucide-react'
+import { Search, Save, RefreshCw, Eye, EyeOff, ExternalLink, Globe, Check, X, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
@@ -142,6 +142,28 @@ export const SeoManagementPage: React.FC = () => {
     bulkMut.mutate(entries)
   }
 
+  const [newRoute, setNewRoute] = useState('')
+
+  const addPage = async () => {
+    const route = newRoute.trim()
+    if (!route) return toast.error('Enter a route path')
+    const normalized = route.startsWith('/') ? route : '/' + route
+    if (pages.some(p => p.route === normalized)) {
+      return toast.error('Route already exists')
+    }
+    await bulkUpdateSeoPages([{ route: normalized, title: '', description: '' }])
+    setNewRoute('')
+    qc.invalidateQueries({ queryKey: ['admin', 'seo', 'pages'] })
+    toast.success('Page added')
+  }
+
+  const deletePage = async (route: string) => {
+    if (!confirm(`Delete SEO entry for "${route}"?`)) return
+    await fetch(`/api/v1/admin/seo/pages/${encodeURIComponent(route)}`, { method: 'DELETE' })
+    qc.invalidateQueries({ queryKey: ['admin', 'seo', 'pages'] })
+    toast.success('Page removed')
+  }
+
   const dirtyCount = dirtyRoutes.size
   const hasAnyDirty = dirtyCount > 0
 
@@ -162,6 +184,13 @@ export const SeoManagementPage: React.FC = () => {
             <RefreshCw size={16} className="mr-1.5" /> Refresh
           </Button>
         </div>
+      </div>
+
+      <div className="flex items-center gap-2 p-3 rounded-xl border" style={{ background: '#111820', borderColor: '#1e3040' }}>
+        <Input placeholder="/new-page-path" value={newRoute} onChange={e => setNewRoute(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && addPage()}
+          style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9', fontSize: '13px', maxWidth: '280px' }} />
+        <Button onClick={addPage} style={{ background: '#09333f' }}><Plus size={14} className="mr-1" /> Add Page</Button>
       </div>
 
       <div className="rounded-xl border overflow-hidden" style={{ background: '#111820', borderColor: '#1e3040' }}>
@@ -215,11 +244,15 @@ export const SeoManagementPage: React.FC = () => {
                       </div>
                       <p className="text-xs truncate mt-0.5" style={{ color: '#64748b' }}>{page.route}{edit?.title ? ` — ${edit.title}` : ''}</p>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <a href={page.route} target="_blank" onClick={e => e.stopPropagation()}
                         className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-white transition-colors" title="View page">
                         <ExternalLink size={14} />
                       </a>
+                      <button onClick={e => { e.stopPropagation(); deletePage(page.route) }}
+                        className="p-1.5 rounded-lg hover:bg-red-900/30 text-gray-500 hover:text-red-400 transition-colors" title="Delete SEO entry">
+                        <Trash2 size={14} />
+                      </button>
                       <div className="transition-transform duration-200" style={{ color: '#64748b', transform: isExpanded ? 'rotate(180deg)' : '' }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
                       </div>
