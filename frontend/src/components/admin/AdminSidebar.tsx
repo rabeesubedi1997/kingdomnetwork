@@ -44,6 +44,7 @@ const adminModules = [
   { key: 'menus', label: 'Menu Management', path: '/admin/menus', icon: 'menus', end: false },
   { key: 'pages', label: 'Pages', path: '/admin/pages', icon: 'pages', end: false },
   { key: 'awards', label: 'Awards', path: '/admin/awards', icon: 'awards', end: false, module: 'awards' },
+  { key: 'seo', label: 'SEO Management', path: '/admin/seo', icon: 'search', end: false },
   { key: 'search', label: 'Search Settings', path: '/admin/search', icon: 'search', end: false, module: 'search' },
   { key: 'testimonials', label: 'Testimonials', path: '/admin/testimonials', icon: 'testimonials', end: false },
   { key: 'partners', label: 'Partners', path: '/admin/partners', icon: 'partners', end: false },

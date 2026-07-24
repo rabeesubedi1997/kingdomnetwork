@@ -567,6 +567,16 @@ export async function getNotifications() {
   return response.data
 }
 
+export async function getSeoPages() {
+  const response = await adminApi.get('seo/pages')
+  return response.data
+}
+
+export async function bulkUpdateSeoPages(entries: Record<string, unknown>[]) {
+  const response = await adminApi.post('seo/pages/bulk-update', { entries })
+  return response.data
+}
+
 export async function uploadSiteLogo(file: File, type: 'logo' | 'favicon' | 'dark_logo' | 'footer_logo') {
   const formData = new FormData()
   formData.append('file', file)

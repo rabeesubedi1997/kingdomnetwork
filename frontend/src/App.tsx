@@ -46,6 +46,7 @@ const NewsletterPage = lazy(() => import('./pages/admin/NewsletterPage').then((m
 const PagesManagementPage = lazy(() => import('./pages/admin/PagesManagementPage').then((m) => ({ default: m.PagesManagementPage })))
 const AwardsAdminPage = lazy(() => import('./pages/admin/AwardsAdminPage').then((m) => ({ default: m.AwardsAdminPage })))
 const SearchSettingsPage = lazy(() => import('./pages/admin/SearchSettingsPage').then((m) => ({ default: m.SearchSettingsPage })))
+const SeoManagementPage = lazy(() => import('./pages/admin/SeoManagementPage').then((m) => ({ default: m.SeoManagementPage })))
 const TestimonialsPage = lazy(() => import('./pages/admin/TestimonialsPage').then((m) => ({ default: m.TestimonialsPage })))
 const PartnersPage = lazy(() => import('./pages/admin/PartnersPage').then((m) => ({ default: m.PartnersPage })))
 const UsersPage = lazy(() => import('./pages/admin/UsersPage').then((m) => ({ default: m.UsersPage })))
@@ -97,6 +98,7 @@ function App() {
         <Route path="newsletter" element={<Suspense fallback={<Loading text="Loading..." />}><NewsletterPage /></Suspense>} />
         <Route path="awards" element={<Suspense fallback={<Loading text="Loading..." />}><AwardsAdminPage /></Suspense>} />
         <Route path="search" element={<Suspense fallback={<Loading text="Loading..." />}><SearchSettingsPage /></Suspense>} />
+        <Route path="seo" element={<Suspense fallback={<Loading text="Loading..." />}><SeoManagementPage /></Suspense>} />
         <Route path="pages" element={<Suspense fallback={<Loading text="Loading..." />}><PagesManagementPage /></Suspense>} />
         <Route path="testimonials" element={<Suspense fallback={<Loading text="Loading..." />}><TestimonialsPage /></Suspense>} />
         <Route path="partners" element={<Suspense fallback={<Loading text="Loading..." />}><PartnersPage /></Suspense>} />

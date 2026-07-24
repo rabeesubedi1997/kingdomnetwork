@@ -3,7 +3,7 @@ import { useModuleConfig } from '@/providers/ModuleConfigProvider'
 import { useLocation } from 'react-router-dom'
 
 interface SEOHeadProps {
-  title: string
+  title?: string
   description?: string
   ogImage?: string
   ogType?: string
@@ -16,6 +16,11 @@ interface SEOHeadProps {
   section?: string
   tags?: string[]
   jsonLd?: object
+}
+
+const routeKey = (path: string) => {
+  if (path.endsWith('/') && path !== '/') return path.slice(0, -1)
+  return path
 }
 
 export const SEOHead: React.FC<SEOHeadProps> = ({
@@ -33,12 +38,23 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   tags,
   jsonLd,
 }) => {
-  const { seo, favicon_url } = useModuleConfig()
+  const { seo, page_seo, favicon_url } = useModuleConfig()
   const location = useLocation()
 
-  const fullTitle = noTemplate ? title : (seo.title_template || '%s | Kingdom Network').replace('%s', title)
-  const metaDescription = description || seo.default_description || ''
-  const canonical = canonicalUrl || (typeof window !== 'undefined' ? window.location.origin + location.pathname : '')
+  const pageEntry = page_seo?.[routeKey(location.pathname)]
+
+  const resolvedTitle = pageEntry?.title && !title ? pageEntry.title : title
+  const resolvedDescription = pageEntry?.description && !description ? pageEntry.description : description
+  const resolvedOgImage = pageEntry?.og_image && !ogImage ? pageEntry.og_image : ogImage
+  const resolvedOgTitle = pageEntry?.og_title || resolvedTitle
+  const resolvedOgDescription = pageEntry?.og_description || resolvedDescription
+  const resolvedCanonical = canonicalUrl || pageEntry?.canonical_url || (typeof window !== 'undefined' ? window.location.origin + location.pathname : '')
+  const resolvedSchemaType = pageEntry?.schema_type || schemaType
+  const resolvedNoindex = pageEntry?.noindex || false
+
+  const fullTitle = noTemplate ? resolvedTitle : (seo.title_template || '%s | Kingdom Network').replace('%s', resolvedTitle)
+  const metaDescription = resolvedDescription || seo.default_description || ''
+  const canonical = resolvedCanonical
 
   const ogTypeMap: Record<string, string> = {
     website: 'website',
@@ -50,14 +66,14 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   const mappedOgType = ogTypeMap[ogType] || ogType
 
   const defaultSchema = jsonLd || (() => {
-    if (schemaType === 'Movie') return null
-    if (schemaType === 'NewsArticle') return null
+    if (resolvedSchemaType === 'Movie') return null
+    if (resolvedSchemaType === 'NewsArticle') return null
     return {
       '@context': 'https://schema.org',
-      '@type': schemaType,
+      '@type': resolvedSchemaType,
       name: fullTitle,
       description: metaDescription,
-      image: ogImage,
+      image: resolvedOgImage,
     }
   })()
 
@@ -66,22 +82,22 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <title>{fullTitle}</title>
       {metaDescription && <meta name="description" content={metaDescription} />}
       <meta name="theme-color" content="#09333f" />
-      <meta name="robots" content="index, follow" />
+      <meta name="robots" content={resolvedNoindex ? 'noindex, nofollow' : 'index, follow'} />
       <link rel="canonical" href={canonical} />
 
-      <meta property="og:title" content={fullTitle} />
-      {metaDescription && <meta property="og:description" content={metaDescription} />}
+      <meta property="og:title" content={resolvedOgTitle || fullTitle} />
+      {metaDescription && <meta property="og:description" content={resolvedOgDescription || metaDescription} />}
       <meta property="og:type" content={mappedOgType} />
       <meta property="og:url" content={canonical} />
-      {ogImage && <meta property="og:image" content={ogImage} />}
-      {ogImage && <meta property="og:image:width" content="1200" />}
-      {ogImage && <meta property="og:image:height" content="630" />}
+      {resolvedOgImage && <meta property="og:image" content={resolvedOgImage} />}
+      {resolvedOgImage && <meta property="og:image:width" content="1200" />}
+      {resolvedOgImage && <meta property="og:image:height" content="630" />}
 
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={fullTitle} />
+      <meta name="twitter:title" content={resolvedOgTitle || fullTitle} />
       {metaDescription && <meta name="twitter:description" content={metaDescription} />}
       {seo.twitter_handle && <meta name="twitter:site" content={seo.twitter_handle} />}
-      {ogImage && <meta name="twitter:image" content={ogImage} />}
+      {resolvedOgImage && <meta name="twitter:image" content={resolvedOgImage} />}
 
       {publishedTime && <meta property="article:published_time" content={publishedTime} />}
       {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}

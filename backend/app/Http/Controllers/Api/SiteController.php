@@ -3,6 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Film;
+use App\Models\Page;
+use App\Models\PageSeo;
+use App\Models\Person;
+use App\Models\Post;
+use App\Models\TeamMember;
 use App\Models\SiteSetting;
 use App\Models\Menu;
 use App\Models\MenuItem;
@@ -35,6 +41,8 @@ class SiteController extends Controller
         $logoDarkUrl = $allSettings['logo_dark_url'] ?? null;
         $footerLogoUrl = $allSettings['footer_logo_url'] ?? null;
 
+        $pageSeos = PageSeo::all()->keyBy('route');
+
         return response()->json([
             'brand' => $brand,
             'settings' => $settings,
@@ -50,6 +58,7 @@ class SiteController extends Controller
                 'default_description' => $allSettings['seo_default_description'] ?? '',
                 'twitter_handle' => $allSettings['seo_twitter_handle'] ?? '@kingdomnetwork',
             ],
+            'page_seo' => $pageSeos,
             'analytics' => [
                 'ga4_id' => $allSettings['analytics_ga4_id'] ?? '',
                 'gtm_id' => $allSettings['analytics_gtm_id'] ?? '',
@@ -60,24 +69,71 @@ class SiteController extends Controller
     public function sitemap()
     {
         $urls = [
-            ['loc' => url('/'), 'priority' => '1.0'],
-            ['loc' => url('/about'), 'priority' => '0.8'],
-            ['loc' => url('/films'), 'priority' => '0.9'],
-            ['loc' => url('/news'), 'priority' => '0.7'],
-            ['loc' => url('/careers'), 'priority' => '0.6'],
-            ['loc' => url('/gallery'), 'priority' => '0.5'],
-            ['loc' => url('/press'), 'priority' => '0.6'],
-            ['loc' => url('/contact'), 'priority' => '0.7'],
-            ['loc' => url('/awards'), 'priority' => '0.6'],
-            ['loc' => url('/people'), 'priority' => '0.7'],
-            ['loc' => url('/team'), 'priority' => '0.6'],
+            ['loc' => url('/'), 'priority' => '1.0', 'changefreq' => 'daily'],
+            ['loc' => url('/about'), 'priority' => '0.8', 'changefreq' => 'monthly'],
+            ['loc' => url('/films'), 'priority' => '0.9', 'changefreq' => 'weekly'],
+            ['loc' => url('/news'), 'priority' => '0.7', 'changefreq' => 'daily'],
+            ['loc' => url('/careers'), 'priority' => '0.6', 'changefreq' => 'weekly'],
+            ['loc' => url('/gallery'), 'priority' => '0.5', 'changefreq' => 'weekly'],
+            ['loc' => url('/press'), 'priority' => '0.6', 'changefreq' => 'monthly'],
+            ['loc' => url('/contact'), 'priority' => '0.7', 'changefreq' => 'monthly'],
+            ['loc' => url('/awards'), 'priority' => '0.6', 'changefreq' => 'monthly'],
+            ['loc' => url('/people'), 'priority' => '0.7', 'changefreq' => 'weekly'],
+            ['loc' => url('/team'), 'priority' => '0.6', 'changefreq' => 'monthly'],
+            ['loc' => url('/privacy'), 'priority' => '0.3', 'changefreq' => 'yearly'],
+            ['loc' => url('/terms'), 'priority' => '0.3', 'changefreq' => 'yearly'],
         ];
+
+        foreach (Film::whereNotNull('published_at')->get() as $film) {
+            $urls[] = [
+                'loc' => url('/films/' . $film->slug),
+                'priority' => '0.8',
+                'changefreq' => 'monthly',
+                'lastmod' => $film->updated_at?->toW3cString(),
+            ];
+        }
+
+        foreach (Post::where('status', 'published')->get() as $post) {
+            $urls[] = [
+                'loc' => url('/news/' . $post->slug),
+                'priority' => '0.7',
+                'changefreq' => 'monthly',
+                'lastmod' => $post->updated_at?->toW3cString(),
+            ];
+        }
+
+        foreach (Person::all() as $person) {
+            $urls[] = [
+                'loc' => url('/people/' . $person->slug),
+                'priority' => '0.5',
+                'changefreq' => 'monthly',
+            ];
+        }
+
+        foreach (Page::where('is_active', true)->get() as $page) {
+            $urls[] = [
+                'loc' => url('/page/' . $page->slug),
+                'priority' => '0.6',
+                'changefreq' => 'monthly',
+                'lastmod' => $page->updated_at?->toW3cString(),
+            ];
+        }
+
+        foreach (TeamMember::all() as $member) {
+            $urls[] = [
+                'loc' => url('/team/' . $member->id),
+                'priority' => '0.4',
+                'changefreq' => 'monthly',
+            ];
+        }
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>';
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
         foreach ($urls as $url) {
             $xml .= '<url>';
             $xml .= '<loc>' . e($url['loc']) . '</loc>';
+            $xml .= '<lastmod>' . e($url['lastmod'] ?? date('c')) . '</lastmod>';
+            $xml .= '<changefreq>' . $url['changefreq'] . '</changefreq>';
             $xml .= '<priority>' . $url['priority'] . '</priority>';
             $xml .= '</url>';
         }

@@ -1,5 +1,18 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
+interface PageSeoEntry {
+  id: number | null
+  route: string
+  title: string | null
+  description: string | null
+  og_title: string | null
+  og_description: string | null
+  og_image: string | null
+  noindex: boolean
+  canonical_url: string | null
+  schema_type: string | null
+}
+
 interface ModuleConfig {
   modules: Record<string, boolean>
   brand: Record<string, any>
@@ -13,6 +26,7 @@ interface ModuleConfig {
     default_description: string
     twitter_handle: string
   }
+  page_seo: Record<string, PageSeoEntry>
   analytics: {
     ga4_id: string
     gtm_id: string
@@ -32,6 +46,7 @@ const ModuleConfigContext = createContext<ModuleConfig>({
     default_description: '',
     twitter_handle: '@kingdomnetwork',
   },
+  page_seo: {},
   analytics: {
     ga4_id: '',
     gtm_id: '',
@@ -70,13 +85,14 @@ logo_url: data.logo_url || null,
           favicon_url: data.favicon_url || null,
           dark_logo_url: data.logo_dark_url || null,
           footer_logo_url: data.footer_logo_url || null,
-            seo: data.seo || {
-              default_title: 'Kingdom Network - Redefining Nepali Cinema',
-              title_template: '%s | Kingdom Network',
-              default_description: '',
-              twitter_handle: '@kingdomnetwork',
-            },
-            analytics: data.analytics || { ga4_id: '', gtm_id: '' },
+    seo: data.seo || {
+      default_title: 'Kingdom Network - Redefining Nepali Cinema',
+      title_template: '%s | Kingdom Network',
+      default_description: '',
+      twitter_handle: '@kingdomnetwork',
+    },
+    page_seo: data.page_seo || {},
+    analytics: data.analytics || { ga4_id: '', gtm_id: '' },
           })
         }
       })
