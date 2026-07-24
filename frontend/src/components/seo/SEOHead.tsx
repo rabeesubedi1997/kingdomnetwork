@@ -52,7 +52,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   const resolvedSchemaType = pageEntry?.schema_type || schemaType
   const resolvedNoindex = pageEntry?.noindex || false
 
-  const fullTitle = noTemplate ? resolvedTitle : (seo.title_template || '%s | Kingdom Network').replace('%s', resolvedTitle)
+  const fullTitle = noTemplate ? (resolvedTitle || '') : (seo.title_template || '%s | Kingdom Network').replace('%s', resolvedTitle || '')
   const metaDescription = resolvedDescription || seo.default_description || ''
   const canonical = resolvedCanonical
 

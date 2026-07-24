@@ -132,9 +132,9 @@ export const SeoManagementPage: React.FC = () => {
   })
 
   const handleSaveAll = () => {
-    const entries = dirtyRoutes
-      .filter(r => edits[r])
-      .map(route => ({ route, ...edits[route] }))
+    const entries = Array.from(dirtyRoutes)
+      .filter((r: string) => edits[r])
+      .map((route: string) => ({ route, ...edits[route] }))
     if (entries.length === 0) {
       toast('No changes to save')
       return
@@ -220,7 +220,7 @@ export const SeoManagementPage: React.FC = () => {
                         className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-white transition-colors" title="View page">
                         <ExternalLink size={14} />
                       </a>
-                      <div style={{ color: '#64748b' }} className="transition-transform duration-200" style={{ transform: isExpanded ? 'rotate(180deg)' : '' }}>
+                      <div className="transition-transform duration-200" style={{ color: '#64748b', transform: isExpanded ? 'rotate(180deg)' : '' }}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
                       </div>
                     </div>

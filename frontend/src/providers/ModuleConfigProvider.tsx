@@ -67,6 +67,7 @@ export const ModuleConfigProvider = ({ children }: { children: ReactNode }) => {
       default_description: '',
       twitter_handle: '@kingdomnetwork',
     },
+    page_seo: {},
     analytics: {
       ga4_id: '',
       gtm_id: '',
@@ -148,6 +149,7 @@ logo_url: data.logo_url || null,
             default_description: '',
             twitter_handle: '@kingdomnetwork',
           },
+          page_seo: {},
           analytics: { ga4_id: '', gtm_id: '' },
         })
       })
