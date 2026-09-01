@@ -24,7 +24,10 @@ class DatabaseSeeder extends Seeder
             ContentSeeder::class,
             PujarSarkiSeeder::class,
             DemoFilmImagesSeeder::class,
+            KingdomNetworkImagesSeeder::class,
             PagesSeeder::class,
+            KingdomNetworkSeeder::class,
+            RichDemoContentSeeder::class,
         ]);
     }
 }

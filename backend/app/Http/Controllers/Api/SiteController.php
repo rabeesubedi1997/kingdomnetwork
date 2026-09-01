@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Film;
+use App\Models\FilmAward;
 use App\Models\Page;
 use App\Models\PageSeo;
 use App\Models\Person;
@@ -42,10 +43,12 @@ class SiteController extends Controller
         $footerLogoUrl = $allSettings['footer_logo_url'] ?? null;
 
         $pageSeos = PageSeo::all()->keyBy('route');
+        $stats = $this->computeStats();
 
         return response()->json([
             'brand' => $brand,
             'settings' => $settings,
+            'stats' => $stats,
             'all_settings' => $allSettings,
             'modules' => $modules,
             'logo_url' => $logoUrl,
@@ -64,6 +67,28 @@ class SiteController extends Controller
                 'gtm_id' => $allSettings['analytics_gtm_id'] ?? '',
             ],
         ]);
+    }
+
+    /**
+     * Real, DB-backed counts for homepage/dynamic-page stat blocks.
+     * Replaces the hardcoded, mutually-contradicting figures that used
+     * to live directly in the frontend components.
+     */
+    private function computeStats(): array
+    {
+        $recognitions = FilmAward::pluck('award_name')
+            ->map(fn ($name) => trim(explode(' - ', $name)[0]))
+            ->unique()
+            ->count();
+
+        return [
+            'films' => Film::count(),
+            'films_released' => Film::where('status', 'released')->count(),
+            'awards_won' => FilmAward::where('result', 'won')->count(),
+            'awards_nominated' => FilmAward::where('result', 'nominated')->count(),
+            'talent' => TeamMember::count() + Person::count(),
+            'recognitions' => $recognitions,
+        ];
     }
 
     public function sitemap()

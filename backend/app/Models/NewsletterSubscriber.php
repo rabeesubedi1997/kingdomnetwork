@@ -18,6 +18,7 @@ class NewsletterSubscriber extends Model
         'unsubscribed_at',
         'tags',
         'metadata',
+        'confirmation_token',
     ];
 
     protected $casts = [

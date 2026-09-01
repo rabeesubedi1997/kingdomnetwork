@@ -20,17 +20,13 @@ class NewsletterController extends Controller
         ]);
 
         $token = Str::random(64);
-        $existing = NewsletterSubscriber::where('email', $validated['email'])->first();
         $subscriber = NewsletterSubscriber::updateOrCreate(
             ['email' => $validated['email']],
             [
                 'name' => $validated['name'] ?? null,
                 'tags' => $validated['tags'] ?? [],
                 'status' => 'pending',
-                'metadata' => array_merge(
-                    $existing?->metadata ?? [],
-                    ['confirmation_token' => $token]
-                ),
+                'confirmation_token' => $token,
             ]
         );
 
@@ -82,18 +78,15 @@ class NewsletterController extends Controller
 
     private function findByConfirmationToken(string $token): ?NewsletterSubscriber
     {
-        return NewsletterSubscriber::all()->first(fn($s) => ($s->metadata['confirmation_token'] ?? null) === $token);
+        return NewsletterSubscriber::where('confirmation_token', $token)->first();
     }
 
     private function markConfirmed(NewsletterSubscriber $subscriber): void
     {
-        $metadata = $subscriber->metadata;
-        unset($metadata['confirmation_token']);
-
         $subscriber->update([
             'status' => 'confirmed',
             'confirmed_at' => now(),
-            'metadata' => $metadata,
+            'confirmation_token' => null,
         ]);
     }
 

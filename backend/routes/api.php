@@ -75,12 +75,12 @@ Route::prefix('v1')->group(function () {
     // Careers
     Route::get('/careers', [CareerController::class, 'index']);
     Route::get('/careers/{slug}', [CareerController::class, 'show']);
-    Route::post('/careers/{slug}/apply', [CareerController::class, 'apply']);
+    Route::post('/careers/{slug}/apply', [CareerController::class, 'apply'])->middleware('throttle:5,10');
 
     // Events
     Route::get('/events', [EventController::class, 'index']);
     Route::get('/events/{slug}', [EventController::class, 'show']);
-    Route::post('/events/{slug}/rsvp', [EventController::class, 'rsvp']);
+    Route::post('/events/{slug}/rsvp', [EventController::class, 'rsvp'])->middleware('throttle:10,10');
 
     // Gallery
     Route::get('/gallery', [GalleryController::class, 'index']);
@@ -90,12 +90,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/press', [PressController::class, 'index']);
     Route::get('/press/{filmSlug}', [PressController::class, 'filmKit']);
     Route::get('/press/{filmSlug}/assets', [PressController::class, 'assets']);
-    Route::post('/press/request-access', [PressController::class, 'requestAccess']);
+    Route::post('/press/request-access', [PressController::class, 'requestAccess'])->middleware('throttle:5,10');
 
     // Newsletter
-    Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
+    Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->middleware('throttle:newsletter');
     Route::post('/newsletter/confirm', [NewsletterController::class, 'confirm']);
-    Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe']);
+    Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe'])->middleware('throttle:newsletter');
     Route::post('/newsletter/preferences', [NewsletterController::class, 'preferences']);
 
     // Pages
@@ -115,7 +115,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/partners', [ApiPartnerController::class, 'index']);
 
     // Contact
-    Route::post('/contact', [ContactController::class, 'store']);
+    Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:contact');
 
     // Awards
     Route::get('/awards', [AwardController::class, 'index']);
@@ -128,7 +128,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/search', [SearchController::class, 'search']);
 
     // Screening Requests
-    Route::post('/screenings/request', [ScreeningController::class, 'request']);
+    Route::post('/screenings/request', [ScreeningController::class, 'request'])->middleware('throttle:5,10');
 
     // Sitemap & Robots
     Route::get('/sitemap.xml', [SiteController::class, 'sitemap']);

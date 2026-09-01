@@ -11,6 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withProviders([
+        \App\Providers\AppServiceProvider::class,
+        \App\Providers\AuthServiceProvider::class,
+        \App\Providers\EventServiceProvider::class,
+    ])
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\EncryptCookies::class,
@@ -23,6 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api(append: [
             \App\Http\Middleware\ValidateJsonApi::class,
+            \App\Http\Middleware\SecurityHeaders::class,
+            'throttle:api',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

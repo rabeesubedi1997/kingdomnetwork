@@ -15,6 +15,7 @@ class ContactSubmission extends Model
         'email',
         'subject',
         'message',
+        'phone',
         'status',
         'replied_at',
     ];
