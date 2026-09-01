@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { useNewsDetail } from '@/hooks/useData'
 import { useParams, Link } from 'react-router-dom'
 import { Section, Container } from '@/components/layout/Section'
@@ -27,8 +26,8 @@ export const NewsDetail: React.FC = () => {
       <Section padding='xl'>
         <Container>
           <div className='max-w-2xl mx-auto text-center'>
-            <h1 className='heading-2 text-brand-primary mb-4'>Article Not Found</h1>
-            <p className='text-brand-muted mb-5'>The article you're looking for doesn't exist or has been removed.</p>
+            <h1 className='heading-2 text-brand-primary dark:text-brand-white mb-4'>Article Not Found</h1>
+            <p className='text-brand-muted dark:text-brand-white/60 mb-5'>The article you're looking for doesn't exist or has been removed.</p>
             <Link to='/news'>
               <button className='btn-primary'>Back to News</button>
             </Link>

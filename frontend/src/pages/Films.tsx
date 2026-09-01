@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useFilms, useFilmByStatus } from '@/hooks/useData'
 import { Section, Container } from '@/components/layout/Section'
@@ -7,16 +8,20 @@ import { GridSkeleton } from '@/components/ui/Loading'
 import { Button } from '@/components/ui/Button'
 import { SEOHead } from '@/components/seo/SEOHead'
 import { Film as FilmIcon, ArrowRight } from 'lucide-react'
-
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true },
-  transition: { duration: 0.5 },
-}
+import type { Film } from '@/types'
+import { fadeUp, fadeUpViewport, heroChild, staggerContainer, staggerItem } from '@/lib/motion'
 
 export const Films: React.FC = () => {
-  const { data: allFilms, isLoading } = useFilms({ per_page: 20 })
+  const [page, setPage] = useState(1)
+  const [films, setFilms] = useState<Film[]>([])
+  const { data: allFilms, isLoading, isFetching } = useFilms({ per_page: 12, page })
+
+  // Accumulate pages so "Load More" appends instead of replacing the grid.
+  useEffect(() => {
+    if (!allFilms?.data) return
+    setFilms(prev => (page === 1 ? allFilms.data : [...prev, ...allFilms.data.filter(f => !prev.some(p => p.id === f.id))]))
+  }, [allFilms, page])
+
   const statuses = ['released', 'post_production', 'pre_production', 'development', 'announced']
 
   const released = useFilmByStatus('released')
@@ -26,12 +31,15 @@ export const Films: React.FC = () => {
   const announced = useFilmByStatus('announced')
 
   const statusData = [
-    { status: 'released', data: released.data, isLoading: released.isLoading },
-    { status: 'post_production', data: postProduction.data, isLoading: postProduction.isLoading },
-    { status: 'pre_production', data: preProduction.data, isLoading: preProduction.isLoading },
-    { status: 'development', data: development.data, isLoading: development.isLoading },
-    { status: 'announced', data: announced.data, isLoading: announced.isLoading },
+    { status: 'released', data: released.data ? ('data' in released.data ? released.data.data : released.data) : undefined, isLoading: released.isLoading },
+    { status: 'post_production', data: postProduction.data ? ('data' in postProduction.data ? postProduction.data.data : postProduction.data) : undefined, isLoading: postProduction.isLoading },
+    { status: 'pre_production', data: preProduction.data ? ('data' in preProduction.data ? preProduction.data.data : preProduction.data) : undefined, isLoading: preProduction.isLoading },
+    { status: 'development', data: development.data ? ('data' in development.data ? development.data.data : development.data) : undefined, isLoading: development.isLoading },
+    { status: 'announced', data: announced.data ? ('data' in announced.data ? announced.data.data : announced.data) : undefined, isLoading: announced.isLoading },
   ]
+
+  const totalPages = allFilms ? Math.ceil((allFilms.total ?? 0) / 12) : 0
+  const hasMore = page < totalPages
 
   return (
     <>
@@ -43,23 +51,24 @@ export const Films: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 bg-white/10 px-5 py-2 rounded-full text-brand-gold text-sm font-medium mb-6"
+              transition={heroChild(0)}
+              className="eyebrow-pill mb-6"
             >
               <FilmIcon className="w-4 h-4" />
               Our Cinematic Journey
             </motion.div>
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="heading-1 text-white mb-4"
+              transition={heroChild(0.1)}
+              className="heading-1 text-white mb-4 text-shadow-sm"
             >
               Films That Move You
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={heroChild(0.2)}
               className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed"
             >
               From critically acclaimed social dramas to international co-productions,
@@ -71,9 +80,9 @@ export const Films: React.FC = () => {
 
       <Section id="timeline" padding="2xl" background="surface">
         <Container>
-          <motion.div {...fadeUp}>
-            <div className="section-divider" />
-            <h2 className="heading-2 text-brand-primary text-center mb-10">Production Timeline</h2>
+          <motion.div {...fadeUp} viewport={fadeUpViewport} className="text-center mb-10">
+            <span className="eyebrow text-brand-secondary dark:text-brand-gold justify-center">From Development to Release</span>
+            <h2 className="heading-2 text-brand-primary dark:text-brand-white mt-3">Production Timeline</h2>
           </motion.div>
           <FilmStatusTabs filmsByStatus={statusData} loading={isLoading} />
         </Container>
@@ -81,31 +90,43 @@ export const Films: React.FC = () => {
 
       <Section id="all-films" padding="2xl">
         <Container>
-          <motion.div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10" {...fadeUp}>
+          <motion.div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10" {...fadeUp} viewport={fadeUpViewport}>
             <div>
-              <div className="section-divider" />
-              <h2 className="heading-2 text-brand-primary">All Films</h2>
-              <p className="text-brand-muted mt-3 text-lg">
+              <span className="eyebrow text-brand-secondary dark:text-brand-gold">The Complete Filmography</span>
+              <h2 className="heading-2 text-brand-primary dark:text-brand-white mt-3">All Films</h2>
+              <p className="text-brand-muted dark:text-brand-white/70 mt-3 text-lg">
                 Browse our complete filmography organized by production status.
               </p>
             </div>
           </motion.div>
 
-          {isLoading ? (
+          {isLoading && page === 1 ? (
             <GridSkeleton count={8} />
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {allFilms?.data?.map((film, index) => (
-                  <motion.div key={film.id} {...fadeUp} transition={{ delay: index * 0.03, duration: 0.4 }}>
+              <motion.div
+                initial="initial"
+                whileInView="whileInView"
+                viewport={fadeUpViewport}
+                variants={staggerContainer}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+              >
+                {films.map((film, index) => (
+                  <motion.div key={film.id} variants={staggerItem}>
                     <FilmCard film={film} index={index} />
                   </motion.div>
                 ))}
-              </div>
+              </motion.div>
 
-              {allFilms && allFilms.data && allFilms.data.length > 8 && (
-                <motion.div className="text-center mt-10" {...fadeUp}>
-                  <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+              {hasMore && (
+                <motion.div className="text-center mt-10" {...fadeUp} viewport={fadeUpViewport}>
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="w-full sm:w-auto"
+                    loading={isFetching}
+                    onClick={() => setPage(p => p + 1)}
+                  >
                     Load More Films <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </motion.div>

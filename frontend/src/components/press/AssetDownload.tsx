@@ -103,7 +103,7 @@ export const AssetDownload = ({ assets }: AssetDownloadProps) => {
                 </div>
                 <div className='flex-1 min-w-0'>
                   <p className='font-medium text-brand-primary truncate'>{clip.name || 'Clip'}</p>
-                  <p className='text-sm text-brand-muted'>{clip.duration || 'Video clip'} � {clip.format || 'MP4'}</p>
+                  <p className='text-sm text-brand-muted'>{clip.duration || 'Video clip'} · {clip.format || 'MP4'}</p>
                 </div>
                 <div className='flex gap-2'>
                   <a href={clip.url} target='_blank' rel='noopener noreferrer' className='btn-secondary text-sm'>
@@ -163,7 +163,7 @@ export const AssetDownload = ({ assets }: AssetDownloadProps) => {
                 </div>
                 <div className='flex-1 min-w-0'>
                   <p className='font-medium text-brand-primary truncate'>{sheet.name || 'One Sheet'}</p>
-                  <p className='text-sm text-brand-muted'>{sheet.format || 'PDF'} � {sheet.size || 'High resolution'}</p>
+                  <p className='text-sm text-brand-muted'>{sheet.format || 'PDF'} · {sheet.size || 'High resolution'}</p>
                 </div>
                 <div className='flex gap-2'>
                   <a href={sheet.url} target='_blank' rel='noopener noreferrer' className='btn-secondary text-sm'>

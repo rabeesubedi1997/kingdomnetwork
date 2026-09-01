@@ -56,15 +56,15 @@ export const TeamCard = ({ member, index = 0 }: TeamCardProps) => {
           </div>
         </div>
         <div className='p-6 text-center'>
-          <h3 className='heading-3 text-brand-primary mb-1'>{member.name}</h3>
+          <h3 className='heading-3 text-brand-primary dark:text-brand-white mb-1'>{member.name}</h3>
           <p className='text-brand-gold font-medium mb-3'>{member.role}</p>
           {member.imdb_url && (
-            <a href={member.imdb_url} target='_blank' rel='noopener noreferrer' onClick={stopProp} className='inline-flex items-center gap-1 text-xs text-brand-muted hover:text-brand-primary mb-3 transition-colors'>
+            <a href={member.imdb_url} target='_blank' rel='noopener noreferrer' onClick={stopProp} className='inline-flex items-center gap-1 text-xs text-brand-muted dark:text-brand-white/60 hover:text-brand-primary dark:hover:text-brand-white mb-3 transition-colors'>
               <ExternalLink size={12} /> IMDb Profile
             </a>
           )}
           {member.bio && (
-            <p className='text-brand-muted text-sm leading-relaxed line-clamp-3'>{member.bio}</p>
+            <p className='text-brand-muted dark:text-brand-white/60 text-sm leading-relaxed line-clamp-3'>{member.bio}</p>
           )}
         </div>
       </motion.article>

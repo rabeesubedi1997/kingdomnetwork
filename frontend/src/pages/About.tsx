@@ -5,6 +5,8 @@ import { Section, Container } from '@/components/layout/Section'
 import { SEOHead } from '@/components/seo/SEOHead'
 import { useTeam } from '@/hooks/useData'
 import { TeamCard } from '@/components/team/TeamCard'
+import { IconTile } from '@/components/ui/IconTile'
+import { heroTitle, heroChild, staggerContainer, staggerItem, fadeUpViewport, cardHover, buttonTap } from '@/lib/motion'
 
 export const Team = () => {
   const { data: team, isLoading } = useTeam()
@@ -16,11 +18,13 @@ export const Team = () => {
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
-            <div className="section-divider" />
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='heading-1 text-brand-white mb-4'>
-              Our Creative Family
+            <motion.span initial="initial" animate="animate" variants={heroTitle} className='eyebrow-pill'>
+              <Users size={14} /> Our Creative Family
+            </motion.span>
+            <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={heroChild(0.1)} className='heading-1 text-brand-white mt-6 mb-4'>
+              Meet the People Behind the Magic
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className='text-brand-white/70 text-lg max-w-2xl mx-auto'>
+            <motion.p initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={heroChild(0.2)} className='text-brand-white/70 text-lg max-w-2xl mx-auto'>
               Meet the passionate storytellers, visionaries, and craftspeople who bring Kingdom Network&apos;s films to life.
             </motion.p>
           </div>
@@ -41,13 +45,15 @@ export const Team = () => {
               ))}
             </div>
           ) : team && team.length > 0 ? (
-            <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            <motion.div initial="initial" whileInView="whileInView" viewport={fadeUpViewport} variants={staggerContainer} className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
               {team.map((member, index) => (
-                <TeamCard key={member.id} member={member} index={index} />
+                <motion.div key={member.id} variants={staggerItem}>
+                  <TeamCard member={member} index={index} />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
-            <p className='text-center text-brand-muted py-12'>Team information coming soon.</p>
+            <p className='text-center text-brand-muted dark:text-brand-white/60 py-12'>Team information coming soon.</p>
           )}
         </Container>
       </Section>
@@ -86,11 +92,13 @@ export const About = () => {
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
-            <div className="section-divider" />
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className='heading-1 text-brand-white mb-4'>
+            <motion.span initial="initial" animate="animate" variants={heroTitle} className='eyebrow-pill'>
+              Our Story
+            </motion.span>
+            <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={heroChild(0.1)} className='heading-1 text-brand-white mt-6 mb-4'>
               Redefining Nepali Cinema
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className='text-brand-white/70 text-lg max-w-2xl mx-auto'>
+            <motion.p initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={heroChild(0.2)} className='text-brand-white/70 text-lg max-w-2xl mx-auto'>
               Kingdom Network is a leading film and media production company in Nepal, dedicated to creating world-class stories that inspire and connect audiences worldwide.
             </motion.p>
           </div>
@@ -99,41 +107,47 @@ export const About = () => {
 
       <Section id="mission-vision" padding="2xl">
         <Container>
-          <div className='grid lg:grid-cols-2 gap-6'>
+          <motion.div initial="initial" whileInView="whileInView" viewport={fadeUpViewport} variants={staggerContainer} className='grid lg:grid-cols-2 gap-6'>
             {[
               { ...mission, icon: Film },
               { ...vision, icon: Star },
-            ].map((item, index) => (
-              <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='card card-hover p-6 lg:p-8'>
-                <div className='w-14 h-14 bg-brand-primary/10 rounded-xl flex items-center justify-center mb-6'>
-                  <item.icon className='w-7 h-7 text-brand-primary' />
-                </div>
-                <h2 className='heading-2 text-brand-primary mb-4'>{item.title}</h2>
-                <p className='text-brand-text leading-relaxed'>{item.description}</p>
+            ].map((item) => (
+              <motion.div key={item.title} variants={staggerItem} {...cardHover} className='card p-8 lg:p-10'>
+                <IconTile
+                  icon={item.icon}
+                  size='lg'
+                  align='left'
+                  titleAs='h2'
+                  title={item.title}
+                  titleClassName='heading-2 mb-4'
+                  description={item.description}
+                  descriptionClassName='text-brand-text dark:text-brand-white/90 leading-relaxed'
+                />
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </Container>
       </Section>
 
       <Section id="core-values" padding="2xl" background="surface">
         <Container>
-          <div className='text-center mb-10'>
-            <div className="section-divider" />
-            <h2 className='heading-2 text-brand-primary mb-4'>Our Core Values</h2>
+          <div className='text-center mb-12'>
+            <span className='eyebrow text-brand-primary dark:text-brand-gold'>What Drives Us</span>
+            <h2 className='heading-2 text-brand-primary dark:text-brand-white mt-3 mb-4'>Our Core Values</h2>
             <p className='text-brand-muted max-w-2xl mx-auto'>These principles guide everything we do, from development to distribution.</p>
           </div>
-          <div className='grid sm:grid-cols-2 lg:grid-cols-5 gap-6'>
-            {values.map((value, index) => (
-              <motion.div key={value.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='card card-hover text-center p-6'>
-                <div className='w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-xl flex items-center justify-center'>
-                  <value.icon className='w-7 h-7 text-brand-primary' />
-                </div>
-                <h3 className='heading-3 text-brand-primary mb-2'>{value.title}</h3>
-                <p className='text-brand-muted'>{value.description}</p>
+          <motion.div initial="initial" whileInView="whileInView" viewport={fadeUpViewport} variants={staggerContainer} className='grid sm:grid-cols-2 lg:grid-cols-5 gap-6'>
+            {values.map((value) => (
+              <motion.div key={value.title} variants={staggerItem} {...cardHover} className='card text-center p-6'>
+                <IconTile
+                  icon={value.icon}
+                  title={value.title}
+                  titleClassName='heading-3'
+                  description={value.description}
+                />
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </Container>
       </Section>
 
@@ -141,17 +155,21 @@ export const About = () => {
         <Container>
           <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10'>
             <div>
-              <div className="section-divider" />
-              <h2 className='heading-2 text-brand-primary'>Leadership Team</h2>
-              <p className='text-brand-muted mt-2'>Visionaries behind Kingdom Network</p>
+              <span className='eyebrow text-brand-primary dark:text-brand-gold'>The People</span>
+              <h2 className='heading-2 text-brand-primary dark:text-brand-white mt-3'>Leadership Team</h2>
+              <p className='text-brand-muted dark:text-brand-white/60 mt-2'>Visionaries behind Kingdom Network</p>
             </div>
-            <Link to='/team' className='btn-secondary'>View Full Team</Link>
+            <motion.div {...buttonTap}>
+              <Link to='/team' className='btn-secondary'>View Full Team</Link>
+            </motion.div>
           </div>
-          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          <motion.div initial="initial" whileInView="whileInView" viewport={fadeUpViewport} variants={staggerContainer} className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {(team || []).slice(0, 3).map((member, index) => (
-              <TeamCard key={member.id} member={member} index={index} />
+              <motion.div key={member.id} variants={staggerItem}>
+                <TeamCard member={member} index={index} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </Container>
       </Section>
     </>

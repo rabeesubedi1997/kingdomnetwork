@@ -204,6 +204,32 @@
     @apply w-16 h-1 bg-gradient-to-r from-brand-primary to-brand-gold rounded-full mx-auto mb-6;
   }
 
+  /* Uppercase, letter-spaced eyebrow label used above hero/section titles
+     across the redesign — pill on dark, plain on light. */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-gold;
+  }
+
+  .eyebrow-pill {
+    @apply eyebrow bg-white/10 px-4 py-2 rounded-full tracking-[0.15em];
+  }
+
+  /* Cinematic dark hero: full-bleed image + bottom-weighted gradient so
+     overlaid text stays legible without a flat scrim. */
+  .hero-scrim {
+    @apply absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/50 to-transparent;
+  }
+
+  .hero-scrim-side {
+    @apply absolute inset-0 bg-gradient-to-r from-brand-dark/95 via-brand-dark/40 to-transparent;
+  }
+}
+
+@layer utilities {
+  .text-shadow-sm {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  }
+
   .content-section {
     @apply space-y-4;
   }

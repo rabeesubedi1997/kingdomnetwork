@@ -7,6 +7,7 @@ import { AlbumViewer } from '@/components/gallery/AlbumViewer'
 import { useGallery, useAlbum } from '@/hooks/useData'
 import { Loading, GridSkeleton } from '@/components/ui/Loading'
 import { SEOHead } from '@/components/seo/SEOHead'
+import { heroTitle, heroChild } from '@/lib/motion'
 
 export const Gallery = () => {
   const { data: albums, isLoading } = useGallery({ per_page: 20 })
@@ -17,14 +18,14 @@ export const Gallery = () => {
       <Section id="gallery-hero" background="dark" padding="2xl" className="relative overflow-hidden">
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='inline-flex items-center gap-2 bg-brand-white/10 px-4 py-2 rounded-full text-brand-gold text-sm font-medium mb-6'>
+            <motion.span initial="initial" animate="animate" variants={heroTitle} className='eyebrow-pill'>
               <Image className='w-4 h-4' />
               Behind the Scenes
-            </motion.div>
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className='heading-1 text-brand-white mb-4'>
+            </motion.span>
+            <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={heroChild(0.1)} className='heading-1 text-brand-white mt-6 mb-4'>
               Gallery & Archives
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className='text-brand-white/70 text-lg max-w-2xl mx-auto'>
+            <motion.p initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={heroChild(0.2)} className='text-brand-white/70 text-lg max-w-2xl mx-auto'>
               Explore behind-the-scenes moments, production stills, poster art, and exclusive content from our film productions.
             </motion.p>
           </div>
@@ -33,14 +34,13 @@ export const Gallery = () => {
 
       <Section id="albums" padding="2xl">
         <Container>
-          <div className="section-divider mb-5" />
           {isLoading ? (
             <GridSkeleton count={6} />
           ) : albums && albums.length > 0 ? (
             <GalleryGrid albums={albums} />
           ) : (
             <div className='py-12 text-center'>
-              <p className='text-brand-muted'>No albums available yet. Check back soon!</p>
+              <p className='text-brand-muted dark:text-brand-white/60'>No albums available yet. Check back soon!</p>
             </div>
           )}
         </Container>
@@ -62,7 +62,7 @@ export const AlbumDetail = () => {
       <Section padding="2xl">
         <Container>
           <div className='max-w-2xl mx-auto text-center'>
-            <h1 className='heading-2 text-brand-primary mb-4'>Album Not Found</h1>
+            <h1 className='heading-2 text-brand-primary dark:text-brand-white mb-4'>Album Not Found</h1>
             <Link to='/gallery' className='btn-primary'>Back to Gallery</Link>
           </div>
         </Container>

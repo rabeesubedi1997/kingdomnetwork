@@ -6,20 +6,36 @@ import { CareerCard } from '@/components/career/CareerCard'
 import { CareerFilters } from '@/components/career/CareerFilters'
 import { CareerApplicationForm } from '@/components/career/CareerApplicationForm'
 import { Loading, GridSkeleton } from '@/components/ui/Loading'
+import { IconTile } from '@/components/ui/IconTile'
 import { SEOHead } from '@/components/seo/SEOHead'
 import { Briefcase, Filter, ArrowLeft, MapPin as MapPinIcon, Clock as ClockIcon, DollarSign as DollarSignIcon, Film, Globe, Award, BookOpen, Handshake, Scale } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { Job } from '@/types'
+import { heroTitle, heroChild, staggerContainer, staggerItem, fadeUpViewport, cardHover, buttonTap } from '@/lib/motion'
 
 export const Careers: React.FC = () => {
   const [filters, setFilters] = useState({ department: 'All', type: 'All', search: '' })
   const [showFilters, setShowFilters] = useState(false)
+  const [page, setPage] = useState(1)
+  const [positions, setPositions] = useState<Job[]>([])
 
-  const queryParams: Record<string, unknown> = { per_page: 20 }
+  const queryParams: Record<string, unknown> = { per_page: 20, page }
   if (filters.department !== 'All') queryParams.department = filters.department.toLowerCase()
   if (filters.type !== 'All') queryParams.type = filters.type === 'Full-time' ? 'full_time' : filters.type.toLowerCase()
   if (filters.search) queryParams.search = filters.search
 
-  const { data: jobs, isLoading } = useCareers(queryParams)
+  const { data: jobs, isLoading, isFetching } = useCareers(queryParams)
+
+  // Reset to page 1 whenever the filters change.
+  useEffect(() => { setPage(1) }, [filters.department, filters.type, filters.search])
+
+  // Accumulate pages so "Load More" appends instead of replacing the grid.
+  useEffect(() => {
+    if (!jobs?.data) return
+    setPositions(prev => (page === 1 ? jobs.data : [...prev, ...jobs.data.filter(j => !prev.some(p => p.id === j.id))]))
+  }, [jobs, page])
+
+  const hasMore = jobs ? positions.length < jobs.total : false
 
   return (
     <>
@@ -28,14 +44,14 @@ export const Careers: React.FC = () => {
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='mx-auto max-w-3xl text-center'>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='mb-6 inline-flex items-center gap-2 rounded-full bg-brand-white/10 px-4 py-2 text-sm font-medium text-brand-gold'>
+            <motion.span initial='initial' animate='animate' variants={heroTitle} className='eyebrow-pill'>
               <Briefcase className='h-4 w-4' />
               Join Our Team
-            </motion.div>
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className='heading-1 mb-4 text-brand-white'>
+            </motion.span>
+            <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={heroChild(0.1)} className='heading-1 mt-6 mb-4 text-brand-white'>
               Build Legacies With Us
             </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className='mx-auto max-w-2xl text-lg text-brand-white/70'>
+            <motion.p initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={heroChild(0.2)} className='mx-auto max-w-2xl text-lg text-brand-white/70'>
               We're not just making films — we're building legacies. Join a team of passionate storytellers pushing the boundaries of Nepali cinema on the global stage.
             </motion.p>
           </div>
@@ -44,9 +60,11 @@ export const Careers: React.FC = () => {
 
       <Section id='benefits' padding='2xl' background='surface'>
         <Container>
-          <div className="section-divider mb-5" />
-          <h2 className='heading-2 mb-5 text-center text-brand-primary'>Why Work With Us</h2>
-          <div className='grid gap-5 md:grid-cols-3'>
+          <div className='text-center mb-10'>
+            <span className='eyebrow text-brand-primary dark:text-brand-gold'>Why Kingdom Network</span>
+            <h2 className='heading-2 mt-3 text-brand-primary dark:text-brand-white'>Why Work With Us</h2>
+          </div>
+          <motion.div initial='initial' whileInView='whileInView' viewport={fadeUpViewport} variants={staggerContainer} className='grid gap-5 md:grid-cols-3'>
             {[
               { icon: Film, title: 'Creative Freedom', desc: 'Shape stories that matter with artistic autonomy and collaborative support.' },
               { icon: Globe, title: 'Global Exposure', desc: 'Work on international co-productions reaching audiences worldwide.' },
@@ -54,29 +72,33 @@ export const Careers: React.FC = () => {
               { icon: BookOpen, title: 'Continuous Learning', desc: 'Access to workshops, festivals, and industry mentorship programs.' },
               { icon: Handshake, title: 'Collaborative Culture', desc: 'Join a close-knit team where every voice matters and ideas flourish.' },
               { icon: Scale, title: 'Work-Life Balance', desc: 'Flexible schedules and understanding of the creative process rhythms.' },
-            ].map((benefit, index) => (
-              <motion.div key={benefit.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className='card p-6 card-hover'>
-                <div className='mb-4'><benefit.icon size={32} className='text-brand-primary' /></div>
-                <h3 className='heading-3 mb-2 text-brand-primary'>{benefit.title}</h3>
-                <p className='text-brand-muted'>{benefit.desc}</p>
+            ].map((benefit) => (
+              <motion.div key={benefit.title} variants={staggerItem} {...cardHover} className='card p-6'>
+                <IconTile
+                  icon={benefit.icon}
+                  align='left'
+                  title={benefit.title}
+                  titleClassName='heading-3'
+                  description={benefit.desc}
+                />
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </Container>
       </Section>
 
       <Section id='open-positions' padding='2xl'>
         <Container>
-          <div className="section-divider mb-5" />
-          <div className='mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
+          <div className='mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
             <div>
-              <h2 className='heading-2 text-brand-primary'>Open Positions</h2>
-              <p className='mt-2 text-brand-muted'>Find your role in our next production.</p>
+              <span className='eyebrow text-brand-primary dark:text-brand-gold'>We're Hiring</span>
+              <h2 className='heading-2 text-brand-primary dark:text-brand-white mt-3'>Open Positions</h2>
+              <p className='mt-2 text-brand-muted dark:text-brand-white/60'>Find your role in our next production.</p>
             </div>
-            <button onClick={() => setShowFilters(!showFilters)} className='flex items-center gap-2 rounded-lg border border-brand-primary px-4 py-2 text-brand-primary hover:bg-brand-primary/10'>
+            <motion.button {...buttonTap} onClick={() => setShowFilters(!showFilters)} className='flex items-center gap-2 rounded-lg border border-brand-primary px-4 py-2 text-brand-primary dark:text-brand-white dark:border-brand-white/30 hover:bg-brand-primary/10'>
               <Filter className='h-4 w-4' />
               Filters
-            </button>
+            </motion.button>
           </div>
 
           {showFilters && (
@@ -85,25 +107,27 @@ export const Careers: React.FC = () => {
             </motion.div>
           )}
 
-          <div className='grid gap-5 md:grid-cols-2 lg:grid-cols-3'>
-            {isLoading ? (
+          <motion.div initial='initial' whileInView='whileInView' viewport={fadeUpViewport} variants={staggerContainer} className='grid gap-5 md:grid-cols-2 lg:grid-cols-3'>
+            {isLoading && page === 1 ? (
               <GridSkeleton count={6} />
-            ) : jobs?.data?.map((job, index) => (
-              <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }} className="card card-hover">
+            ) : positions.length > 0 ? positions.map((job, index) => (
+              <motion.div key={job.id} variants={staggerItem} {...cardHover}>
                 <CareerCard job={job} index={index} />
               </motion.div>
-            )) || (
+            )) : (
               <div className='col-span-full py-12 text-center'>
-                <p className='text-brand-muted'>No open positions at the moment. Check back soon!</p>
+                <p className='text-brand-muted dark:text-brand-white/60'>No open positions at the moment. Check back soon!</p>
               </div>
             )}
 
-            {jobs && jobs.data && jobs.data.length < jobs.total && (
+            {hasMore && (
               <div className='col-span-full pt-8 text-center'>
-                <button className='btn-secondary'>Load More Positions</button>
+                <motion.button {...buttonTap} className='btn-secondary' disabled={isFetching} onClick={() => setPage(p => p + 1)}>
+                  {isFetching ? 'Loading…' : 'Load More Positions'}
+                </motion.button>
               </div>
             )}
-          </div>
+          </motion.div>
         </Container>
       </Section>
 
@@ -135,9 +159,12 @@ export const CareerDetail: React.FC = () => {
     return (
       <Section padding='2xl'>
         <Container>
-          <div className='mx-auto max-w-2xl text-center'>
-            <h1 className='heading-2 mb-4 text-brand-primary'>Position Not Found</h1>
-            <Link to='/careers'><button className='btn-primary'>Back to Careers</button></Link>
+          <div className='max-w-lg mx-auto text-center'>
+            <div className='card p-10'>
+              <h1 className='heading-2 text-brand-primary dark:text-brand-white mb-4'>Position Not Found</h1>
+              <p className='text-brand-muted dark:text-brand-white/70 mb-6'>The position you&apos;re looking for doesn&apos;t exist or has been filled.</p>
+              <Link to='/careers'><button className='btn-primary'>Back to Careers</button></Link>
+            </div>
           </div>
         </Container>
       </Section>
@@ -147,54 +174,50 @@ export const CareerDetail: React.FC = () => {
   return (
     <>
       <SEOHead title={job.title} description={`Join our team as ${job.title}`} />
-      <Section id='job-hero' padding='2xl' background='surface'>
+      <Section padding='lg'>
         <Container>
-          <div className='mx-auto max-w-3xl'>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='mb-5'>
-              <Link to='/careers' className='mb-4 inline-flex items-center gap-1 text-sm font-medium text-brand-primary hover:text-brand-secondary'>
-                <ArrowLeft className='h-4 w-4' />
-                Back to Careers
-              </Link>
-              <span className='mb-3 inline-block rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-medium text-brand-primary'>{job.department}</span>
-              <h1 className='heading-1 mb-2 text-brand-primary'>{job.title}</h1>
-              <div className='flex flex-wrap items-center gap-4 text-sm text-brand-muted'>
-                <span className='flex items-center gap-1'><MapPinIcon className='h-4 w-4' /> {job.location}</span>
-                <span className='flex items-center gap-1'><ClockIcon className='h-4 w-4' /> {job.type.replace('_', ' ')}</span>
-                {job.is_remote && <span className='rounded-full bg-brand-primary/10 px-2 py-1 text-brand-primary'>Remote</span>}
-                {job.salary_range && <span className='flex items-center gap-1'><DollarSignIcon className='h-4 w-4' /> {job.salary_range}</span>}
-              </div>
-            </motion.div>
+          <Link to='/careers' className='inline-flex items-center gap-1.5 text-sm text-brand-muted dark:text-brand-white/60 hover:text-brand-primary dark:hover:text-brand-white transition-colors mb-4'>
+            <ArrowLeft className='h-4 w-4' />
+            Back to Careers
+          </Link>
+          <div className='card p-5'>
+            <div className='mb-3 flex flex-wrap items-center gap-2'>
+              <span className='rounded-full bg-brand-primary/10 dark:bg-white/10 px-2.5 py-0.5 text-xs font-medium text-brand-primary dark:text-brand-white'>{job.department}</span>
+              {job.is_remote && <span className='rounded-full bg-brand-primary/10 dark:bg-white/10 px-2.5 py-0.5 text-xs font-medium text-brand-primary dark:text-brand-white'>Remote</span>}
+            </div>
+            <h1 className='text-xl font-bold text-brand-primary dark:text-brand-white mb-2'>{job.title}</h1>
+            <div className='flex flex-wrap items-center gap-3 text-sm text-brand-muted dark:text-brand-white/60'>
+              <span className='flex items-center gap-1'><MapPinIcon className='h-4 w-4' /> {job.location}</span>
+              <span className='flex items-center gap-1'><ClockIcon className='h-4 w-4' /> {job.type.replace('_', ' ')}</span>
+              {job.salary_range && <span className='flex items-center gap-1'><DollarSignIcon className='h-4 w-4' /> {job.salary_range}</span>}
+            </div>
           </div>
         </Container>
       </Section>
 
-      <Section padding='2xl'>
+      <Section padding='lg'>
         <Container>
-          <div className="section-divider mb-5" />
           <div className='grid gap-5 lg:grid-cols-3'>
-            <div className='space-y-10 lg:col-span-2'>
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <h2 className='heading-2 mb-4 text-brand-primary'>About This Role</h2>
-                <div className='prose prose-brand dark:prose-invert max-w-none text-brand-text'>{job.description}</div>
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <h2 className='heading-2 mb-4 text-brand-primary'>Requirements</h2>
-                <div className='prose prose-brand dark:prose-invert max-w-none text-brand-text'>{job.requirements}</div>
-              </motion.div>
-
+            <div className='space-y-5 lg:col-span-2'>
+              <div className='card p-5'>
+                <h2 className='text-sm font-semibold text-brand-primary dark:text-brand-white uppercase tracking-wider mb-3'>About This Role</h2>
+                <div className='text-sm text-brand-text dark:text-brand-white/90 leading-relaxed prose prose-brand dark:prose-invert max-w-none'>{job.description}</div>
+              </div>
+              <div className='card p-5'>
+                <h2 className='text-sm font-semibold text-brand-primary dark:text-brand-white uppercase tracking-wider mb-3'>Requirements</h2>
+                <div className='text-sm text-brand-text dark:text-brand-white/90 leading-relaxed prose prose-brand dark:prose-invert max-w-none'>{job.requirements}</div>
+              </div>
               {job.benefits && (
-                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                  <h2 className='heading-2 mb-4 text-brand-primary'>Benefits</h2>
-                  <div className='prose prose-brand dark:prose-invert max-w-none text-brand-text'>{job.benefits}</div>
-                </motion.div>
+                <div className='card p-5'>
+                  <h2 className='text-sm font-semibold text-brand-primary dark:text-brand-white uppercase tracking-wider mb-3'>Benefits</h2>
+                  <div className='text-sm text-brand-text dark:text-brand-white/90 leading-relaxed prose prose-brand dark:prose-invert max-w-none'>{job.benefits}</div>
+                </div>
               )}
             </div>
-
             <div className='lg:col-span-1'>
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className='sticky top-24'>
+              <div className='md:sticky md:top-24'>
                 <CareerApplicationForm />
-              </motion.div>
+              </div>
             </div>
           </div>
         </Container>

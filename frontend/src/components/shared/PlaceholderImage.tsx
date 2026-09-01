@@ -1,13 +1,20 @@
 import { cn } from '@/lib/utils'
 import { Film, Image, User, Building2, Camera, Users } from 'lucide-react'
 
+/**
+ * Every missing/broken image in the app falls back to one of these.
+ * They previously used six unrelated hues (blue/emerald/violet/amber/
+ * slate/rose) that didn't exist anywhere else in the brand palette, so
+ * missing photos looked like they belonged to a different product.
+ * All variants now build from the same brand teal + gold family.
+ */
 const typeConfig = {
-  film: { icon: Film, bg: 'from-blue-900/40 to-blue-950/40', text: 'text-blue-300/60' },
-  banner: { icon: Image, bg: 'from-emerald-900/40 to-emerald-950/40', text: 'text-emerald-300/60' },
-  person: { icon: User, bg: 'from-violet-900/40 to-violet-950/40', text: 'text-violet-300/60' },
-  team: { icon: Users, bg: 'from-amber-900/40 to-amber-950/40', text: 'text-amber-300/60' },
-  partner: { icon: Building2, bg: 'from-slate-900/40 to-slate-950/40', text: 'text-slate-300/60' },
-  gallery: { icon: Camera, bg: 'from-rose-900/40 to-rose-950/40', text: 'text-rose-300/60' },
+  film: { icon: Film, bg: 'from-brand-primary/50 to-brand-dark/70', text: 'text-white/60' },
+  banner: { icon: Image, bg: 'from-brand-dark/80 to-brand-primary/50', text: 'text-white/60' },
+  person: { icon: User, bg: 'from-brand-secondary/50 to-brand-dark/70', text: 'text-white/60' },
+  team: { icon: Users, bg: 'from-brand-accent/40 to-brand-secondary/60', text: 'text-white/70' },
+  partner: { icon: Building2, bg: 'from-brand-muted/20 to-brand-surface', text: 'text-brand-muted' },
+  gallery: { icon: Camera, bg: 'from-brand-gold/25 to-brand-primary/60', text: 'text-white/70' },
 }
 
 export const PlaceholderImage: React.FC<{

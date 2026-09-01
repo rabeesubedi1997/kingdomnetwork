@@ -14,9 +14,11 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [theme, setTheme] = useState<Theme>('light')
 
   useEffect(() => {
+    // Kingdom Network defaults to the cinematic dark experience — visitors
+    // can still switch to light via the header toggle, and that choice is
+    // remembered, but the first visit should feel like a film studio site.
     const stored = localStorage.getItem('theme') as Theme | null
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const initial = stored || (prefersDark ? 'dark' : 'light')
+    const initial = stored || 'dark'
     setTheme(initial)
     document.documentElement.classList.toggle('dark', initial === 'dark')
   }, [])

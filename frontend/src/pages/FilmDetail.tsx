@@ -12,8 +12,10 @@ import { FilmCard } from '@/components/film/FilmCard'
 import { Loading } from '@/components/ui/Loading'
 import { FilmReactions } from '@/components/film/FilmReactions'
 import { SEOHead } from '@/components/seo/SEOHead'
-import { ArrowLeft, TrendingUp, Film as FilmIcon, DollarSign } from 'lucide-react'
+import { TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { statusStyles, filmStatusKind, filmStatusLabel } from '@/lib/status'
+import { fadeUp, fadeUpViewport, staggerContainer, staggerItem } from '@/lib/motion'
 
 export const FilmDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -42,8 +44,8 @@ export const FilmDetail: React.FC = () => {
         <Container>
           <div className="max-w-lg mx-auto text-center">
             <div className="card p-10">
-              <h1 className="heading-2 text-brand-primary mb-4">Film Not Found</h1>
-              <p className="text-brand-muted mb-6">The film you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+              <h1 className="heading-2 text-brand-primary dark:text-brand-white mb-4">Film Not Found</h1>
+              <p className="text-brand-muted dark:text-brand-white/70 mb-6">The film you&apos;re looking for doesn&apos;t exist or has been removed.</p>
               <Link to="/films">
                 <button className="btn-primary">Back to Films</button>
               </Link>
@@ -75,34 +77,33 @@ export const FilmDetail: React.FC = () => {
 
               {film.budget || film.box_office ? (
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="mt-8 card p-6"
+                  {...fadeUp}
+                  viewport={fadeUpViewport}
+                  className="mt-8 card p-6 md:p-8"
                 >
-                  <h3 className="heading-3 text-brand-primary mb-4 flex items-center gap-2">
+                  <h3 className="heading-3 text-brand-primary dark:text-brand-white mb-4 flex items-center gap-2">
                     <TrendingUp size={20} />
                     Box Office Performance
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {film.budget && (
-                      <div className="p-4 bg-brand-dark rounded-lg border border-brand-surface">
-                        <p className="text-xs font-medium text-brand-muted uppercase tracking-wide mb-1">Budget</p>
-                        <p className="text-xl font-bold text-brand-text">${Number(film.budget).toLocaleString()}</p>
+                      <div className="p-4 bg-brand-surface dark:bg-white/5 rounded-lg border border-brand-surface dark:border-white/10">
+                        <p className="text-xs font-medium text-brand-muted dark:text-brand-white/60 uppercase tracking-wide mb-1">Budget</p>
+                        <p className="text-xl font-bold text-brand-text dark:text-brand-white/90">${Number(film.budget).toLocaleString()}</p>
                       </div>
                     )}
                     {film.box_office && (
-                      <div className="p-4 bg-brand-dark rounded-lg border border-brand-surface">
-                        <p className="text-xs font-medium text-brand-muted uppercase tracking-wide mb-1">Box Office</p>
-                        <p className="text-xl font-bold text-green-500">${Number(film.box_office).toLocaleString()}</p>
+                      <div className="p-4 bg-brand-surface dark:bg-white/5 rounded-lg border border-brand-surface dark:border-white/10">
+                        <p className="text-xs font-medium text-brand-muted dark:text-brand-white/60 uppercase tracking-wide mb-1">Box Office</p>
+                        <p className={cn('text-xl font-bold', statusStyles.success.text)}>${Number(film.box_office).toLocaleString()}</p>
                       </div>
                     )}
                     {film.budget && film.box_office && (
-                      <div className="p-4 bg-brand-dark rounded-lg border border-brand-surface sm:col-span-2">
-                        <p className="text-xs font-medium text-brand-muted uppercase tracking-wide mb-1">ROI</p>
-                        <p className="text-xl font-bold text-brand-gold">
+                      <div className="p-4 bg-brand-surface dark:bg-white/5 rounded-lg border border-brand-surface dark:border-white/10 sm:col-span-2">
+                        <p className="text-xs font-medium text-brand-muted dark:text-brand-white/60 uppercase tracking-wide mb-1">ROI</p>
+                        <p className="text-xl font-bold text-amber-700 dark:text-brand-gold">
                           {((Number(film.box_office) - Number(film.budget)) / Number(film.budget) * 100).toFixed(0)}%
-                          <span className="text-sm font-normal text-brand-muted ml-2">return on investment</span>
+                          <span className="text-sm font-normal text-brand-muted dark:text-brand-white/60 ml-2">return on investment</span>
                         </p>
                       </div>
                     )}
@@ -112,34 +113,28 @@ export const FilmDetail: React.FC = () => {
             </div>
             <div className="space-y-5">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                {...fadeUp}
+                viewport={fadeUpViewport}
                 className="sticky top-24"
               >
                 <div className="card p-6 md:p-8">
-                  <h3 className="heading-3 text-brand-primary mb-4">Quick Facts</h3>
+                  <h3 className="heading-3 text-brand-primary dark:text-brand-white mb-4">Quick Facts</h3>
                   <dl className="space-y-4 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-brand-muted">Status</dt>
-                      <dd className="font-medium text-brand-text">
+                      <dt className="text-brand-muted dark:text-brand-white/60">Status</dt>
+                      <dd className="font-medium text-brand-text dark:text-brand-white/90">
                         <span className={cn(
                           'px-2 py-1 rounded-full text-xs font-medium',
-                          film.status_config?.color === 'green' && 'bg-green-100 text-green-800',
-                          film.status_config?.color === 'blue' && 'bg-blue-100 text-blue-800',
-                          film.status_config?.color === 'yellow' && 'bg-yellow-100 text-yellow-800',
-                          film.status_config?.color === 'purple' && 'bg-purple-100 text-purple-800',
-                          film.status_config?.color === 'gray' && 'bg-gray-100 text-gray-800',
-                          film.status_config?.color === 'red' && 'bg-red-100 text-red-800',
+                          statusStyles[filmStatusKind[film.status] || 'neutral'].soft,
                         )}>
-                          {film.status_config?.label || film.status}
+                          {film.status_config?.label || filmStatusLabel[film.status] || film.status}
                         </span>
                       </dd>
                     </div>
                     {film.release_date && (
                       <div className="flex justify-between">
-                        <dt className="text-brand-muted">Release Date</dt>
-                        <dd className="font-medium text-brand-text">
+                        <dt className="text-brand-muted dark:text-brand-white/60">Release Date</dt>
+                        <dd className="font-medium text-brand-text dark:text-brand-white/90">
                           {new Date(film.release_date).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
@@ -150,35 +145,35 @@ export const FilmDetail: React.FC = () => {
                     )}
                     {film.runtime_minutes && (
                       <div className="flex justify-between">
-                        <dt className="text-brand-muted">Runtime</dt>
-                        <dd className="font-medium text-brand-text">
+                        <dt className="text-brand-muted dark:text-brand-white/60">Runtime</dt>
+                        <dd className="font-medium text-brand-text dark:text-brand-white/90">
                           {film.runtime_minutes} minutes
                         </dd>
                       </div>
                     )}
                     {film.rating && (
                       <div className="flex justify-between">
-                        <dt className="text-brand-muted">Rating</dt>
-                        <dd className="font-medium text-brand-text">{film.rating}</dd>
+                        <dt className="text-brand-muted dark:text-brand-white/60">Rating</dt>
+                        <dd className="font-medium text-brand-text dark:text-brand-white/90">{film.rating}</dd>
                       </div>
                     )}
                     {film.language && (
                       <div className="flex justify-between">
-                        <dt className="text-brand-muted">Language</dt>
-                        <dd className="font-medium text-brand-text">{film.language}</dd>
+                        <dt className="text-brand-muted dark:text-brand-white/60">Language</dt>
+                        <dd className="font-medium text-brand-text dark:text-brand-white/90">{film.language}</dd>
                       </div>
                     )}
                     {film.country && (
                       <div className="flex justify-between">
-                        <dt className="text-brand-muted">Country</dt>
-                        <dd className="font-medium text-brand-text">{film.country}</dd>
+                        <dt className="text-brand-muted dark:text-brand-white/60">Country</dt>
+                        <dd className="font-medium text-brand-text dark:text-brand-white/90">{film.country}</dd>
                       </div>
                     )}
                     {film.genres?.length > 0 && (
                       <div className="flex flex-wrap gap-2">
-                        <dt className="text-brand-muted w-full">Genres</dt>
+                        <dt className="text-brand-muted dark:text-brand-white/60 w-full">Genres</dt>
                         {film.genres.map(genre => (
-                          <dd key={genre.id} className="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-xs font-medium">
+                          <dd key={genre.id} className="px-3 py-1 bg-brand-primary/10 dark:bg-white/10 text-brand-primary dark:text-brand-white rounded-full text-xs font-medium">
                             {genre.name}
                           </dd>
                         ))}
@@ -186,14 +181,14 @@ export const FilmDetail: React.FC = () => {
                     )}
                     {film.budget && (
                       <div className="flex justify-between">
-                        <dt className="text-brand-muted">Budget</dt>
-                        <dd className="font-medium text-brand-text">${Number(film.budget).toLocaleString()}</dd>
+                        <dt className="text-brand-muted dark:text-brand-white/60">Budget</dt>
+                        <dd className="font-medium text-brand-text dark:text-brand-white/90">${Number(film.budget).toLocaleString()}</dd>
                       </div>
                     )}
                     {film.box_office && (
                       <div className="flex justify-between">
-                        <dt className="text-brand-muted">Box Office</dt>
-                        <dd className="font-medium text-green-500">${Number(film.box_office).toLocaleString()}</dd>
+                        <dt className="text-brand-muted dark:text-brand-white/60">Box Office</dt>
+                        <dd className={cn('font-medium', statusStyles.success.text)}>${Number(film.box_office).toLocaleString()}</dd>
                       </div>
                     )}
                   </dl>
@@ -201,9 +196,8 @@ export const FilmDetail: React.FC = () => {
 
                 {film.trailer_embed_url && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    {...fadeUp}
+                    viewport={fadeUpViewport}
                     className="mt-6"
                   >
                     <div className="aspect-video bg-brand-dark rounded-xl overflow-hidden">
@@ -227,17 +221,27 @@ export const FilmDetail: React.FC = () => {
 
       <Section id="related" padding="2xl" background="surface">
         <Container>
-          <div>
-            <div className="section-divider" />
-            <h2 className="heading-2 text-brand-primary">More Films</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {relatedFilms.length > 0 ? relatedFilms.map((relatedFilm, index) => (
-              <FilmCard key={relatedFilm.id} film={relatedFilm} index={index} />
-            )) : (
-              <p className="col-span-full text-brand-muted text-center py-8">More films coming soon.</p>
-            )}
-          </div>
+          <motion.div {...fadeUp} viewport={fadeUpViewport} className="mb-10">
+            <span className="eyebrow text-brand-secondary dark:text-brand-gold">Keep Exploring</span>
+            <h2 className="heading-2 text-brand-primary dark:text-brand-white mt-3">More Films</h2>
+          </motion.div>
+          {relatedFilms.length > 0 ? (
+            <motion.div
+              initial="initial"
+              whileInView="whileInView"
+              viewport={fadeUpViewport}
+              variants={staggerContainer}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+            >
+              {relatedFilms.map((relatedFilm, index) => (
+                <motion.div key={relatedFilm.id} variants={staggerItem}>
+                  <FilmCard film={relatedFilm} index={index} />
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <p className="text-brand-muted dark:text-brand-white/60 text-center py-8">More films coming soon.</p>
+          )}
         </Container>
       </Section>
     </>

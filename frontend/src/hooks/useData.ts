@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '@/lib/api'
-import type { Film, Post, Job, Event, Album, PressKit, TeamMember, SiteSettings, MenuItem } from '@/types'
+import type { Film, Post, Job, Event, Album, PressKit, TeamMember, SiteSettings, MenuItem, Person, PersonDetail, AwardsSummary } from '@/types'
 
 export function useFilms(params?: {
   status?: string
@@ -25,7 +25,7 @@ export function useFeaturedFilms() {
   return useQuery({
     queryKey: ['films', 'featured'],
     queryFn: async () => {
-      const response = await api.get<Film[]>('/films/featured')
+      const response = await api.get<{ data: Film[]; total: number }>('/films/featured')
       return response.data
     },
   })
@@ -46,7 +46,7 @@ export function useFilmByStatus(status: string) {
   return useQuery({
     queryKey: ['films', 'status', status],
     queryFn: async () => {
-      const response = await api.get<Film[]>(`/films/status/${status}`)
+      const response = await api.get<{ data: Film[]; total: number }>(`/films/status/${status}`)
       return response.data
     },
     enabled: !!status,
@@ -225,6 +225,37 @@ export function useTeamMember(id: number) {
   })
 }
 
+export function usePeople(params?: { role?: string; search?: string }) {
+  return useQuery({
+    queryKey: ['people', params],
+    queryFn: async () => {
+      const response = await api.get<{ data: Person[] }>('/people', { params })
+      return response.data
+    },
+  })
+}
+
+export function usePerson(slug: string) {
+  return useQuery({
+    queryKey: ['person', slug],
+    queryFn: async () => {
+      const response = await api.get<PersonDetail>(`/people/${slug}`)
+      return response.data
+    },
+    enabled: !!slug,
+  })
+}
+
+export function useAwardsSummary() {
+  return useQuery({
+    queryKey: ['awards'],
+    queryFn: async () => {
+      const response = await api.get<AwardsSummary>('/awards')
+      return response.data
+    },
+  })
+}
+
 export function useSiteSettings() {
   return useQuery({
     queryKey: ['site'],
@@ -233,6 +264,34 @@ export function useSiteSettings() {
       return response.data
     },
   })
+}
+
+const DEFAULT_CONTACT = {
+  address: 'Kathmandu, Nepal',
+  phone: '+977-1-1234567',
+  email: 'info@kingdomnetwork.com.np',
+}
+
+/**
+ * Single source of truth for contact info shown across the site (Footer,
+ * Contact page, legal pages). Admin-edited Site Settings (`contact_*`,
+ * stored in the DB) always win over the static `kingdom.brand.contact`
+ * config, which itself only backstops the hardcoded fallback. Previously
+ * each page duplicated this logic independently, and the Contact page in
+ * particular checked the static config *before* the DB settings, so
+ * updates made in the CMS never actually appeared there.
+ */
+export function useContactInfo() {
+  const { data: site, isLoading } = useSiteSettings()
+  const dbSettings = site?.settings || {}
+  const brandContact = site?.brand?.contact || {}
+
+  return {
+    address: dbSettings.contact_address || brandContact.address || DEFAULT_CONTACT.address,
+    phone: dbSettings.contact_phone || brandContact.phone || DEFAULT_CONTACT.phone,
+    email: dbSettings.contact_email || brandContact.email || DEFAULT_CONTACT.email,
+    isLoading,
+  }
 }
 
 export function useMenu(location: string) {

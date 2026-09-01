@@ -5,6 +5,8 @@ export const contactSchema = z.object({
   email: z.string().email('Invalid email address').max(200),
   subject: z.string().min(3, 'Subject must be at least 3 characters').max(200),
   message: z.string().min(10, 'Message must be at least 10 characters').max(5000),
+  website: z.string().max(255).optional().default(''),
+  _honeypot: z.string().max(10).optional().default(''),
 })
 
 export const newsletterSchema = z.object({

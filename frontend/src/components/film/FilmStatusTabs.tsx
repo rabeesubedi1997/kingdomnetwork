@@ -2,6 +2,8 @@ import { Film } from '@/types'
 import { motion } from 'framer-motion'
 import { StatusBadge } from './StatusBadge'
 import { FilmCard } from './FilmCard'
+import { GridSkeleton } from '@/components/ui/Loading'
+import { fadeUpViewport } from '@/lib/motion'
 
 interface StatusData {
   status: string
@@ -39,32 +41,21 @@ export const FilmStatusTabs: React.FC<FilmStatusTabsProps> = ({ filmsByStatus, l
             key={status}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
+            viewport={fadeUpViewport}
             className='space-y-8'
           >
-            <div className='flex items-center gap-4'>
+            <div className='flex flex-wrap items-center gap-4'>
               <StatusBadge status={status as Film['status']} large />
-              <h2 className='heading-2 text-brand-primary'>
+              <h2 className='heading-2 text-brand-primary dark:text-brand-white'>
                 {statusLabels[status] || status}
-                <span className='ml-3 text-sm font-normal text-brand-muted'>
+                <span className='ml-3 text-base font-normal text-brand-muted dark:text-brand-white/50'>
                   ({films.length})
                 </span>
               </h2>
             </div>
 
             {isLoading ? (
-              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className='card animate-pulse'>
-                    <div className='aspect-video bg-brand-primary/10' />
-                    <div className='p-4 space-y-3'>
-                      <div className='h-6 w-3/4 bg-brand-primary/10 rounded' />
-                      <div className='h-4 w-full bg-brand-primary/10 rounded' />
-                      <div className='h-4 w-2/3 bg-brand-primary/10 rounded' />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <GridSkeleton count={4} />
             ) : (
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
                 {films.map((film, index) => (

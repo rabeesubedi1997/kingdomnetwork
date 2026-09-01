@@ -1,9 +1,7 @@
 import { useState } from 'react'
-import { Job } from '@/types'
 import { Select } from '@/components/ui/Select'
-import { cn } from '@/lib/utils'
 import { Filter, X } from 'lucide-react'
-import { Input } from '@/components/ui/Input'
+import { FilterBar } from '@/components/shared/FilterBar'
 
 interface CareerFiltersProps {
   onClose: () => void
@@ -47,12 +45,14 @@ export const CareerFilters: React.FC<CareerFiltersProps> = ({ onClose, onFilterC
         )}
       </div>
 
-      <Input
-        label='Search'
-        placeholder='Search by title, keyword...'
-        value={searchQuery}
-        onChange={e => setSearchQuery(e.target.value)}
-        className='mb-2'
+      <FilterBar
+        search={{
+          label: 'Search',
+          placeholder: 'Search by title, keyword...',
+          value: searchQuery,
+          onChange: setSearchQuery,
+          className: 'mb-2',
+        }}
       />
 
       <Select

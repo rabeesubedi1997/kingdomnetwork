@@ -6,6 +6,7 @@ import { getBanners } from '@/lib/public-api'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { SafeImage } from '@/components/shared/SafeImage'
+import { EASE, heroChild } from '@/lib/motion'
 
 interface Banner {
   id: number
@@ -18,6 +19,8 @@ interface Banner {
   sort_order: number
   is_active: boolean
 }
+
+const SLIDE_DURATION_MS = 5000
 
 export const BannerSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -34,7 +37,7 @@ export const BannerSlider: React.FC = () => {
     if (banners.length <= 1 || !isPlaying) return
     const interval = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % banners.length)
-    }, 5000)
+    }, SLIDE_DURATION_MS)
     return () => clearInterval(interval)
   }, [banners.length, isPlaying])
 
@@ -57,35 +60,52 @@ export const BannerSlider: React.FC = () => {
   const current = banners[currentIndex]
 
   return (
-    <section className='relative h-[70vh] md:h-[80vh] overflow-hidden'>
+    <section className='relative h-[70vh] md:h-[80vh] overflow-hidden bg-brand-dark'>
       <AnimatePresence mode='wait'>
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, scale: 1.02 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.9, ease: EASE }}
           className='absolute inset-0'
         >
-          <SafeImage
-            src={current.image_url}
-            alt={current.title || ''}
-            placeholderType='banner'
-            className='w-full h-full object-cover'
-            wrapperClassName='absolute inset-0'
-          />
+          {/* Slow Ken-Burns zoom on the active slide's image */}
+          <motion.div
+            className='absolute inset-0'
+            initial={{ scale: 1 }}
+            animate={{ scale: 1.06 }}
+            transition={{ duration: SLIDE_DURATION_MS / 1000, ease: 'linear' }}
+          >
+            <SafeImage
+              src={current.image_url}
+              alt={current.title || ''}
+              placeholderType='banner'
+              className='w-full h-full object-cover'
+              wrapperClassName='absolute inset-0'
+            />
+          </motion.div>
 
-          <div className='absolute inset-0 bg-gradient-to-t from-[#0a141e]/90 via-[#0a141e]/30 to-transparent' />
+          <div className='hero-scrim' />
 
           <div className='relative h-full flex items-end'>
             <div className='container pb-12 md:pb-20'>
               <div className='max-w-4xl'>
+                <motion.span
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={heroChild(0)}
+                  className='eyebrow-pill mb-5'
+                >
+                  Featured
+                </motion.span>
+
                 {current.title && (
                   <motion.h1
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.1 }}
-                    className='text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-4'
+                    transition={heroChild(0.12)}
+                    className='text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-4 leading-[1.05] tracking-tight text-shadow-sm'
                   >
                     {current.title}
                   </motion.h1>
@@ -95,8 +115,8 @@ export const BannerSlider: React.FC = () => {
                   <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className='text-xl md:text-2xl text-[#ffcd57] font-medium mb-6 max-w-2xl'
+                    transition={heroChild(0.22)}
+                    className='text-xl md:text-2xl text-brand-gold font-medium mb-6 max-w-2xl'
                   >
                     {current.subtitle}
                   </motion.p>
@@ -106,7 +126,7 @@ export const BannerSlider: React.FC = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.3 }}
+                    transition={heroChild(0.32)}
                   >
                     {current.link_url.startsWith('/') ? (
                       <Link
@@ -149,16 +169,16 @@ export const BannerSlider: React.FC = () => {
           >
             <ChevronRight className='w-6 h-6' />
           </button>
-          <div className='absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2'>
+          <div className='absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2'>
             {banners.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={cn(
-                  'w-2 h-2 rounded-full transition-all',
+                  'h-1 rounded-full transition-all duration-500',
                   index === currentIndex
-                    ? 'bg-[#ffcd57] w-8'
-                    : 'bg-white/30 hover:bg-white/50'
+                    ? 'bg-brand-gold w-10'
+                    : 'bg-white/30 hover:bg-white/50 w-3'
                 )}
                 aria-label={'Go to slide ' + (index + 1)}
               />

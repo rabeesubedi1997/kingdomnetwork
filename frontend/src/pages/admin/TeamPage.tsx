@@ -17,14 +17,14 @@ export const TeamPage: React.FC = () => {
   const qc = useQueryClient(); const [page, setPage] = useState(1); const [search, setSearch] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null); const [deleteId, setDeleteId] = useState<number | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [form, setForm] = useState({ name: '', role: '', bio: '', photo_id: null as number | null, photo_url: '', email: '', phone: '', birth_date: '', birth_place: '', imdb_url: '', instagram_url: '', twitter_url: '', linkedin_url: '', website_url: '', sort_order: '0', is_active: true })
+  const [form, setForm] = useState({ name: '', role: '', bio: '', photo_id: null as number | null, photo_url: '', email: '', phone: '', birth_date: '', birth_place: '', imdb_url: '', instagram_url: '', twitter_url: '', linkedin_url: '', website_url: '', social_links: {} as Record<string, string>, sort_order: '0', is_active: true })
 
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'team', page, search], queryFn: () => getTeamMembers({ page, per_page: 15, search: search || undefined }) })
   const createMut = useMutation({ mutationFn: createTeamMember, onSuccess: () => { toast.success('Created'); qc.invalidateQueries({ queryKey: ['admin', 'team'] }); setEditingId(-1); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
   const updateMut = useMutation({ mutationFn: ({ id, data }: any) => updateTeamMember(id, data), onSuccess: () => { toast.success('Updated'); qc.invalidateQueries({ queryKey: ['admin', 'team'] }); setEditingId(null); resetForm() }, onError: (e: any) => toast.error(e?.response?.data?.message || 'Failed') })
   const deleteMut = useMutation({ mutationFn: deleteTeamMember, onSuccess: () => { toast.success('Deleted'); qc.invalidateQueries({ queryKey: ['admin', 'team'] }); setDeleteId(null) } })
 
-  const resetForm = () => setForm({ name: '', role: '', bio: '', photo_id: null, photo_url: '', email: '', phone: '', birth_date: '', birth_place: '', imdb_url: '', instagram_url: '', twitter_url: '', linkedin_url: '', website_url: '', sort_order: '0', is_active: true })
+  const resetForm = () => setForm({ name: '', role: '', bio: '', photo_id: null, photo_url: '', email: '', phone: '', birth_date: '', birth_place: '', imdb_url: '', instagram_url: '', twitter_url: '', linkedin_url: '', website_url: '', social_links: {}, sort_order: '0', is_active: true })
 
   const openEdit = async (id: number) => {
     setEditingId(id)
@@ -38,6 +38,7 @@ export const TeamPage: React.FC = () => {
         imdb_url: t.imdb_url || '', instagram_url: t.instagram_url || '',
         twitter_url: t.twitter_url || '', linkedin_url: t.linkedin_url || '',
         website_url: t.website_url || '',
+        social_links: t.social_links || {},
         sort_order: String(t.sort_order || '0'), is_active: t.is_active !== false,
       })
     }
@@ -45,8 +46,9 @@ export const TeamPage: React.FC = () => {
   }
 
   const handleSubmit = () => {
-    const { photo_url, ...rest } = form
-    const payload = { ...rest, sort_order: parseInt(form.sort_order) || 0 }
+    const { photo_url, social_links, ...rest } = form
+    const sanitizedSocial = Object.fromEntries(Object.entries(social_links).filter(([, v]) => v))
+    const payload = { ...rest, social_links: Object.keys(sanitizedSocial).length ? sanitizedSocial : null, sort_order: parseInt(form.sort_order) || 0 }
     if (editingId && editingId > 0) updateMut.mutate({ id: editingId, data: payload })
     else createMut.mutate(payload as any)
   }
@@ -80,6 +82,8 @@ export const TeamPage: React.FC = () => {
               <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>LinkedIn URL</label><Input value={form.linkedin_url} onChange={e => setForm(p => ({ ...p, linkedin_url: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://linkedin.com/in/..." /></div>
               <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Twitter URL</label><Input value={form.twitter_url} onChange={e => setForm(p => ({ ...p, twitter_url: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://twitter.com/..." /></div>
               <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Instagram URL</label><Input value={form.instagram_url} onChange={e => setForm(p => ({ ...p, instagram_url: e.target.value }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://instagram.com/..." /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Facebook URL</label><Input value={form.social_links?.facebook || ''} onChange={e => setForm(p => ({ ...p, social_links: { ...p.social_links, facebook: e.target.value } }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://facebook.com/..." /></div>
+              <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>YouTube URL</label><Input value={form.social_links?.youtube || ''} onChange={e => setForm(p => ({ ...p, social_links: { ...p.social_links, youtube: e.target.value } }))} style={{ background: '#1c2a38', borderColor: '#1e3040', color: '#f1f5f9' }} placeholder="https://youtube.com/@..." /></div>
             </div>
             <div><label className="block text-sm font-medium mb-1.5" style={{ color: '#cbd5e1' }}>Photo</label>
               <div className="flex items-start gap-3">

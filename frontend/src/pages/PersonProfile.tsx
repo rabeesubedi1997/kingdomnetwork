@@ -1,47 +1,17 @@
-import { motion } from 'framer-motion'
 import { useParams, Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { usePerson } from '@/hooks/useData'
 import { Section, Container } from '@/components/layout/Section'
 import { SEOHead } from '@/components/seo/SEOHead'
 import { Loading } from '@/components/ui/Loading'
-import api from '@/lib/api'
-import { ArrowLeft, ExternalLink, Film, Calendar, MapPin, Award, Instagram, Twitter, Globe } from 'lucide-react'
+import { ExternalLink, Instagram, Twitter, Globe, Facebook, Youtube, Calendar, MapPin } from 'lucide-react'
 import { SafeImage } from '@/components/shared/SafeImage'
-
-interface PersonFilm {
-  film_id: number
-  title: string
-  slug: string
-  role: string
-  character_name?: string
-  department?: string
-  poster_url?: string
-}
-
-interface PersonData {
-  id: number
-  name: string
-  slug: string
-  role: string
-  bio?: string
-  photo_url?: string
-  birth_date?: string
-  birth_place?: string
-  imdb_url?: string
-  social_links?: Record<string, string>
-  films: PersonFilm[]
-}
+import { ProfileLayout, ProfileSocialLink } from '@/components/shared/ProfileLayout'
+import { motion } from 'framer-motion'
+import { staggerContainer, staggerItem, fadeUpViewport } from '@/lib/motion'
 
 export const PersonProfile = () => {
   const { slug } = useParams<{ slug: string }>()
-  const { data: person, isLoading, error } = useQuery<PersonData>({
-    queryKey: ['person', slug],
-    queryFn: async () => {
-      const res = await api.get(`/people/${slug}`)
-      return res.data
-    },
-    enabled: !!slug,
-  })
+  const { data: person, isLoading, error } = usePerson(slug!)
 
   if (isLoading) {
     return (
@@ -69,89 +39,78 @@ export const PersonProfile = () => {
 
   const social = person.social_links || {}
 
+  const socialLinks: ProfileSocialLink[] = [
+    social.instagram && { key: 'instagram', href: social.instagram, label: 'Instagram', icon: Instagram },
+    social.twitter && { key: 'twitter', href: social.twitter, label: 'Twitter', icon: Twitter },
+    social.facebook && { key: 'facebook', href: social.facebook, label: 'Facebook', icon: Facebook },
+    social.youtube && { key: 'youtube', href: social.youtube, label: 'Youtube', icon: Youtube },
+    social.website && { key: 'website', href: social.website, label: 'Website', icon: Globe },
+    person.imdb_url && { key: 'imdb', href: person.imdb_url, label: 'IMDb', icon: ExternalLink },
+  ].filter(Boolean) as ProfileSocialLink[]
+
   return (
     <>
       <SEOHead title={person.name} description={person.bio || `${person.name} - ${person.role} at Kingdom Network`} ogImage={person.photo_url} />
-      <Section id="person-profile" padding="2xl" className="relative overflow-hidden">
-        <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/10 to-transparent' />
-        <Container>
-          <Link to="/films" className="btn-ghost mb-5">
-            <ArrowLeft size={16} />
-            Back to Films
-          </Link>
-          <div className="grid lg:grid-cols-3 gap-5">
-            <div className="lg:col-span-1">
-              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="sticky top-24 space-y-5">
-                <SafeImage
-                  src={person.photo_url}
-                  alt={person.name}
-                  placeholderType='person'
-                  placeholderText={person.name}
-                  wrapperClassName='aspect-[3/4] rounded-2xl overflow-hidden bg-brand-surface/50 border border-brand-surface'
-                  className='w-full h-full object-cover'
-                />
-                <div>
-                  <h1 className="heading-2 text-brand-primary">{person.name}</h1>
-                  <p className="text-brand-gold font-medium text-lg">{person.role}</p>
+      <ProfileLayout
+        backTo="/films"
+        backLabel="Back to Films"
+        photoSrc={person.photo_url}
+        photoAlt={person.name}
+        placeholderType="person"
+        photoAspectClassName="aspect-[3/4]"
+        name={person.name}
+        role={person.role}
+        socialLinks={socialLinks}
+        bioLabel="Biography"
+        bio={person.bio}
+        sidebarExtra={
+          (person.birth_date || person.birth_place) && (
+            <div className="space-y-2">
+              {person.birth_date && (
+                <div className="flex items-center gap-2 text-sm text-brand-muted dark:text-brand-white/60">
+                  <Calendar size={14} className="shrink-0" />
+                  {new Date(person.birth_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  {social.instagram && <a href={social.instagram} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-brand-surface/50 rounded-lg hover:bg-brand-primary/10 hover:text-brand-primary transition-colors border border-brand-surface"><Instagram size={18} /></a>}
-                  {social.twitter && <a href={social.twitter} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-brand-surface/50 rounded-lg hover:bg-brand-primary/10 hover:text-brand-primary transition-colors border border-brand-surface"><Twitter size={18} /></a>}
-                  {social.website && <a href={social.website} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-brand-surface/50 rounded-lg hover:bg-brand-primary/10 hover:text-brand-primary transition-colors border border-brand-surface"><Globe size={18} /></a>}
-                  {person.imdb_url && (
-                    <a href={person.imdb_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-brand-muted hover:text-brand-primary transition-colors">
-                      <ExternalLink size={14} /> IMDb
-                    </a>
-                  )}
+              )}
+              {person.birth_place && (
+                <div className="flex items-center gap-2 text-sm text-brand-muted dark:text-brand-white/60">
+                  <MapPin size={14} className="shrink-0" />
+                  {person.birth_place}
                 </div>
-                {person.birth_date && (
-                  <div className="flex items-center gap-2 text-sm text-brand-muted">
-                    <Calendar size={14} />
-                    {new Date(person.birth_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    {person.birth_place && <> • <MapPin size={14} />{person.birth_place}</>}
-                  </div>
-                )}
-              </motion.div>
+              )}
             </div>
-            <div className="lg:col-span-2">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-5">
-                {person.bio && (
-                  <div className="card p-6">
-                    <div className="section-divider mb-4" />
-                    <h2 className="heading-3 text-brand-primary mb-4">Biography</h2>
-                    <p className="text-brand-text leading-relaxed whitespace-pre-line">{person.bio}</p>
-                  </div>
-                )}
-                <div className="card p-6">
-                  <h2 className="heading-3 text-brand-primary mb-6">Filmography</h2>
-                  {person.films.length === 0 ? (
-                    <p className="text-brand-muted">No films listed yet.</p>
-                  ) : (
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      {person.films.map((f) => (
-                        <Link key={`${f.film_id}-${f.role}`} to={`/films/${f.slug}`} className="flex items-center gap-4 p-4 bg-brand-dark rounded-lg border border-brand-surface hover:border-brand-primary/50 transition-colors group">
-                          <SafeImage
-                            src={f.poster_url}
-                            alt={f.title}
-                            placeholderType='film'
-                            wrapperClassName='w-16 h-20 rounded-lg overflow-hidden flex-shrink-0'
-                            className='w-full h-full object-cover'
-                          />
-                          <div className="min-w-0">
-                            <p className="text-brand-text font-medium truncate group-hover:text-brand-primary transition-colors">{f.title}</p>
-                            <p className="text-brand-muted text-sm">{f.role}{f.character_name ? ` as ${f.character_name}` : ''}</p>
-                            {f.department && <p className="text-brand-muted text-xs capitalize">{f.department}</p>}
-                          </div>
-                        </Link>
-                      ))}
+          )
+        }
+      >
+        <div className="card p-5">
+          <span className="eyebrow text-brand-primary dark:text-brand-gold">Credits</span>
+          <h2 className="text-sm font-semibold text-brand-primary dark:text-brand-white uppercase tracking-wider mt-2 mb-3">Filmography ({person.films.length})</h2>
+          {person.films.length === 0 ? (
+            <p className="text-sm text-brand-muted dark:text-brand-white/60">No films listed yet.</p>
+          ) : (
+            <motion.div initial="initial" whileInView="whileInView" viewport={fadeUpViewport} variants={staggerContainer} className="grid sm:grid-cols-2 gap-3">
+              {person.films.map((f) => (
+                <motion.div key={`${f.film_id}-${f.role}`} variants={staggerItem}>
+                  <Link to={`/films/${f.slug}`} className="flex items-center gap-3 p-3 rounded-lg border border-brand-surface/60 dark:border-white/10 hover:border-brand-primary/40 bg-brand-surface/50 dark:bg-brand-dark/50 transition-all group">
+                    <SafeImage
+                      src={f.poster_url}
+                      alt={f.title}
+                      placeholderType='film'
+                      wrapperClassName='w-12 h-16 rounded-lg overflow-hidden shrink-0'
+                      className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-brand-text dark:text-brand-white/90 truncate group-hover:text-brand-primary dark:group-hover:text-brand-gold transition-colors">{f.title}</p>
+                      <p className="text-xs text-brand-muted dark:text-brand-white/60">{f.role}{f.character_name ? ` as ${f.character_name}` : ''}</p>
+                      {f.department && <p className="text-xs text-brand-muted dark:text-brand-white/60 capitalize">{f.department}</p>}
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </Container>
-      </Section>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </div>
+      </ProfileLayout>
     </>
   )
 }

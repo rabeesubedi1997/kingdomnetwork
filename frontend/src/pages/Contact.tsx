@@ -1,31 +1,26 @@
-import { motion } from 'framer-motion';
-import { useContactForm } from '@/hooks/useForms';
-import { useToast } from '@/hooks/useToast';
-import { Section, Container } from '@/components/layout/Section';
-import { Input } from '@/components/ui/Input';
-import { Textarea } from '@/components/ui/Textarea';
-import { Button } from '@/components/ui/Button';
-import { SEOHead } from '@/components/seo/SEOHead';
-import { useQuery } from '@tanstack/react-query';
-import api from '@/lib/api';
-import { Mail, MapPin, Phone, Send, CheckCircle } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { contactSchema, type ContactFormData } from '@/lib/validations';
-import { cn } from '@/lib/utils';
+import { useRef, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import { useContactForm } from '@/hooks/useForms'
+import { useContactInfo } from '@/hooks/useData'
+import { useToast } from '@/hooks/useToast'
+import { Section, Container } from '@/components/layout/Section'
+import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
+import { Button } from '@/components/ui/Button'
+import { IconTile } from '@/components/ui/IconTile'
+import { SEOHead } from '@/components/seo/SEOHead'
+import { Mail, MapPin, Phone, Send, Facebook, Instagram, Twitter, Youtube, Linkedin } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { contactSchema, type ContactFormData } from '@/lib/validations'
+import { heroTitle, heroChild, staggerContainer, staggerItem, fadeUpViewport, cardHover } from '@/lib/motion'
+
+const SUBMIT_COOLDOWN = 30000
 
 export const Contact: React.FC = () => {
-  const { toast } = useToast();
-  const { data: settings } = useQuery({
-    queryKey: ['site'],
-    queryFn: async () => (await api.get('/site')).data,
-  });
-
-  const contact = settings?.brand?.contact || {
-    address: 'Kathmandu, Nepal',
-    phone: '+977-1-1234567',
-    email: 'info@kingdomnetwork.com.np',
-  };
+  const { toast } = useToast()
+  const lastSubmitRef = useRef(0)
+  const contact = useContactInfo()
 
   const {
     register,
@@ -34,21 +29,27 @@ export const Contact: React.FC = () => {
     formState: { errors, isSubmitting },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
-  });
+  })
 
-  const contactMutation = useContactForm();
+  const contactMutation = useContactForm()
 
-  const onSubmit = (data: ContactFormData) => {
+  const onSubmit = useCallback((data: ContactFormData) => {
+    const now = Date.now()
+    if (now - lastSubmitRef.current < SUBMIT_COOLDOWN) {
+      toast({ type: 'error', message: 'Please wait before sending another message.' })
+      return
+    }
+    lastSubmitRef.current = now
     contactMutation.mutate(data, {
       onSuccess: () => {
-        toast({ type: 'success', message: 'Message sent successfully!' });
-        reset();
+        toast({ type: 'success', message: 'Message sent successfully!' })
+        reset()
       },
-      onError: (error: Error) => {
-        toast({ type: 'error', message: error.message || 'Failed to send message' });
+      onError: (error: any) => {
+        toast({ type: 'error', message: error?.message || 'Failed to send message' })
       },
-    });
-  };
+    })
+  }, [contactMutation, reset, toast])
 
   return (
     <>
@@ -57,26 +58,22 @@ export const Contact: React.FC = () => {
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/20 to-transparent' />
         <Container>
           <div className='max-w-3xl mx-auto text-center'>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className='inline-flex items-center gap-2 bg-brand-white/10 px-4 py-2 rounded-full text-brand-gold text-sm font-medium mb-6'
-            >
+            <motion.span initial='initial' animate='animate' variants={heroTitle} className='eyebrow-pill'>
               <Mail className='w-4 h-4' />
               Get in Touch
-            </motion.div>
+            </motion.span>
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className='heading-1 text-brand-white mb-4'
+              transition={heroChild(0.1)}
+              className='heading-1 text-brand-white mt-6 mb-4'
             >
               Let's Create Together
             </motion.h1>
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={heroChild(0.2)}
               className='text-brand-white/70 text-lg max-w-2xl mx-auto'
             >
               Have a project in mind? Want to collaborate? Or just want to say hello?
@@ -88,40 +85,56 @@ export const Contact: React.FC = () => {
 
       <Section id='contact-info' padding='xl' background='surface'>
         <Container>
-          <div className='grid md:grid-cols-3 gap-5 mb-6'>
+          <motion.div
+            initial='initial'
+            whileInView='whileInView'
+            viewport={fadeUpViewport}
+            variants={staggerContainer}
+            className='grid md:grid-cols-3 gap-5 mb-10'
+          >
             {[
               { icon: MapPin, label: 'Visit Us', value: contact.address, href: '#' },
               { icon: Phone, label: 'Call Us', value: contact.phone, href: 'tel:' + contact.phone },
               { icon: Mail, label: 'Email Us', value: contact.email, href: 'mailto:' + contact.email },
-            ].map((item, index) => (
+            ].map((item) => (
               <motion.div
                 key={item.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className='card group text-center p-5'
+                variants={staggerItem}
+                {...cardHover}
+                className='card group text-center p-6'
               >
-                <div className='w-14 h-14 mx-auto mb-4 bg-brand-primary/10 rounded-xl flex items-center justify-center group-hover:bg-brand-primary group-hover:scale-110 transition-all duration-300'>
-                  <item.icon className='w-7 h-7 text-brand-primary group-hover:text-white transition-colors' />
-                </div>
-                <h3 className='font-semibold text-brand-primary mb-2'>{item.label}</h3>
-                <a href={item.href} className='text-brand-text hover:text-brand-primary transition-colors'>
-                  {item.value}
-                </a>
+                <IconTile icon={item.icon} size='lg' hover title={item.label} titleClassName='font-semibold mb-2'>
+                  <a href={item.href} className='text-brand-text dark:text-brand-white/90 hover:text-brand-primary dark:hover:text-brand-white transition-colors'>
+                    {item.value}
+                  </a>
+                </IconTile>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <div className='max-w-2xl mx-auto'>
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className='card p-6 md:p-8'
+              viewport={fadeUpViewport}
+              transition={{ duration: 0.6 }}
+              className='card p-6 md:p-10'
             >
-              <h2 className='heading-2 text-brand-primary text-center mb-5'>Send Us a Message</h2>
+              <span className='eyebrow text-brand-primary dark:text-brand-gold flex justify-center mb-3'>Drop Us a Line</span>
+              <h2 className='heading-2 text-brand-primary dark:text-brand-white text-center mb-5'>Send Us a Message</h2>
               <form onSubmit={handleSubmit(onSubmit)} className='space-y-5' noValidate>
+                <div style={{ position: 'absolute', left: '-9999px' }} aria-hidden='true'>
+                  <label htmlFor='website'>Website</label>
+                  <input
+                    id='website'
+                    type='text'
+                    tabIndex={-1}
+                    autoComplete='off'
+                    {...register('website')}
+                  />
+                </div>
+                <input type='hidden' {...register('_honeypot')} value='' />
+
                 <div className='grid md:grid-cols-2 gap-5'>
                   <Input
                     label='Full Name'
@@ -150,8 +163,8 @@ export const Contact: React.FC = () => {
                   error={errors.message?.message}
                   {...register('message')}
                 />
-                <Button type='submit' className='btn-primary w-full' loading={isSubmitting}>
-                  {isSubmitting ? (
+                <Button type='submit' className='btn-primary w-full' loading={isSubmitting || contactMutation.isPending}>
+                  {isSubmitting || contactMutation.isPending ? (
                     <>
                       <svg className='animate-spin -ml-1 mr-2 h-5 w-5' fill='none' viewBox='0 0 24 24'>
                         <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' />
@@ -174,37 +187,31 @@ export const Contact: React.FC = () => {
 
       <Section id='social' padding='xl' background='dark'>
         <Container>
-          <div className='section-divider w-16 h-1 bg-gradient-to-r from-brand-primary to-brand-gold rounded-full mx-auto mb-6' />
-          <h2 className='heading-2 text-brand-white text-center mb-5'>Follow Our Journey</h2>
-          <div className='flex justify-center gap-5'>
+          <span className='eyebrow flex justify-center mb-3'>Stay Connected</span>
+          <h2 className='heading-2 text-brand-white text-center mb-8'>Follow Our Journey</h2>
+          <motion.div initial='initial' whileInView='whileInView' viewport={fadeUpViewport} variants={staggerContainer} className='flex justify-center gap-5'>
             {[
-              { icon: 'Facebook', href: 'https://facebook.com/Kingdomntwork' },
-              { icon: 'Instagram', href: 'https://instagram.com/kingdomnetwork' },
-              { icon: 'Twitter', href: 'https://twitter.com/kingdomnetwork' },
-              { icon: 'Youtube', href: 'https://youtube.com/@kingdomnetwork' },
-              { icon: 'Linkedin', href: 'https://linkedin.com/company/kingdomnetwork' },
+              { icon: Facebook, label: 'Facebook', href: 'https://facebook.com/Kingdomntwork' },
+              { icon: Instagram, label: 'Instagram', href: 'https://instagram.com/kingdomnetwork' },
+              { icon: Twitter, label: 'Twitter', href: 'https://twitter.com/kingdomnetwork' },
+              { icon: Youtube, label: 'Youtube', href: 'https://youtube.com/@kingdomnetwork' },
+              { icon: Linkedin, label: 'Linkedin', href: 'https://linkedin.com/company/kingdomnetwork' },
             ].map(item => (
               <motion.a
-                key={item.icon}
+                key={item.label}
                 href={item.href}
                 target='_blank'
                 rel='noopener noreferrer'
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                variants={staggerItem}
+                whileHover={{ y: -4, scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className='w-12 h-12 rounded-xl bg-brand-white/10 flex items-center justify-center text-brand-white hover:bg-brand-primary hover:text-white transition-colors'
-                aria-label={'Follow us on ' + item.icon}
+                aria-label={'Follow us on ' + item.label}
               >
-                <svg className='w-6 h-6' fill='currentColor' viewBox='0 0 24 24'>
-                  {item.icon === 'Facebook' && <path d='M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z' />}
-                  {item.icon === 'Instagram' && <> <rect x='2' y='2' width='20' height='20' rx='5' ry='5' /> <path d='M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z' /> <circle cx='17.5' cy='6.5' r='1' /> </>}
-                  {item.icon === 'Twitter' && <path d='M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z' />}
-                  {item.icon === 'Youtube' && <> <path d='M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.33 29 29 0 00-.46-5.33z' /> <polygon points='9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02' /> </>}
-                  {item.icon === 'Linkedin' && <> <path d='M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z' /> <rect x='2' y='9' width='4' height='12' /> <circle cx='4' cy='4' r='2' /> </>}
-                </svg>
+                <item.icon className='w-5 h-5' />
               </motion.a>
             ))}
-          </div>
+          </motion.div>
         </Container>
       </Section>
     </>

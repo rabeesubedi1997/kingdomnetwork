@@ -1,11 +1,14 @@
-import { motion } from 'framer-motion'
 import { useParams, Link } from 'react-router-dom'
 import { useTeamMember } from '@/hooks/useData'
 import { Section, Container } from '@/components/layout/Section'
 import { SEOHead } from '@/components/seo/SEOHead'
 import { Loading } from '@/components/ui/Loading'
-import { ArrowLeft, ExternalLink, Mail, Phone, MapPin, Cake, Linkedin, Twitter, Instagram, Globe } from 'lucide-react'
-import { SafeImage } from '@/components/shared/SafeImage'
+import { ExternalLink, Mail, Phone, MapPin, Cake, Linkedin, Twitter, Instagram, Globe, Facebook, Youtube } from 'lucide-react'
+import { ProfileLayout, ProfileSocialLink } from '@/components/shared/ProfileLayout'
+import { motion } from 'framer-motion'
+import { staggerContainer, staggerItem, fadeUpViewport } from '@/lib/motion'
+
+const SOCIAL_ICON_NO_BG_HOVER = 'p-2 rounded-lg bg-brand-surface/50 dark:bg-brand-dark/50 border border-brand-surface/60 dark:border-white/10 hover:text-brand-primary transition-all'
 
 export const TeamProfile = () => {
   const { id } = useParams<{ id: string }>()
@@ -35,108 +38,77 @@ export const TeamProfile = () => {
     )
   }
 
+  const social = member.social_links || {}
+
+  const socialLinks: ProfileSocialLink[] = [
+    (member.linkedin_url || social.linkedin) && { key: 'linkedin', href: member.linkedin_url || social.linkedin!, label: 'LinkedIn', icon: Linkedin },
+    (member.twitter_url || social.twitter) && { key: 'twitter', href: member.twitter_url || social.twitter!, label: 'Twitter', icon: Twitter },
+    (member.instagram_url || social.instagram) && { key: 'instagram', href: member.instagram_url || social.instagram!, label: 'Instagram', icon: Instagram },
+    social.facebook && { key: 'facebook', href: social.facebook, label: 'Facebook', icon: Facebook },
+    social.youtube && { key: 'youtube', href: social.youtube, label: 'Youtube', icon: Youtube },
+    (member.website_url || social.website) && { key: 'website', href: member.website_url || social.website!, label: 'Website', icon: Globe },
+    member.imdb_url && { key: 'imdb', href: member.imdb_url, label: 'IMDb', icon: ExternalLink, className: SOCIAL_ICON_NO_BG_HOVER },
+  ].filter(Boolean) as ProfileSocialLink[]
+
   return (
     <>
       <SEOHead title={member.name} description={member.bio || `Meet ${member.name}, ${member.role} at Kingdom Network`} ogImage={member.photo_url} />
-      <Section id="team-profile" padding="2xl" className="relative overflow-hidden">
-        <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-from)_0%,_transparent_70%)] from-brand-primary/10 to-transparent' />
-        <Container>
-          <Link to="/team" className="btn-ghost mb-5">
-            <ArrowLeft size={16} />
-            Back to Team
-          </Link>
-          <div className="grid lg:grid-cols-3 gap-5">
-            <div className="lg:col-span-1">
-              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="sticky top-24 space-y-5">
-                <SafeImage
-                  src={member.photo_url}
-                  alt={member.name}
-                  placeholderType='team'
-                  placeholderText={member.name}
-                  wrapperClassName='aspect-square rounded-2xl overflow-hidden bg-brand-surface/50 border border-brand-surface'
-                  className='w-full h-full object-cover'
-                />
-                <div className="space-y-4">
-                  <div>
-                    <h1 className="heading-2 text-brand-primary">{member.name}</h1>
-                    <p className="text-brand-gold font-medium text-lg">{member.role}</p>
-                  </div>
-                  <div className="flex flex-wrap gap-3">
-                    {member.linkedin_url && (
-                      <a href={member.linkedin_url} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-brand-surface/50 rounded-lg hover:bg-brand-primary/10 hover:text-brand-primary transition-colors border border-brand-surface" aria-label="LinkedIn">
-                        <Linkedin size={18} />
-                      </a>
-                    )}
-                    {member.twitter_url && (
-                      <a href={member.twitter_url} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-brand-surface/50 rounded-lg hover:bg-brand-primary/10 hover:text-brand-primary transition-colors border border-brand-surface" aria-label="Twitter">
-                        <Twitter size={18} />
-                      </a>
-                    )}
-                    {member.instagram_url && (
-                      <a href={member.instagram_url} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-brand-surface/50 rounded-lg hover:bg-brand-primary/10 hover:text-brand-primary transition-colors border border-brand-surface" aria-label="Instagram">
-                        <Instagram size={18} />
-                      </a>
-                    )}
-                    {member.website_url && (
-                      <a href={member.website_url} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-brand-surface/50 rounded-lg hover:bg-brand-primary/10 hover:text-brand-primary transition-colors border border-brand-surface" aria-label="Website">
-                        <Globe size={18} />
-                      </a>
-                    )}
-                  </div>
-                  {member.imdb_url && (
-                    <a href={member.imdb_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-brand-muted hover:text-brand-primary transition-colors">
-                      <ExternalLink size={14} />
-                      View IMDb Profile
-                    </a>
-                  )}
+      <ProfileLayout
+        backTo="/team"
+        backLabel="Back to Team"
+        photoSrc={member.photo_url}
+        photoAlt={member.name}
+        placeholderType="team"
+        photoAspectClassName="aspect-square"
+        name={member.name}
+        role={member.role}
+        socialLinks={socialLinks}
+        bioLabel="About"
+        bio={member.bio}
+      >
+        <div className="card p-5">
+          <span className="eyebrow text-brand-primary dark:text-brand-gold">Get in Touch</span>
+          <h2 className="text-sm font-semibold text-brand-primary dark:text-brand-white uppercase tracking-wider mt-2 mb-3">Contact</h2>
+          <motion.div initial="initial" whileInView="whileInView" viewport={fadeUpViewport} variants={staggerContainer} className="grid sm:grid-cols-2 gap-3">
+            {member.email && (
+              <motion.a variants={staggerItem} href={`mailto:${member.email}`} className="flex items-center gap-3 p-3 rounded-lg bg-brand-surface/50 dark:bg-brand-dark/50 border border-brand-surface/60 dark:border-white/10 hover:border-brand-primary/40 hover:-translate-y-0.5 transition-all group">
+                <Mail size={16} className="text-brand-muted dark:text-brand-white/60 group-hover:text-brand-primary dark:group-hover:text-brand-gold shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[11px] text-brand-muted dark:text-brand-white/60 uppercase tracking-wider">Email</p>
+                  <p className="text-sm text-brand-text dark:text-brand-white/90 truncate">{member.email}</p>
+                </div>
+              </motion.a>
+            )}
+            {member.phone && (
+              <motion.a variants={staggerItem} href={`tel:${member.phone}`} className="flex items-center gap-3 p-3 rounded-lg bg-brand-surface/50 dark:bg-brand-dark/50 border border-brand-surface/60 dark:border-white/10 hover:border-brand-primary/40 hover:-translate-y-0.5 transition-all group">
+                <Phone size={16} className="text-brand-muted dark:text-brand-white/60 group-hover:text-brand-primary dark:group-hover:text-brand-gold shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[11px] text-brand-muted dark:text-brand-white/60 uppercase tracking-wider">Phone</p>
+                  <p className="text-sm text-brand-text dark:text-brand-white/90">{member.phone}</p>
+                </div>
+              </motion.a>
+            )}
+            {member.birth_date && (
+              <motion.div variants={staggerItem} className="flex items-center gap-3 p-3 rounded-lg bg-brand-surface/50 dark:bg-brand-dark/50 border border-brand-surface/60 dark:border-white/10">
+                <Cake size={16} className="text-brand-muted dark:text-brand-white/60 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[11px] text-brand-muted dark:text-brand-white/60 uppercase tracking-wider">Born</p>
+                  <p className="text-sm text-brand-text dark:text-brand-white/90">{new Date(member.birth_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
               </motion.div>
-            </div>
-            <div className="lg:col-span-2">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-5">
-                {member.bio && (
-                  <div className="card p-6">
-                    <div className="section-divider mb-4" />
-                    <h2 className="heading-3 text-brand-primary mb-4">About</h2>
-                    <div className="prose prose-invert max-w-none">
-                      <p className="text-brand-text leading-relaxed whitespace-pre-line">{member.bio}</p>
-                    </div>
-                  </div>
-                )}
-                <div className="card p-6">
-                  <h2 className="heading-3 text-brand-primary mb-6">Contact Information</h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {member.email && (
-                      <a href={`mailto:${member.email}`} className="flex items-center gap-3 p-4 bg-brand-dark rounded-lg border border-brand-surface hover:border-brand-primary/50 transition-colors group">
-                        <Mail size={18} className="text-brand-muted group-hover:text-brand-primary transition-colors" />
-                        <span className="text-sm text-brand-text group-hover:text-brand-primary transition-colors">{member.email}</span>
-                      </a>
-                    )}
-                    {member.phone && (
-                      <a href={`tel:${member.phone}`} className="flex items-center gap-3 p-4 bg-brand-dark rounded-lg border border-brand-surface hover:border-brand-primary/50 transition-colors group">
-                        <Phone size={18} className="text-brand-muted group-hover:text-brand-primary transition-colors" />
-                        <span className="text-sm text-brand-text group-hover:text-brand-primary transition-colors">{member.phone}</span>
-                      </a>
-                    )}
-                    {member.birth_date && (
-                      <div className="flex items-center gap-3 p-4 bg-brand-dark rounded-lg border border-brand-surface">
-                        <Cake size={18} className="text-brand-muted" />
-                        <span className="text-sm text-brand-text">{new Date(member.birth_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                      </div>
-                    )}
-                    {member.birth_place && (
-                      <div className="flex items-center gap-3 p-4 bg-brand-dark rounded-lg border border-brand-surface">
-                        <MapPin size={18} className="text-brand-muted" />
-                        <span className="text-sm text-brand-text">{member.birth_place}</span>
-                      </div>
-                    )}
-                  </div>
+            )}
+            {member.birth_place && (
+              <motion.div variants={staggerItem} className="flex items-center gap-3 p-3 rounded-lg bg-brand-surface/50 dark:bg-brand-dark/50 border border-brand-surface/60 dark:border-white/10">
+                <MapPin size={16} className="text-brand-muted dark:text-brand-white/60 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[11px] text-brand-muted dark:text-brand-white/60 uppercase tracking-wider">Place</p>
+                  <p className="text-sm text-brand-text dark:text-brand-white/90">{member.birth_place}</p>
                 </div>
               </motion.div>
-            </div>
-          </div>
-        </Container>
-      </Section>
+            )}
+          </motion.div>
+        </div>
+      </ProfileLayout>
     </>
   )
 }

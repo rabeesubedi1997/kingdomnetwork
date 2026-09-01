@@ -15,9 +15,11 @@ export function useContactForm() {
     onSuccess: () => {
       toast({ type: 'success', message: 'Message sent successfully!' })
     },
-    onError: (error: Error) => {
-      toast({ type: 'error', message: error.message || 'Failed to send message' })
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to send message'
+      toast({ type: 'error', message })
     },
+    retry: false,
   })
 }
 
@@ -33,9 +35,11 @@ export function useNewsletterSubscribe() {
     onSuccess: () => {
       toast({ type: 'success', message: 'Subscribed successfully! Check your email to confirm.' })
     },
-    onError: (error: Error) => {
-      toast({ type: 'error', message: error.message || 'Failed to subscribe' })
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to subscribe'
+      toast({ type: 'error', message })
     },
+    retry: false,
   })
 }
 
@@ -50,9 +54,11 @@ export function useNewsletterUnsubscribe() {
     onSuccess: () => {
       toast({ type: 'success', message: 'Unsubscribed successfully' })
     },
-    onError: (error: Error) => {
-      toast({ type: 'error', message: error.message || 'Failed to unsubscribe' })
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to unsubscribe'
+      toast({ type: 'error', message })
     },
+    retry: false,
   })
 }
 
@@ -68,9 +74,11 @@ export function useScreeningRequest() {
     onSuccess: () => {
       toast({ type: 'success', message: 'Screening request submitted!' })
     },
-    onError: (error: Error) => {
-      toast({ type: 'error', message: error.message || 'Failed to submit request' })
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to submit request'
+      toast({ type: 'error', message })
     },
+    retry: false,
   })
 }
 
@@ -87,8 +95,10 @@ export function useApplyJob() {
     onSuccess: () => {
       toast({ type: 'success', message: 'Application submitted successfully!' })
     },
-    onError: (error: Error) => {
-      toast({ type: 'error', message: error.message || 'Failed to submit application' })
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to submit application'
+      toast({ type: 'error', message })
     },
+    retry: false,
   })
 }

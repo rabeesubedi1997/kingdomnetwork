@@ -295,6 +295,45 @@ export interface AlbumImage {
   media: Media
 }
 
+export interface PersonFilmCredit {
+  film_id: number
+  title: string
+  slug: string
+  role: string
+  character_name?: string
+  department?: string
+  poster_url?: string
+}
+
+export interface PersonDetail extends Person {
+  films: PersonFilmCredit[]
+}
+
+export interface FilmAwardEntry {
+  id: number
+  award_name: string
+  category: string
+  year: number
+  result: string
+  notes?: string
+}
+
+export interface FilmAwardGroup {
+  film_id: number
+  film_title: string
+  film_slug: string
+  total_wins: number
+  total_nominations: number
+  awards: FilmAwardEntry[]
+}
+
+export interface AwardsSummary {
+  total_films: number
+  total_wins: number
+  total_nominations: number
+  data: FilmAwardGroup[]
+}
+
 export interface TeamMember {
   id: number
   name: string
@@ -315,6 +354,15 @@ export interface TeamMember {
   is_active: boolean
 }
 
+export interface SiteStats {
+  films: number
+  films_released: number
+  awards_won: number
+  awards_nominated: number
+  talent: number
+  recognitions: number
+}
+
 export interface SiteSettings {
   brand: {
     name: string
@@ -325,6 +373,14 @@ export interface SiteSettings {
     contact: Record<string, string>
   }
   modules: Record<string, boolean>
+  stats?: SiteStats
+  /** Public, admin-editable settings (contact_address, contact_phone, ...) — takes priority over `brand.contact`. */
+  settings?: Record<string, any>
+  all_settings?: Record<string, any>
+  logo_url?: string | null
+  favicon_url?: string | null
+  logo_dark_url?: string | null
+  footer_logo_url?: string | null
 }
 
 export interface MenuItem {

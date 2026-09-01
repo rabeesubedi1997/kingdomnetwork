@@ -132,11 +132,25 @@ export const Header: React.FC = () => {
           : 'bg-transparent'
       )}
     >
-      <nav className='container mx-auto px-4 sm:px-6 lg:px-8' aria-label='Main navigation'>
+      {/* Legibility scrim over hero imagery when the header is still transparent */}
+      {!scrolled && (
+        <div
+          className='absolute inset-0 bg-gradient-to-b from-black/50 to-transparent pointer-events-none'
+          aria-hidden='true'
+        />
+      )}
+      <nav className='container relative z-10 mx-auto px-4 sm:px-6 lg:px-8' aria-label='Main navigation'>
         <div className='flex items-center justify-between h-16 md:h-20'>
           <Link to='/' className='flex items-center gap-2.5 group' aria-label={`${siteName} Home`}>
             {siteLogo ? (
-              <img src={siteLogo} alt={siteName} className='h-9 w-auto' />
+              // The uploaded logo assets are flat JPGs with a plain white
+              // canvas baked in (no transparent/reversed variant exists),
+              // so it's wrapped in an explicit white chip rather than
+              // floating a stray white rectangle over a dark/transparent
+              // header.
+              <span className='bg-white rounded-lg px-2.5 py-1.5 shadow-sm shadow-black/10'>
+                <img src={siteLogo} alt={siteName} className='h-7 w-auto block' />
+              </span>
             ) : (
               <>
                 <div className='w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/20 group-hover:shadow-brand-primary/40 transition-shadow duration-300'>
@@ -185,8 +199,8 @@ export const Header: React.FC = () => {
                               cn(
                                 'block px-4 py-2.5 text-sm transition-colors mx-1.5 rounded-lg',
                                 isActive
-                                  ? 'text-brand-primary bg-brand-primary/5 font-medium'
-                                  : 'text-brand-text/70 hover:text-brand-primary hover:bg-brand-primary/5'
+                                  ? 'text-brand-primary dark:text-brand-white bg-brand-primary/5 dark:bg-white/10 font-medium'
+                                  : 'text-brand-text/70 dark:text-brand-white/80 hover:text-brand-primary dark:hover:text-brand-white hover:bg-brand-primary/5 dark:hover:bg-white/10'
                               )
                             }
                             onClick={() => setOpenDropdown(null)}
@@ -253,12 +267,12 @@ export const Header: React.FC = () => {
           {/* Mobile Menu Toggle */}
           <div className='flex items-center gap-2 md:hidden'>
             <button onClick={toggleTheme}
-              className='p-2.5 text-brand-text/60 hover:text-brand-primary rounded-xl transition-colors'
+              className='p-2.5 text-brand-text/60 dark:text-brand-white/70 hover:text-brand-primary dark:hover:text-brand-white rounded-xl transition-colors'
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className='p-2.5 rounded-xl text-brand-text hover:bg-brand-primary/5 transition-colors'
+              className='p-2.5 rounded-xl text-brand-text dark:text-brand-white/80 hover:bg-brand-primary/5 dark:hover:bg-white/10 transition-colors'
               aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileMenuOpen}>
               {mobileMenuOpen ? <X className='w-5 h-5' /> : <Menu className='w-5 h-5' />}
@@ -286,9 +300,9 @@ export const Header: React.FC = () => {
               className='fixed inset-y-0 right-0 w-72 max-w-[85vw] bg-white dark:bg-brand-dark z-[60] shadow-2xl md:hidden flex flex-col'
             >
               <div className='flex items-center justify-between px-5 h-16 shrink-0 border-b border-brand-surface/50'>
-                <span className='font-display font-bold text-brand-primary'>Menu</span>
+                <span className='font-display font-bold text-brand-primary dark:text-brand-white'>Menu</span>
                 <button onClick={() => setMobileMenuOpen(false)}
-                  className='p-2 rounded-xl hover:bg-brand-primary/5 transition-colors'>
+                  className='p-2 rounded-xl text-brand-text/60 dark:text-brand-white/70 hover:bg-brand-primary/5 dark:hover:bg-white/10 transition-colors'>
                   <X className='w-5 h-5' />
                 </button>
               </div>
@@ -298,14 +312,14 @@ export const Header: React.FC = () => {
                     <div key={item.name}>
                       {item.children?.length > 0 ? (
                         <>
-                          <span className='block px-3 py-2 text-xs font-semibold uppercase tracking-widest text-brand-muted'>
+                          <span className='block px-3 py-2 text-xs font-semibold uppercase tracking-widest text-brand-muted dark:text-brand-white/60'>
                             {item.name}
                           </span>
                           {item.children.map((child: any) => (
                             <NavLink key={child.label || child.name} to={child.url}
                               className={({ isActive }) =>
                                 cn('block px-5 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                                  isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-brand-text/70 hover:bg-brand-primary/5 hover:text-brand-primary'
+                                  isActive ? 'bg-brand-primary/10 dark:bg-white/10 text-brand-primary dark:text-brand-white' : 'text-brand-text/70 dark:text-brand-white/80 hover:bg-brand-primary/5 hover:text-brand-primary'
                                 )}
                               onClick={() => setMobileMenuOpen(false)}>
                               {child.label || child.name}
@@ -316,7 +330,7 @@ export const Header: React.FC = () => {
                         <NavLink to={item.href} end={item.href === '/'}
                           className={({ isActive }) =>
                             cn('block px-4 py-3 rounded-xl text-base font-medium transition-colors',
-                              isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-brand-text/70 hover:bg-brand-primary/5 hover:text-brand-primary'
+                              isActive ? 'bg-brand-primary/10 dark:bg-white/10 text-brand-primary dark:text-brand-white' : 'text-brand-text/70 dark:text-brand-white/80 hover:bg-brand-primary/5 hover:text-brand-primary'
                             )}
                           onClick={() => setMobileMenuOpen(false)}>
                           {item.name}

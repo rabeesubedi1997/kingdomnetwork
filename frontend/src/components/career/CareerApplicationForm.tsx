@@ -99,7 +99,8 @@ export const CareerApplicationForm: React.FC = () => {
             >
               <div className='bg-white dark:bg-brand-dark rounded-xl p-8 border border-brand-surface/50'>
                 <h2 className='heading-2 text-brand-primary mb-6'>Application Form</h2>
-                <p className='text-brand-muted mb-8'>Fill out the form below to apply for this position. Fields marked with * are required.</p>                <form onSubmit={handleSubmit(onSubmit)} className='space-y-6' encType='multipart/form-data'>
+                <p className='text-brand-muted mb-8'>Fill out the form below to apply for this position. Fields marked with * are required.</p>
+                <form onSubmit={handleSubmit(onSubmit)} className='space-y-6' encType='multipart/form-data'>
                   <div className='grid sm:grid-cols-2 gap-6'>
                     <Input
                       label='Full Name *'

@@ -21,7 +21,10 @@ export const AdvertisementDisplay: React.FC<AdvertisementDisplayProps> = ({ posi
   return (
     <div className={cn('space-y-3', className)}>
       {ads.map((ad: any) => (
-        <div key={ad.id} className="rounded-lg overflow-hidden">
+        <div key={ad.id} className="rounded-lg overflow-hidden border border-brand-surface/50 dark:border-white/10">
+          <span className="block px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-brand-muted bg-brand-surface/60 dark:bg-white/5">
+            Advertisement
+          </span>
           {ad.type === 'code' ? (
             <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(ad.code) }} />
           ) : ad.image_url ? (
